@@ -1,103 +1,313 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FileText, Eye, EyeOff } from "lucide-react";
+
+export default function AuthPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // ログインフォーム
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  // サインアップフォーム
+  const [signupForm, setSignupForm] = useState({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // ダミー認証 - 簡単なバリデーション
+      if (loginForm.email.length === 0 || loginForm.password.length === 0) {
+        throw new Error("メールアドレスとパスワードを入力してください");
+      }
+
+      // ダミーのユーザーID生成（メールアドレスベース）
+      const userId =
+        "user_" +
+        btoa(loginForm.email)
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .slice(0, 10);
+
+      // ローカルストレージにユーザーIDを保存
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("userEmail", loginForm.email);
+
+      // ログイン成功後、ユーザーページに移動
+      setTimeout(() => {
+        router.push("/user");
+        setIsLoading(false);
+      }, 800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "ログインに失敗しました。");
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    if (signupForm.password !== signupForm.confirmPassword) {
+      setError("パスワードが一致しません。");
+      setIsLoading(false);
+      return;
+    }
+
+    if (signupForm.password.length < 6) {
+      setError("パスワードは6文字以上で入力してください。");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // ダミー認証 - バリデーション
+      if (!signupForm.email || !signupForm.username || !signupForm.password) {
+        throw new Error("すべての項目を入力してください");
+      }
+
+      // ダミーのユーザーID生成（メールアドレスベース）
+      const userId =
+        "user_" +
+        btoa(signupForm.email)
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .slice(0, 10);
+
+      // ローカルストレージにユーザー情報を保存
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("userEmail", signupForm.email);
+      localStorage.setItem("userName", signupForm.username);
+
+      // サインアップ成功後、ユーザーページに移動
+      setTimeout(() => {
+        router.push("/user");
+        setIsLoading(false);
+      }, 800);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "アカウント作成に失敗しました。"
+      );
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-primary flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <FileText className="w-8 h-8 text-main" />
+            <span className="text-2xl font-bold text-custom">
+              フラッシュカード
+            </span>
+          </div>
+          <CardTitle className="text-custom">アカウント</CardTitle>
+        </CardHeader>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <CardContent>
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">ログイン</TabsTrigger>
+              <TabsTrigger value="signup">サインアップ</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    メールアドレス
+                  </label>
+                  <Input
+                    type="email"
+                    value={loginForm.email}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                    placeholder="example@email.com"
+                    required
+                    className="border-gray-200 focus:border-main"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    パスワード
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={loginForm.password}
+                      onChange={(e) =>
+                        setLoginForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      placeholder="パスワードを入力"
+                      required
+                      className="border-gray-200 focus:border-main pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-main hover:bg-main/90 text-white"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "ログイン中..." : "ログイン"}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="signup" className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    メールアドレス
+                  </label>
+                  <Input
+                    type="email"
+                    value={signupForm.email}
+                    onChange={(e) =>
+                      setSignupForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                    placeholder="example@email.com"
+                    required
+                    className="border-gray-200 focus:border-main"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    ユーザー名
+                  </label>
+                  <Input
+                    type="text"
+                    value={signupForm.username}
+                    onChange={(e) =>
+                      setSignupForm((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                      }))
+                    }
+                    placeholder="ユーザー名を入力"
+                    required
+                    className="border-gray-200 focus:border-main"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    パスワード
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={signupForm.password}
+                      onChange={(e) =>
+                        setSignupForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      placeholder="パスワードを入力"
+                      required
+                      className="border-gray-200 focus:border-main pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-custom">
+                    パスワード確認
+                  </label>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={signupForm.confirmPassword}
+                    onChange={(e) =>
+                      setSignupForm((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="パスワードを再入力"
+                    required
+                    className="border-gray-200 focus:border-main"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-main hover:bg-main/90 text-white"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "アカウント作成中..." : "アカウント作成"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+
+          {error && (
+            <Alert className="mt-4 border-red-200 bg-red-50">
+              <AlertDescription className="text-red-700">
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
