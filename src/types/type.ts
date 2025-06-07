@@ -1,4 +1,4 @@
-type pos =
+export type pos =
   | "noun"
   | "pronoun"
   | "intransitiveVerb"
@@ -12,14 +12,14 @@ type pos =
   | "conjunction"
   | "idiom";
 
-type Word = {
+export type Word = {
   wordId: string;
   word: string;
   coreMeaning: string;
   explanation: string;
 };
 
-type Meaning = {
+export type Meaning = {
   meaningId: string;
   pos: pos;
   translation: string;
@@ -28,7 +28,7 @@ type Meaning = {
   exampleJpn: string;
 };
 
-type Media = {
+export type Media = {
   mediaId: string;
   meaningId: string;
   mediaUrls: string[];
@@ -37,8 +37,9 @@ type Media = {
 export type Flashcard = {
   flashcardId: string;
   word: Word;
-  meanings: Meaning[];
+  meaning: Meaning[];
   media: Media;
+  version: number;
   memo: string;
   checkFlag: boolean;
 };
@@ -56,4 +57,54 @@ export type Comparison = {
   oldMediaId: string;
   newMediaId: string;
   selected: string;
+};
+
+// API Request/Response types
+export type CheckFlagRequest = {
+  flashcardId: string;
+  checkFlag: boolean;
+};
+
+export type MeaningAddRequest = {
+  flashcardId: string;
+  meaning: Meaning[];
+};
+
+export type MemoUpdateRequest = {
+  flashcardId: string;
+  memo: string;
+};
+
+export type MediaGenerateRequest = {
+  userId: string;
+  flashcardId: string;
+  meaningId: string;
+  generationType: string;
+  templateId: string;
+  userPrompt: string;
+  inputMediaUrls?: string[];
+};
+
+export type MediaCompareRequest = {
+  comparisonId: string;
+  oldMediaId: string;
+  newMediaId: string;
+  selected: string;
+};
+
+// API Response types
+export type FlashcardResponse = {
+  flashcard: Flashcard[];
+};
+
+export type MeaningResponse = {
+  meaning: Meaning[];
+};
+
+export type TemplateResponse = {
+  template: Template[];
+};
+
+export type MediaResponse = {
+  media: Media;
 };
