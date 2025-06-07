@@ -76,6 +76,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* カスタムカラーパレット */
+  --bg-primary: #FFFDF6;
+  --bg-secondary: #FAF6E9;
+  --color-main: #A0C878;
+  --color-sub: #DDEB9D;
+  --color-text: #757575;
+  --color-red: #C87A78;
+  --color-blue: #78A3C8;
 }
 
 .dark {
@@ -116,7 +124,62 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[var(--bg-primary)] text-[var(--color-text)];
+  }
+}
+
+@layer utilities {
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .text-main {
+    color: var(--color-main);
+  }
+
+  .text-sub {
+    color: var(--color-sub);
+  }
+
+  .text-custom {
+    color: var(--color-text);
+  }
+
+  .text-red {
+    color: var(--color-red);
+  }
+
+  .text-blue {
+    color: var(--color-blue);
+  }
+
+  .bg-main {
+    background-color: var(--color-main);
+  }
+
+  .bg-sub {
+    background-color: var(--color-sub);
+  }
+
+  .bg-red {
+    background-color: var(--color-red);
+  }
+
+  .bg-blue {
+    background-color: var(--color-blue);
+  }
+
+  .border-main {
+    border-color: var(--color-main);
+  }
+
+  .border-sub {
+    border-color: var(--color-sub);
   }
 }
