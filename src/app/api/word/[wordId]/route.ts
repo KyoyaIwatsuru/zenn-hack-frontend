@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import { flashcardService } from "@/services/apiService";
 
-export async function GET({ params }: { params: { userId: string } }) {
+export async function GET({ params }: { params: { wordId: string } }) {
   try {
-    const { userId } = params;
+    const { wordId } = params;
 
-    if (!userId) {
+    if (!wordId) {
       return NextResponse.json(
-        { error: "userId is required" },
+        { error: "wordId is required" },
         { status: 400 }
       );
     }
 
-    const flashcards = await flashcardService.getFlashcards(userId);
-    return NextResponse.json({ flashcard: flashcards });
+    const meanings = await flashcardService.getMeanings(wordId);
+    return NextResponse.json({ meaning: meanings });
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
