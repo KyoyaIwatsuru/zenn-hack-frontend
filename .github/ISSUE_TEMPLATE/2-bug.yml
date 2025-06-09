@@ -1,0 +1,46 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels: ["Bug"]
+projects: [""]
+assignees:
+  - 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        改善内容の共有ありがとうございます!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 改善項目（バグ内容に関して）
+      description: バグの内容に関して詳細を記載してください.
+      placeholder: 〇〇が発生.
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: バージョン
+      description: どのバージョンで発生しましたか？
+      placeholder: version X.X.X
+    validations:
+      required: false
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: どのブラウザ（端末）で発生していますか？
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - iOS
+        - Android
+  - type: textarea
+    id: logs
+    attributes:
+      label: エラーコードやログが分かれば共有してください.
+      description: Copy and paste here.
+      render: shell

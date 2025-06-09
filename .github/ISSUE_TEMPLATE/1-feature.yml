@@ -1,0 +1,40 @@
+name: Feature Report
+description: File a new feature report.
+title: "[Feature]: "
+labels: ["New Features"]
+projects: [""]
+assignees:
+  - 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        新規機能開発に関するISSUE記載に協力ありがとうございます!
+  - type: textarea
+    id: about-feature
+    attributes:
+      label: 新規機能の概要
+      description: 新規機能の概要を書いてください.
+      placeholder: 〇〇の開発をする.
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: バージョン
+      description: リリース予定バージョン
+      placeholder: version X.X.X
+    validations:
+      required: false
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: どの端末で検証する必要がありますか?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - iOS
+        - Android
