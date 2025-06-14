@@ -1,7 +1,44 @@
 # API一覧
 
-## フラッシュカードAPI
+## ユーザー登録API
+- **URL**: `/user/setup`
+- **メソッド**: `POST`
+- **説明**: ユーザーを登録します。
+- **リクエストボディ**:
+  - `userId`: string (必須)
+  - `userName`: string (必須)
+  - `email`: string (必須)
+- **レスポンス**:
+  - `200 OK`: ユーザー登録に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
 
+## ユーザー情報更新API
+- **URL**: `/user/update`
+- **メソッド**: `PUT`
+- **説明**: ユーザー情報を更新します。
+- **リクエストボディ**:
+  - `userId`: string (必須)
+  - `userName`: string (必須)
+  - `email`: string (必須)
+- **レスポンス**:
+  - `200 OK`: ユーザー情報の更新に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## フラッシュカード取得API
 - **URL**: `/flashcard/{userId}`
 - **メソッド**: `GET`
 - **説明**: ユーザーのフラッシュカードを全て取得します。
@@ -10,14 +47,15 @@
 - **レスポンス**:
   - `200 OK`: フラッシュカードの取得に成功
     - `コンテンツ`:
-      - `flashcard`: flashcard[]
+      - `message`: string
+      - `flashcards`: flashcards[]
         - `flashcardId`: string
         - `word`: Word
           - `wordId`: string
           - `word`: string
           - `coreMeaning`: string
           - `explanation`: string
-        - `meaning`: Meaning[]
+        - `meanings`: Meanings[]
           - `meaningId`: string
           - `pos`: string
           - `translation`: string
@@ -31,9 +69,15 @@
         - `version`: number
         - `memo`: string
         - `checkFlag`: boolean
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
 
-## checkFlagAPI
-- **URL**: `/flashcard/checkFlag`
+## checkFlag更新API
+- **URL**: `/flashcard/update/checkFlag`
 - **メソッド**: `PUT`
 - **説明**: フラッシュカードのチェックフラグを更新します。
 - **リクエストボディ**:
@@ -41,42 +85,17 @@
   - `checkFlag`: boolean (必須)
 - **レスポンス**:
   - `200 OK`: フラッシュカードのチェックフラグの更新に成功
-
-## 意味取得API
-- **URL**: `/word/{wordId}`
-- **メソッド**: `GET`
-- **説明**: 単語のすべての意味を取得します。
-- **パラメータ**:
-  - `wordId`: 単語ID (必須)
-- **レスポンス**:
-  - `200 OK`: 単語の意味の取得に成功
     - `コンテンツ`:
-      - `meaning`: Meaning[]
-        - `meaningId`: string
-        - `pos`: string
-        - `translation`: string
-        - `pronunciation`: string
-        - `exampleEng`: string
-        - `exampleJpn`: string
-
-## 意味追加API
-- **URL**: `/flashcard/meaning`
-- **メソッド**: `PUT`
-- **説明**: フラッシュカードに意味を追加します。
-- **リクエストボディ**:
-  - `flashcardId`: string (必須)
-  - `meaning`: Meaning[] (必須)
-    - `meaningId`: string
-    - `pos`: string
-    - `translation`: string
-    - `pronunciation`: string
-    - `exampleEng`: string
-    - `exampleJpn`: string
-- **レスポンス**:
-  - `200 OK`: フラッシュカードの意味の追加に成功
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
 
 ## メモ更新API
-- **URL**: `/flashcard/memo`
+- **URL**: `/flashcard/update/memo`
 - **メソッド**: `PUT`
 - **説明**: フラッシュカードのメモを更新します。
 - **リクエストボディ**:
@@ -84,8 +103,126 @@
   - `memo`: string (必須)
 - **レスポンス**:
   - `200 OK`: フラッシュカードのメモの更新に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
 
-## テンプレートAPI
+## 意味更新API
+- **URL**: `/flashcard/update/usingMeaningList`
+- **メソッド**: `PUT`
+- **説明**: フラッシュカードに意味を更新します。
+- **リクエストボディ**:
+  - `flashcardId`: string (必須)
+  - `usingMeaningList`: usingMeaningList[] (必須)
+    - `meaningId`: string
+- **レスポンス**:
+  - `200 OK`: フラッシュカードの意味の更新に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## メディア生成API
+- **URL**: `/media/create`
+- **メソッド**: `POST`
+- **説明**: メディアを生成します。
+- **リクエストボディ**:
+  - `flashcardId`: string (必須)
+  - `oldMediaId`: string (必須)
+  - `meaningId`: string (必須)
+  - `generationType`: string (必須)
+  - `templateId`: string (必須)
+  - `userPrompt`: string (必須)
+  - `allowGeneratingPerson`: boolean (必須)
+  - `inputMediaUrls`: string[] (必須)
+- **レスポンス**:
+  - `200 OK`: メディアの生成に成功
+    - `コンテンツ`:
+      - `message`: string
+      - `newMediaId`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## メディア比較取得API
+- **URL**: `/media/compare/{userId}`
+- **メソッド**: `GET`
+- **説明**: ユーザーのメディア比較を全て取得します。
+- **パラメータ**:
+  - `userId`: ユーザーID (必須)
+- **レスポンス**:
+  - `200 OK`: メディア比較の取得に成功
+    - `コンテンツ`:
+      - `message`: string
+      - `comparisonId`: string
+      - `flashcardId`: string
+      - `newMediaUrls`: string[]
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## メディア比較結果API
+- **URL**: `/media/compare`
+- **メソッド**: `POST`
+- **説明**: メディアを比較します。
+- **リクエストボディ**:
+  - `flashcardId`: string (必須)
+  - `comparisonId`: string (必須)
+  - `oldMediaId`: string (必須)
+  - `newMediaId`: string (必須)
+  - `isSelectedNew`: boolean (必須)
+- **レスポンス**:
+  - `200 OK`: メディアの比較に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## 意味取得API
+- **URL**: `/meanings/{wordId}`
+- **メソッド**: `GET`
+- **説明**: 単語のすべての意味を取得します。
+- **パラメータ**:
+  - `wordId`: 単語ID (必須)
+- **レスポンス**:
+  - `200 OK`: 単語の意味の取得に成功
+    - `コンテンツ`:
+      - `message`: string
+      - `meanings`: Meanings[]
+        - `meaningId`: string
+        - `pos`: string
+        - `translation`: string
+        - `pronunciation`: string
+        - `exampleEng`: string
+        - `exampleJpn`: string
+        - `rank`: number
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
+## テンプレート取得API
 - **URL**: `/template`
 - **メソッド**: `GET`
 - **説明**: 全てのテンプレートを取得します。
@@ -98,35 +235,9 @@
         - `description`: string
         - `generationType`: string
         - `promptText`: string
-
-## メディアAPI
-- **URL**: `/media`
-- **メソッド**: `POST`
-- **説明**: メディアを生成します。
-- **リクエストボディ**:
-  - `userId`: string (必須)
-  - `flashcardId`: string (必須)
-  - `meaningId`: string (必須)
-  - `generationType`: string (必須)
-  - `templateId`: string (必須)
-  - `userPrompt`: string (必須)
-  - `inputMediaUrls`: string[]
-- **レスポンス**:
-  - `200 OK`: メディアの生成に成功
+  - `422 Validation Error`: 型が不正
     - `コンテンツ`:
-      - `media`: Media
-        - `mediaId`: string
-        - `meaningId`: string
-        - `mediaUrls`: string[]
-
-## メディア比較API
-- **URL**: `/comparison`
-- **メソッド**: `POST`
-- **説明**: メディアを比較します。
-- **リクエストボディ**:
-  - `comparisonId`: string (必須)
-  - `oldMediaId`: string (必須)
-  - `newMediaId`: string (必須)
-  - `selected`: string (必須)
-- **レスポンス**:
-  - `200 OK`: メディアの比較に成功
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
