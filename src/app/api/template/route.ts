@@ -3,8 +3,8 @@ import { apiService } from "@/services/apiService";
 
 export async function GET() {
   try {
-    const templates = await apiService.getTemplates();
-    return NextResponse.json({ template: templates });
+    const result = await apiService.getTemplates();
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

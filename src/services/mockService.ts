@@ -166,7 +166,7 @@ const additionalMeanings: Record<string, Meaning[]> = {
 };
 
 // ローカルストレージキー
-const STORAGE_KEY = "flashcards_data";
+const STORAGE_KEY = "flashcards_data_2";
 
 // ローカルストレージからデータ取得
 const getStoredData = (): Flashcard[] => {

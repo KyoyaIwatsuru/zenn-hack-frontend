@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
 
-export async function GET({ params }: { params: { userId: string } }) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
   try {
     const { userId } = params;
 
@@ -12,8 +15,8 @@ export async function GET({ params }: { params: { userId: string } }) {
       );
     }
 
-    const flashcards = await apiService.getFlashcards(userId);
-    return NextResponse.json({ flashcard: flashcards });
+    const result = await apiService.getFlashcards(userId);
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

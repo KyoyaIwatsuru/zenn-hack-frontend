@@ -124,15 +124,29 @@ export const apiService = {
     }
   },
 
+  // 比較取得
+  getComparison: async (userId: string): Promise<ComparisonResponse> => {
+    const response = (await apiClient(
+      `/comparison/${userId}`
+    )) as ComparisonResponse;
+    if ("comparisonId" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
+  },
+
   // 比較更新
   updateCompare: async (
     data: ComparisonUpdateRequest
-  ): Promise<ComparisonResponse> => {
+  ): Promise<ApiResponse> => {
     const response = (await apiClient("/comparison/update", {
-      method: "PUT",
+      method: "POST",
       body: JSON.stringify(data),
-    })) as ComparisonResponse;
-    if ("comparisonId" in response) {
+    })) as ApiResponse;
+    if ("message" in response) {
       return response;
     } else {
       throw new Error(

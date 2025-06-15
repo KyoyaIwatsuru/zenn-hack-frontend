@@ -3,19 +3,19 @@ import { apiService } from "@/services/apiService";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { wordId: string } }
+  { params }: { params: { userId: string } }
 ) {
   try {
-    const { wordId } = params;
+    const { userId } = params;
 
-    if (!wordId) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "wordId is required" },
+        { error: "userId is required" },
         { status: 400 }
       );
     }
 
-    const result = await apiService.getMeanings(wordId);
+    const result = await apiService.getComparison(userId);
     return NextResponse.json(result);
   } catch (error) {
     const errorMessage =

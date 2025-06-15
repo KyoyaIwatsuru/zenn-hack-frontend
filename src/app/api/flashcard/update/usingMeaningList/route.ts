@@ -6,15 +6,21 @@ export async function PUT(request: NextRequest) {
   try {
     const body: UsingMeaningListUpdateRequest = await request.json();
 
-    if (!body.flashcardId || !body.usingMeaningList) {
+    const missingFields = [];
+    if (!body.flashcardId) missingFields.push("flashcardId");
+    if (!body.usingMeaningList || !Array.isArray(body.usingMeaningList)) {
+      missingFields.push("usingMeaningList");
+    }
+
+    if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: "flashcardId and meaning array are required" },
+        { error: `Missing or invalid required fields: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    await apiService.updateMeaning(body);
-    return NextResponse.json({ success: true });
+    const result = await apiService.updateMeaning(body);
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

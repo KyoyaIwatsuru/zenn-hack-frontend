@@ -6,15 +6,19 @@ export async function PUT(request: NextRequest) {
   try {
     const body: CheckFlagUpdateRequest = await request.json();
 
-    if (!body.flashcardId || typeof body.checkFlag !== "boolean") {
+    const missingFields = [];
+    if (!body.flashcardId) missingFields.push("flashcardId");
+    if (typeof body.checkFlag !== "boolean") missingFields.push("checkFlag");
+
+    if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: "flashcardId and checkFlag are required" },
+        { error: `Missing or invalid required fields: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    await apiService.updateCheckFlag(body);
-    return NextResponse.json({ success: true });
+    const result = await apiService.updateCheckFlag(body);
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

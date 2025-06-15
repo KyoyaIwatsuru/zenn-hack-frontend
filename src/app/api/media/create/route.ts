@@ -7,8 +7,8 @@ export async function POST(request: NextRequest) {
     const body: MediaCreateRequest = await request.json();
 
     const requiredFields = [
-      "userId",
       "flashcardId",
+      "oldMediaId",
       "meaningId",
       "generationType",
       "templateId",
@@ -18,15 +18,19 @@ export async function POST(request: NextRequest) {
       (field) => !body[field as keyof MediaCreateRequest]
     );
 
+    if (typeof body.allowGeneratingPerson !== "boolean") {
+      missingFields.push("allowGeneratingPerson");
+    }
+
     if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(", ")}` },
+        { error: `Missing or invalid required fields: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    const media = await apiService.createMedia(body);
-    return NextResponse.json({ media });
+    const result = await apiService.createMedia(body);
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
