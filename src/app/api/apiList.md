@@ -121,12 +121,12 @@
 
 ## 意味更新 API
 
-- **URL**: `/flashcard/update/usingMeaningList`
+- **URL**: `/flashcard/update/usingMeaningIdList`
 - **メソッド**: `PUT`
 - **説明**: フラッシュカードに意味を更新します。
 - **リクエストボディ**:
   - `flashcardId`: string (必須)
-  - `usingMeaningList`: string[] (必須)
+  - `usingMeaningIdList`: string[] (必須)
 - **レスポンス**:
   - `200 OK`: フラッシュカードの意味の更新に成功
     - `コンテンツ`:

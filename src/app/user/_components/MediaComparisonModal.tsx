@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
-import { mockApiService } from "@/services/mockService";
 
 interface MediaComparisonModalProps {
   isOpen: boolean;
@@ -33,18 +33,27 @@ export function MediaComparisonModal({
     return null;
   }
 
-  // Before画像を選択
   const handleSelectBefore = async () => {
     setIsSubmitting(true);
 
     try {
-      await mockApiService.updateCompare({
-        flashcardId: flashcard.flashcardId,
-        comparisonId: `comparison_${Date.now()}`,
-        oldMediaId: "before_media_id", // 実際のBefore画像ID
-        newMediaId: "after_media_id", // 実際のAfter画像ID
-        isSelectedNew: false, // Before画像を選択
+      const response = await fetch("/api/comparison/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardId: flashcard.flashcardId,
+          comparisonId: `comparison_${Date.now()}`,
+          oldMediaId: "before_media_id",
+          newMediaId: "after_media_id",
+          isSelectedNew: false,
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       onComparisonSubmitted();
       onOpenChange(false);
@@ -55,18 +64,27 @@ export function MediaComparisonModal({
     }
   };
 
-  // After画像を選択
   const handleSelectAfter = async () => {
     setIsSubmitting(true);
 
     try {
-      await mockApiService.updateCompare({
-        flashcardId: flashcard.flashcardId,
-        comparisonId: `comparison_${Date.now()}`,
-        oldMediaId: "before_media_id", // 実際のBefore画像ID
-        newMediaId: "after_media_id", // 実際のAfter画像ID
-        isSelectedNew: true, // After画像を選択
+      const response = await fetch("/api/comparison/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardId: flashcard.flashcardId,
+          comparisonId: `comparison_${Date.now()}`,
+          oldMediaId: "before_media_id",
+          newMediaId: "after_media_id",
+          isSelectedNew: true,
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       onComparisonSubmitted();
       onOpenChange(false);
@@ -95,14 +113,12 @@ export function MediaComparisonModal({
         </DialogHeader>
 
         <div className="space-y-8">
-          {/* フラッシュカード表示 */}
           <FlashcardDisplay
             flashcard={flashcard}
             selectedMeaning={selectedMeaning}
             onMeaningSelect={onMeaningSelect}
           />
 
-          {/* 画像比較セクション */}
           <div className="border-t pt-8">
             <h3 className="text-xl font-semibold text-custom mb-6">画像比較</h3>
 
@@ -111,7 +127,6 @@ export function MediaComparisonModal({
             </p>
 
             <div className="grid grid-cols-2 gap-8">
-              {/* Before 画像 */}
               <div className="space-y-4">
                 <div className="bg-blue-100 text-center py-3 rounded-t-lg">
                   <span className="text-blue-800 font-medium">Before</span>
@@ -119,19 +134,31 @@ export function MediaComparisonModal({
                 <div className="bg-white border-4 border-blue-200 rounded-b-lg p-8">
                   <div className="bg-gray-100 aspect-square rounded-lg flex items-center justify-center">
                     <div className="text-center space-y-4">
-                      <div className="w-24 h-24 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
-                        <div className="text-gray-500 text-xs">Before画像</div>
+                      <div className="w-24 h-24 rounded-lg mx-auto overflow-hidden relative">
+                        {flashcard.media?.mediaUrls?.[0] ? (
+                          <Image
+                            src={flashcard.media.mediaUrls[0]}
+                            alt={`Before - ${flashcard.word.word}`}
+                            fill
+                            className="object-cover rounded-lg"
+                            onError={() => {
+                              console.error("Failed to load image:", flashcard.media.mediaUrls[0]);
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                            <div className="text-gray-500 text-xs">Before画像</div>
+                          </div>
+                        )}
                       </div>
-                      {/* 実際の画像の代わりにプレースホルダー */}
                       <div className="text-sm text-gray-600">
-                        医師が患者に説明している様子
+                        {selectedMeaning?.translation || "現在の画像"}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* After 画像 */}
               <div className="space-y-4">
                 <div className="bg-red-100 text-center py-3 rounded-t-lg">
                   <span className="text-red-800 font-medium">After</span>
@@ -139,12 +166,14 @@ export function MediaComparisonModal({
                 <div className="bg-white border-4 border-red-200 rounded-b-lg p-8">
                   <div className="bg-gray-100 aspect-square rounded-lg flex items-center justify-center">
                     <div className="text-center space-y-4">
-                      <div className="w-24 h-24 bg-gray-300 rounded-lg mx-auto flex items-center justify-center">
-                        <div className="text-gray-500 text-xs">After画像</div>
+                      <div className="w-24 h-24 rounded-lg mx-auto overflow-hidden">
+                        {/* TODO: 新しく生成された画像のURLをここに表示 */}
+                        <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                          <div className="text-gray-500 text-xs">After画像</div>
+                        </div>
                       </div>
-                      {/* 実際の画像の代わりにプレースホルダー */}
                       <div className="text-sm text-gray-600">
-                        教師が黒板で説明している様子
+                        新しく生成された画像
                       </div>
                     </div>
                   </div>
@@ -152,7 +181,6 @@ export function MediaComparisonModal({
               </div>
             </div>
 
-            {/* 選択ボタン */}
             <div className="grid grid-cols-2 gap-8 mt-6">
               <Button
                 variant="outline"

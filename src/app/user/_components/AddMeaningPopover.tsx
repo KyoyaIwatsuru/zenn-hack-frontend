@@ -8,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Meaning } from "@/types/type";
-import { mockApiService } from "@/services/mockService";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -46,7 +45,6 @@ export function AddMeaningPopover({
   );
   const [error, setError] = useState("");
 
-  // 現在のフラッシュカードにない意味のみを取得
   const getAvailableMeanings = (allMeanings: Meaning[]): Meaning[] => {
     const currentMeaningIds = new Set(currentMeanings.map((m) => m.meaningId));
     return allMeanings.filter(
@@ -54,7 +52,6 @@ export function AddMeaningPopover({
     );
   };
 
-  // Popoverが開かれた時に意味を取得
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
 
@@ -63,7 +60,12 @@ export function AddMeaningPopover({
       setError("");
 
       try {
-        const allMeanings = await mockApiService.getMeanings(wordId);
+        const response = await fetch(`/api/meaning/${wordId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        const allMeanings = data.meanings || [];
         const available = getAvailableMeanings(allMeanings);
         setAvailableMeanings(available);
       } catch (err) {
@@ -75,7 +77,6 @@ export function AddMeaningPopover({
     }
   };
 
-  // 意味の選択/選択解除
   const toggleMeaningSelection = (meaningId: string) => {
     const newSelected = new Set(selectedMeanings);
     if (newSelected.has(meaningId)) {
@@ -86,7 +87,6 @@ export function AddMeaningPopover({
     setSelectedMeanings(newSelected);
   };
 
-  // 選択した意味をフラッシュカードに追加
   const handleAddMeanings = async () => {
     if (selectedMeanings.size === 0) return;
 
@@ -98,17 +98,25 @@ export function AddMeaningPopover({
         selectedMeanings.has(meaning.meaningId)
       );
 
-      await mockApiService.updateMeaning({
-        flashcardId,
-        usingMeaningList: meaningsToAdd.map((meaning) => meaning.meaningId),
+      const response = await fetch("/api/flashcard/update/usingMeaningIdList", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardId,
+          usingMeaningIdList: meaningsToAdd.map((meaning) => meaning.meaningId),
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      // 成功時の処理
       onMeaningAdded(meaningsToAdd);
       setSelectedMeanings(new Set());
       setIsOpen(false);
 
-      // 利用可能な意味リストから追加した意味を削除
       setAvailableMeanings((prev) =>
         prev.filter((meaning) => !selectedMeanings.has(meaning.meaningId))
       );

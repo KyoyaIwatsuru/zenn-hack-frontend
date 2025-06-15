@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +36,6 @@ export function FlashcardDisplay({
     <Card className="bg-white shadow-sm border-0 mb-6">
       <CardContent className="p-6">
         <div className="grid grid-cols-12 gap-6">
-          {/* 左側：チェックボックス + 単語情報 + 画像 */}
           <div className="col-span-6 space-y-4">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 rounded border-2 flex items-center justify-center mt-1 bg-main border-main">
@@ -51,17 +51,28 @@ export function FlashcardDisplay({
               </div>
             </div>
 
-            {/* 画像セクション */}
             <div className="bg-secondary rounded-lg p-8 text-center">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                <div className="text-gray-500 text-xs">画像</div>
+              <div className="w-32 h-32 rounded-lg mx-auto mb-2 overflow-hidden relative">
+                {flashcard.media?.mediaUrls?.[0] ? (
+                  <Image
+                    src={flashcard.media.mediaUrls[0]}
+                    alt={`${flashcard.word.word} - ${selectedMeaning?.translation}`}
+                    fill
+                    className="object-cover rounded-lg"
+                    onError={() => {
+                      console.error("Failed to load image:", flashcard.media.mediaUrls[0]);
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                    <div className="text-gray-500 text-xs">画像</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* 右側：意味 + 例文 + 説明 */}
           <div className="col-span-6 space-y-4">
-            {/* 意味セクション - 2列表示 */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 {flashcard.meanings.map((meaning) => {
@@ -103,7 +114,6 @@ export function FlashcardDisplay({
               </Button>
             </div>
 
-            {/* 例文セクション */}
             <div className="space-y-2 pt-4 border-t border-gray-100">
               <p className="text-custom text-sm leading-relaxed">
                 {selectedMeaning?.exampleEng}
@@ -113,7 +123,6 @@ export function FlashcardDisplay({
               </p>
             </div>
 
-            {/* 説明テキスト */}
             <div className="text-sm text-custom bg-secondary p-3 rounded">
               <p>{flashcard.word.explanation}</p>
             </div>

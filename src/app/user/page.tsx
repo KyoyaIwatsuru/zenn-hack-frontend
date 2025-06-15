@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Edit3, FileText, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +18,6 @@ import { Flashcard, Meaning } from "@/types/type";
 import { MediaGenerationModal } from "./_components/MediaGenerationModal";
 import { MediaComparisonModal } from "./_components/MediaComparisonModal";
 import { AddMeaningPopover } from "./_components/AddMeaningPopover";
-import { mockApiService } from "@/services/mockService";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -42,7 +42,6 @@ export default function UserPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // UI状態
   const [editingMemo, setEditingMemo] = useState<string | null>(null);
   const [memoText, setMemoText] = useState("");
   const [memoModalOpen, setMemoModalOpen] = useState(false);
@@ -56,43 +55,47 @@ export default function UserPage() {
   const [currentCompareFlashcard, setCurrentCompareFlashcard] =
     useState<Flashcard | null>(null);
 
-  // 初期化・認証チェック
-  useEffect(() => {
-    const checkAuth = () => {
-      const storedUserId = localStorage.getItem("userId");
-      if (!storedUserId) {
-        router.push("/");
-        return;
-      }
-      const storedUserName =
-        localStorage.getItem("userName") ||
-        localStorage.getItem("userEmail")?.split("@")[0] ||
-        "ユーザー";
-      setUserId(storedUserId);
-      setUserName(storedUserName);
-      loadFlashcards();
-    };
-
-    checkAuth();
-  }, [router]);
-
-  // フラッシュカード読み込み
-  const loadFlashcards = async () => {
+  const loadFlashcards = useCallback(async () => {
+    if (!userId) return;
+    
     setIsLoading(true);
     setError("");
 
     try {
-      const cards = await mockApiService.getFlashcards();
-      setFlashcards(cards);
+      const response = await fetch(`/api/flashcard/${userId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (data.flashcards) {
+        setFlashcards(data.flashcards);
+      } else {
+        setFlashcards([]);
+      }
     } catch (err) {
       setError("フラッシュカードの読み込みに失敗しました");
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
-  // ログアウト
+  useEffect(() => {
+    const checkAuth = () => {
+      const fixedUserId = "cergU7H1N7gRnzZmiZcC";
+      const storedUserName =
+        localStorage.getItem("userName") ||
+        localStorage.getItem("userEmail")?.split("@")[0] ||
+        "テストユーザー";
+
+      setUserId(fixedUserId);
+      setUserName(storedUserName);
+      loadFlashcards();
+    };
+
+    checkAuth();
+  }, [router, loadFlashcards]);
+
   const handleLogout = () => {
     localStorage.removeItem("userId");
     localStorage.removeItem("userEmail");
@@ -100,14 +103,12 @@ export default function UserPage() {
     router.push("/");
   };
 
-  // チェックフラグの更新
   const toggleCheckFlag = async (flashcardId: string) => {
     const flashcard = flashcards.find((c) => c.flashcardId === flashcardId);
     if (!flashcard) return;
 
     const newCheckFlag = !flashcard.checkFlag;
 
-    // UI即座更新
     setFlashcards((prev) =>
       prev.map((card) =>
         card.flashcardId === flashcardId
@@ -117,12 +118,21 @@ export default function UserPage() {
     );
 
     try {
-      await mockApiService.updateCheckFlag({
-        flashcardId,
-        checkFlag: newCheckFlag,
+      const response = await fetch("/api/flashcard/update/checkFlag", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardId,
+          checkFlag: newCheckFlag,
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
     } catch (err) {
-      // エラー時は元に戻す
       setFlashcards((prev) =>
         prev.map((card) =>
           card.flashcardId === flashcardId
@@ -134,13 +144,22 @@ export default function UserPage() {
     }
   };
 
-  // メモの更新
   const handleUpdateMemo = async (flashcardId: string, memo: string) => {
     try {
-      await mockApiService.updateMemo({
-        flashcardId,
-        memo,
+      const response = await fetch("/api/flashcard/update/memo", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          flashcardId,
+          memo,
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       setFlashcards((prev) =>
         prev.map((card) =>
@@ -168,7 +187,6 @@ export default function UserPage() {
     setMemoModalOpen(false);
   };
 
-  // 意味選択
   const selectMeaning = (flashcardId: string, meaningId: string) => {
     setSelectedMeanings((prev) => ({
       ...prev,
@@ -176,7 +194,6 @@ export default function UserPage() {
     }));
   };
 
-  // 選択された意味を取得
   const getSelectedMeaning = (flashcard: Flashcard) => {
     const selectedMeaningId = selectedMeanings[flashcard.flashcardId];
     if (selectedMeaningId) {
@@ -188,7 +205,6 @@ export default function UserPage() {
     return flashcard.meanings[0];
   };
 
-  // 意味追加後の処理
   const handleMeaningAdded = (flashcardId: string, newMeanings: Meaning[]) => {
     setFlashcards((prev) =>
       prev.map((card) =>
@@ -199,7 +215,6 @@ export default function UserPage() {
     );
   };
 
-  // 画像生成モーダル
   const openMediaModal = (flashcard: Flashcard) => {
     setCurrentMediaFlashcard(flashcard);
     setMediaModalOpen(true);
@@ -214,7 +229,6 @@ export default function UserPage() {
     }
   };
 
-  // メディア生成完了後の処理
   const handleMediaGenerated = (flashcardId: string, media: unknown) => {
     setFlashcards((prev) =>
       prev.map((card) =>
@@ -225,7 +239,6 @@ export default function UserPage() {
     );
   };
 
-  // 画像比較モーダル
   const openCompareModal = (flashcard: Flashcard) => {
     setCurrentCompareFlashcard(flashcard);
     setCompareModalOpen(true);
@@ -240,9 +253,7 @@ export default function UserPage() {
     }
   };
 
-  // 比較完了後の処理
   const handleComparisonSubmitted = () => {
-    // 必要に応じて状態更新
     console.log("比較結果が送信されました");
   };
 
@@ -252,7 +263,6 @@ export default function UserPage() {
 
   return (
     <div className="min-h-screen bg-primary">
-      {/* ヘッダー */}
       <div className="bg-main text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -274,7 +284,6 @@ export default function UserPage() {
         </div>
       </div>
 
-      {/* メインコンテンツ */}
       <div className="container mx-auto p-4 space-y-4">
         {isLoading && (
           <div className="text-center py-8">
@@ -329,18 +338,31 @@ export default function UserPage() {
                       </div>
                     </div>
 
-                    {/* 画像セクション */}
                     <div
                       className="bg-secondary rounded-lg p-8 text-center cursor-pointer hover:bg-secondary/80 transition-colors"
                       onClick={() => openMediaModal(flashcard)}
                     >
-                      <div className="w-32 h-32 bg-gray-300 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                        <div className="text-gray-500 text-xs">画像</div>
+                      <div className="w-32 h-32 rounded-lg mx-auto mb-2 overflow-hidden relative">
+                        {flashcard.media?.mediaUrls?.[0] ? (
+                          <Image
+                            src={flashcard.media.mediaUrls[0]}
+                            alt={`${flashcard.word.word} - ${getSelectedMeaning(flashcard)?.translation}`}
+                            fill
+                            className="object-cover rounded-lg"
+                            onError={() => {
+                              // Next.js Imageコンポーネントでのエラーハンドリングは別途実装が必要
+                              console.error("Failed to load image:", flashcard.media.mediaUrls[0]);
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                            <div className="text-gray-500 text-xs">画像</div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* 右側：意味 + コントロール + メモ */}
                   <div className="col-span-6 space-y-4">
                     {/* 意味セクション - 2列表示 */}
                     <div className="space-y-4">
@@ -383,7 +405,6 @@ export default function UserPage() {
                       />
                     </div>
 
-                    {/* 例文セクション（選択された意味） */}
                     <div className="space-y-2 pt-4 border-t border-gray-100">
                       <p className="text-custom text-sm leading-relaxed">
                         {getSelectedMeaning(flashcard)?.exampleEng}
@@ -393,12 +414,10 @@ export default function UserPage() {
                       </p>
                     </div>
 
-                    {/* 説明テキスト */}
                     <div className="flex items-start gap-3">
                       <div className="text-sm text-custom bg-secondary p-3 rounded flex-1">
                         <p>{flashcard.word.explanation}</p>
                       </div>
-                      {/* メモアイコン - 説明の右側に配置 */}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -409,7 +428,6 @@ export default function UserPage() {
                       </Button>
                     </div>
 
-                    {/* 画像比較ボタン */}
                     <div className="flex justify-end">
                       <Button
                         variant="outline"
@@ -427,7 +445,6 @@ export default function UserPage() {
           ))}
       </div>
 
-      {/* 画像生成モーダル */}
       <MediaGenerationModal
         isOpen={mediaModalOpen}
         onOpenChange={setMediaModalOpen}
@@ -441,7 +458,6 @@ export default function UserPage() {
         onMediaGenerated={handleMediaGenerated}
       />
 
-      {/* 画像比較モーダル */}
       <MediaComparisonModal
         isOpen={compareModalOpen}
         onOpenChange={setCompareModalOpen}

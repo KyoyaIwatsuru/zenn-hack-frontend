@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
-import { mockApiService } from "@/services/mockService";
 
 interface MediaGenerationModalProps {
   isOpen: boolean;
@@ -55,7 +54,6 @@ export function MediaGenerationModal({
     return null;
   }
 
-  // 条件を追加
   const addCondition = () => {
     const newCondition: PromptCondition = {
       id: Date.now().toString(),
@@ -65,14 +63,12 @@ export function MediaGenerationModal({
     setPromptConditions([...promptConditions, newCondition]);
   };
 
-  // 条件を削除
   const removeCondition = (id: string) => {
     setPromptConditions(
       promptConditions.filter((condition) => condition.id !== id)
     );
   };
 
-  // 条件の値を更新
   const updateCondition = (
     id: string,
     field: "type" | "value",
@@ -85,12 +81,10 @@ export function MediaGenerationModal({
     );
   };
 
-  // 画像生成
   const handleGenerateMedia = async () => {
     setIsGenerating(true);
 
     try {
-      // プロンプトを構築
       const userPrompt = promptConditions
         .filter((condition) => condition.value.trim())
         .map((condition) => `${condition.type}: ${condition.value}`)
@@ -101,23 +95,33 @@ export function MediaGenerationModal({
         oldMediaId: flashcard.media?.mediaId || "",
         meaningId: selectedMeaning.meaningId,
         generationType: selectedModel,
-        templateId: "default-template", // 後でテンプレート選択機能を追加
+        templateId: "default-template",
         userPrompt,
-        allowGeneratingPerson: true, // ユーザーが人物生成を許可するかどうか
+        allowGeneratingPerson: true,
         inputMediaUrls:
           selectedModel === "image2image"
             ? flashcard.media?.mediaUrls
             : undefined,
       };
 
-      const media = await mockApiService.createMedia(requestData);
+      const response = await fetch("/api/media/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const media = await response.json();
 
-      // 成功時の処理
       onMediaGenerated(flashcard.flashcardId, media);
       onOpenChange(false);
     } catch (error) {
       console.error("メディア生成エラー:", error);
-      // エラーハンドリングをここに追加
     } finally {
       setIsGenerating(false);
     }
@@ -153,21 +157,17 @@ export function MediaGenerationModal({
         </DialogHeader>
 
         <div className="space-y-8">
-          {/* フラッシュカード表示 */}
           <FlashcardDisplay
             flashcard={flashcard}
             selectedMeaning={selectedMeaning}
             onMeaningSelect={onMeaningSelect}
           />
 
-          {/* 画像生成セクション */}
           <div className="border-t pt-8">
             <h3 className="text-xl font-semibold text-custom mb-6">画像生成</h3>
 
             <div className="grid grid-cols-2 gap-8">
-              {/* 左側：モデル選択、描写対象、編集形式 */}
               <div className="space-y-6">
-                {/* モデル選択 */}
                 <div>
                   <label className="block text-sm font-medium text-custom mb-2">
                     モデル <span className="text-gray-400">ⓘ</span>
@@ -221,7 +221,6 @@ export function MediaGenerationModal({
                   </div>
                 </div>
 
-                {/* 描写対象 */}
                 <div>
                   <label className="block text-sm font-medium text-custom mb-2">
                     描写対象 <span className="text-gray-400">ⓘ</span>
@@ -240,7 +239,6 @@ export function MediaGenerationModal({
                   </Select>
                 </div>
 
-                {/* 編集形式 */}
                 <div>
                   <label className="block text-sm font-medium text-custom mb-2">
                     編集形式 <span className="text-gray-400">ⓘ</span>
@@ -257,7 +255,6 @@ export function MediaGenerationModal({
                 </div>
               </div>
 
-              {/* 右側：プロンプト条件 */}
               <div className="space-y-4">
                 {promptConditions.map((condition) => (
                   <div key={condition.id} className="flex gap-2">
@@ -300,7 +297,6 @@ export function MediaGenerationModal({
                   </div>
                 ))}
 
-                {/* 条件を追加するボタン */}
                 <Button
                   variant="ghost"
                   onClick={addCondition}
@@ -312,7 +308,6 @@ export function MediaGenerationModal({
               </div>
             </div>
 
-            {/* 画像を生成ボタン */}
             <div className="flex justify-center mt-8">
               <Button
                 onClick={handleGenerateMedia}

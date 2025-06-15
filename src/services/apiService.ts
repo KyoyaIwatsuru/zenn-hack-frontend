@@ -94,7 +94,7 @@ export const apiService = {
   updateMeaning: async (
     data: UsingMeaningListUpdateRequest
   ): Promise<ApiResponse> => {
-    const response = (await apiClient("/flashcard/update/usingMeaningList", {
+    const response = (await apiClient("/flashcard/update/usingMeaningIdList", {
       method: "PUT",
       body: JSON.stringify(data),
     })) as ApiResponse;

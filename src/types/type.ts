@@ -71,7 +71,7 @@ export type MemoUpdateRequest = {
 
 export type UsingMeaningListUpdateRequest = {
   flashcardId: string;
-  usingMeaningList: string[];
+  usingMeaningIdList: string[];
 };
 
 export type MediaCreateRequest = {

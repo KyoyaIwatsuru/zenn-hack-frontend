@@ -8,8 +8,8 @@ export async function PUT(request: NextRequest) {
 
     const missingFields = [];
     if (!body.flashcardId) missingFields.push("flashcardId");
-    if (!body.usingMeaningList || !Array.isArray(body.usingMeaningList)) {
-      missingFields.push("usingMeaningList");
+    if (!body.usingMeaningIdList || !Array.isArray(body.usingMeaningIdList)) {
+      missingFields.push("usingMeaningIdList");
     }
 
     if (missingFields.length > 0) {
