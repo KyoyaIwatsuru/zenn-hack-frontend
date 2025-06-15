@@ -24,19 +24,19 @@ const posTranslations: Record<string, string> = {
   idiom: "熟語",
 };
 
-interface AddMeaningPopoverProps {
+interface MeaningUpdatePopoverProps {
   flashcardId: string;
   wordId: string;
   currentMeanings: Meaning[];
   onMeaningAdded: (meanings: Meaning[]) => void;
 }
 
-export function AddMeaningPopover({
+export function MeaningUpdatePopover({
   flashcardId,
   wordId,
   currentMeanings,
   onMeaningAdded,
-}: AddMeaningPopoverProps) {
+}: MeaningUpdatePopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [availableMeanings, setAvailableMeanings] = useState<Meaning[]>([]);

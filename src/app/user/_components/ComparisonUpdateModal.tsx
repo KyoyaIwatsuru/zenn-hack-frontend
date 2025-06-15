@@ -10,7 +10,7 @@ import {
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
-interface MediaComparisonModalProps {
+interface ComparisonUpdateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
@@ -19,14 +19,14 @@ interface MediaComparisonModalProps {
   onComparisonSubmitted: () => void;
 }
 
-export function MediaComparisonModal({
+export function ComparisonUpdateModal({
   isOpen,
   onOpenChange,
   flashcard,
   selectedMeaning,
   onMeaningSelect,
   onComparisonSubmitted,
-}: MediaComparisonModalProps) {
+}: ComparisonUpdateModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!flashcard || !selectedMeaning) {

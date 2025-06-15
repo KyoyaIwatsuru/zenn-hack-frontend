@@ -10,7 +10,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Check, AlertCircle, Loader2 } from "lucide-react";
 
-interface ProfileEditModalProps {
+interface UserUpdateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   currentUserName: string;
@@ -19,14 +19,14 @@ interface ProfileEditModalProps {
   onProfileUpdated: (newUserName: string) => void;
 }
 
-export function ProfileEditModal({
+export function UserUpdateModal({
   isOpen,
   onOpenChange,
   currentUserName,
   currentEmail,
   userId,
   onProfileUpdated,
-}: ProfileEditModalProps) {
+}: UserUpdateModalProps) {
   const [userName, setUserName] = useState(currentUserName);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

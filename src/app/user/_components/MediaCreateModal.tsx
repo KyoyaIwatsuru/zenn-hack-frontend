@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
-interface MediaGenerationModalProps {
+interface MediaCreateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
@@ -33,14 +33,14 @@ interface PromptCondition {
   value: string;
 }
 
-export function MediaGenerationModal({
+export function MediaCreateModal({
   isOpen,
   onOpenChange,
   flashcard,
   selectedMeaning,
   onMeaningSelect,
   onMediaGenerated,
-}: MediaGenerationModalProps) {
+}: MediaCreateModalProps) {
   const [selectedModel, setSelectedModel] = useState("text2image");
   const [descriptionTarget, setDescriptionTarget] = useState("example");
   const [editFormat, setEditFormat] = useState("question");

@@ -26,7 +26,7 @@ export default function AuthPage() {
   // サインアップフォーム
   const [signupForm, setSignupForm] = useState({
     email: "",
-    username: "",
+    userName: "",
     password: "",
     confirmPassword: "",
   });
@@ -102,7 +102,7 @@ export default function AuthPage() {
     }
 
     try {
-      if (!signupForm.email || !signupForm.username || !signupForm.password) {
+      if (!signupForm.email || !signupForm.userName || !signupForm.password) {
         throw new Error("すべての項目を入力してください");
       }
 
@@ -110,7 +110,7 @@ export default function AuthPage() {
       const result = await signIn("credentials", {
         email: signupForm.email,
         password: signupForm.password,
-        userName: signupForm.username,
+        userName: signupForm.userName,
         mode: "signup",
         redirect: false,
       });
@@ -241,11 +241,11 @@ export default function AuthPage() {
                   </label>
                   <Input
                     type="text"
-                    value={signupForm.username}
+                    value={signupForm.userName}
                     onChange={(e) =>
                       setSignupForm((prev) => ({
                         ...prev,
-                        username: e.target.value,
+                        userName: e.target.value,
                       }))
                     }
                     placeholder="ユーザー名を入力"

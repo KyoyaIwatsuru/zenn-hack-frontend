@@ -16,10 +16,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Flashcard, Meaning } from "@/types/type";
-import { MediaGenerationModal } from "./_components/MediaGenerationModal";
-import { MediaComparisonModal } from "./_components/MediaComparisonModal";
-import { AddMeaningPopover } from "./_components/AddMeaningPopover";
-import { ProfileEditModal } from "./_components/ProfileEditModal";
+import { MediaCreateModal } from "./_components/MediaCreateModal";
+import { ComparisonUpdateModal } from "./_components/ComparisonUpdateModal";
+import { MeaningUpdatePopover } from "./_components/MeaningUpdatePopover";
+import { UserUpdateModal } from "./_components/UserUpdateModal";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -435,7 +435,7 @@ export default function UserPage() {
                         })}
                       </div>
 
-                      <AddMeaningPopover
+                      <MeaningUpdatePopover
                         flashcardId={flashcard.flashcardId}
                         wordId={flashcard.word.wordId}
                         currentMeanings={flashcard.meanings}
@@ -485,7 +485,7 @@ export default function UserPage() {
           ))}
       </div>
 
-      <MediaGenerationModal
+      <MediaCreateModal
         isOpen={mediaModalOpen}
         onOpenChange={setMediaModalOpen}
         flashcard={currentMediaFlashcard}
@@ -498,7 +498,7 @@ export default function UserPage() {
         onMediaGenerated={handleMediaGenerated}
       />
 
-      <MediaComparisonModal
+      <ComparisonUpdateModal
         isOpen={compareModalOpen}
         onOpenChange={setCompareModalOpen}
         flashcard={currentCompareFlashcard}
@@ -548,7 +548,7 @@ export default function UserPage() {
         </DialogContent>
       </Dialog>
 
-      <ProfileEditModal
+      <UserUpdateModal
         isOpen={profileModalOpen}
         onOpenChange={setProfileModalOpen}
         currentUserName={displayUserName || ""}

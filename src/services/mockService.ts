@@ -1,4 +1,4 @@
-import { Flashcard, Meaning, Template, Media } from "@/types/type";
+import { Flashcard, Meaning, Template, Media, UsingMeaningListUpdateRequest } from "@/types/type";
 
 // ダミーデータ
 const mockFlashcards: Flashcard[] = [
@@ -249,18 +249,30 @@ export const mockApiService = {
   },
 
   // 意味更新
-  updateMeaning: async (data: {
-    flashcardId: string;
-    usingMeaningList: string[];
-  }): Promise<void> => {
+  updateMeaning: async (data: UsingMeaningListUpdateRequest): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     const flashcards = getStoredData();
-    const updatedFlashcards = flashcards.map((card) =>
-      card.flashcardId === data.flashcardId
-        ? { ...card, meaning: [...card.meanings, ...data.usingMeaningList] }
-        : card
-    );
+    const updatedFlashcards = flashcards.map((card) => {
+      if (card.flashcardId === data.flashcardId) {
+        // 指定されたIDに対応する意味を、全ての利用可能な意味から取得
+        const wordId = card.word.wordId;
+        const currentMeanings = card.meanings;
+        const availableAdditionalMeanings = additionalMeanings[wordId] || [];
+        const allAvailableMeanings = [...currentMeanings, ...availableAdditionalMeanings];
+        
+        // usingMeaningIdListに含まれるIDの意味のみを残す
+        const updatedMeanings = data.usingMeaningIdList
+          .map(meaningId => allAvailableMeanings.find(m => m.meaningId === meaningId))
+          .filter((meaning): meaning is Meaning => meaning !== undefined);
+        
+        return {
+          ...card,
+          meanings: updatedMeanings
+        };
+      }
+      return card;
+    });
 
     saveToStorage(updatedFlashcards);
   },
