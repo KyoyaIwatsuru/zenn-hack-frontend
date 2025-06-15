@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { FileText, Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,35 +31,54 @@ export default function AuthPage() {
     confirmPassword: "",
   });
 
+  // 認証済みの場合は/userにリダイレクト
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push("/user");
+    }
+  }, [session, status, router]);
+
+  // 認証状態を確認中の場合はローディング表示
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="text-custom">読み込み中...</div>
+      </div>
+    );
+  }
+
+  // 既に認証済みの場合は何も表示しない（リダイレクト待ち）
+  if (status === "authenticated") {
+    return null;
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      // ダミー認証 - 簡単なバリデーション
+      // バリデーション
       if (loginForm.email.length === 0 || loginForm.password.length === 0) {
         throw new Error("メールアドレスとパスワードを入力してください");
       }
 
-      // ダミーのユーザーID生成（メールアドレスベース）
-      const userId =
-        "user_" +
-        btoa(loginForm.email)
-          .replace(/[^a-zA-Z0-9]/g, "")
-          .slice(0, 10);
+      // Auth.jsでログイン
+      const result = await signIn("credentials", {
+        email: loginForm.email,
+        password: loginForm.password,
+        mode: "signin",
+        redirect: false,
+      });
 
-      // ローカルストレージにユーザーIDを保存
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("userEmail", loginForm.email);
+      if (result?.error) {
+        throw new Error(result.error);
+      }
 
-      // ログイン成功後、ユーザーページに移動
-      setTimeout(() => {
-        router.push("/user");
-        setIsLoading(false);
-      }, 800);
+      // 成功時は自動で/userにリダイレクトされる
     } catch (err) {
       setError(err instanceof Error ? err.message : "ログインに失敗しました。");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -67,6 +88,7 @@ export default function AuthPage() {
     setIsLoading(true);
     setError("");
 
+    // バリデーション
     if (signupForm.password !== signupForm.confirmPassword) {
       setError("パスワードが一致しません。");
       setIsLoading(false);
@@ -80,32 +102,29 @@ export default function AuthPage() {
     }
 
     try {
-      // ダミー認証 - バリデーション
       if (!signupForm.email || !signupForm.username || !signupForm.password) {
         throw new Error("すべての項目を入力してください");
       }
 
-      // ダミーのユーザーID生成（メールアドレスベース）
-      const userId =
-        "user_" +
-        btoa(signupForm.email)
-          .replace(/[^a-zA-Z0-9]/g, "")
-          .slice(0, 10);
+      // Auth.jsでサインアップ
+      const result = await signIn("credentials", {
+        email: signupForm.email,
+        password: signupForm.password,
+        userName: signupForm.username,
+        mode: "signup",
+        redirect: false,
+      });
 
-      // ローカルストレージにユーザー情報を保存
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("userEmail", signupForm.email);
-      localStorage.setItem("userName", signupForm.username);
+      if (result?.error) {
+        throw new Error(result.error);
+      }
 
-      // サインアップ成功後、ユーザーページに移動
-      setTimeout(() => {
-        router.push("/user");
-        setIsLoading(false);
-      }, 800);
+      // 成功時は自動で/userにリダイレクトされる
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "アカウント作成に失敗しました。"
       );
+    } finally {
       setIsLoading(false);
     }
   };

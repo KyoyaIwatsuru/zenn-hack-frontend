@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const result = await apiService.getFlashcards(userId);
+    const result = await apiService.getComparison(userId);
     return NextResponse.json(result);
   } catch (error) {
     const errorMessage =

@@ -3,19 +3,19 @@ import { apiService } from "@/services/apiService";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ wordId: string }> }
 ) {
   try {
-    const { userId } = await params;
+    const { wordId } = await params;
 
-    if (!userId) {
+    if (!wordId) {
       return NextResponse.json(
-        { error: "userId is required" },
+        { error: "wordId is required" },
         { status: 400 }
       );
     }
 
-    const result = await apiService.getFlashcards(userId);
+    const result = await apiService.getMeanings(wordId);
     return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
