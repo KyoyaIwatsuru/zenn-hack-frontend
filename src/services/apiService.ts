@@ -1,79 +1,167 @@
 import { apiClient } from "@/lib/apiClient";
 import {
-  Flashcard,
-  Meaning,
-  Template,
-  Media,
-  CheckFlagRequest,
-  MeaningAddRequest,
+  User,
+  CheckFlagUpdateRequest,
   MemoUpdateRequest,
-  MediaGenerateRequest,
-  MediaCompareRequest,
+  UsingMeaningListUpdateRequest,
+  MediaCreateRequest,
+  ComparisonUpdateRequest,
+  ApiResponse,
   FlashcardResponse,
+  MediaCreateResponse,
+  ComparisonResponse,
   MeaningResponse,
   TemplateResponse,
-  MediaResponse,
 } from "@/types/type";
 
-export const flashcardService = {
+export const apiService = {
+  // ユーザー登録
+  setupUser: async (data: User): Promise<ApiResponse> => {
+    const response = (await apiClient("/user/setup", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })) as ApiResponse;
+    if ("message" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
+  },
+
+  // ユーザー情報更新
+  updateUser: async (data: User): Promise<ApiResponse> => {
+    const response = (await apiClient("/user/update", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    })) as ApiResponse;
+    if ("message" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
+  },
+
   // フラッシュカード取得
-  getFlashcards: async (userId: string): Promise<Flashcard[]> => {
+  getFlashcards: async (userId: string): Promise<FlashcardResponse> => {
     const response = (await apiClient(
       `/flashcard/${userId}`
     )) as FlashcardResponse;
-    return response.flashcard;
+    if ("flashcards" in response) {
+      return response;
+    }
+    throw new Error(
+      response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+    );
   },
 
   // チェックフラグ更新
-  updateCheckFlag: async (data: CheckFlagRequest): Promise<void> => {
-    await apiClient("/flashcard/checkFlag", {
+  updateCheckFlag: async (
+    data: CheckFlagUpdateRequest
+  ): Promise<ApiResponse> => {
+    const response = (await apiClient("/flashcard/update/checkFlag", {
       method: "PUT",
       body: JSON.stringify(data),
-    });
-  },
-
-  // 単語の意味取得
-  getMeanings: async (wordId: string): Promise<Meaning[]> => {
-    const response = (await apiClient(`/word/${wordId}`)) as MeaningResponse;
-    return response.meaning;
-  },
-
-  // 意味追加
-  addMeaning: async (data: MeaningAddRequest): Promise<void> => {
-    await apiClient("/flashcard/meaning", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
+    })) as ApiResponse;
+    if ("message" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
   },
 
   // メモ更新
-  updateMemo: async (data: MemoUpdateRequest): Promise<void> => {
-    await apiClient("/flashcard/memo", {
+  updateMemo: async (data: MemoUpdateRequest): Promise<ApiResponse> => {
+    const response = (await apiClient("/flashcard/update/memo", {
       method: "PUT",
       body: JSON.stringify(data),
-    });
+    })) as ApiResponse;
+    if ("message" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
   },
 
-  // テンプレート取得
-  getTemplates: async (): Promise<Template[]> => {
-    const response = (await apiClient("/template")) as TemplateResponse;
-    return response.template;
+  // 意味更新
+  updateMeaning: async (
+    data: UsingMeaningListUpdateRequest
+  ): Promise<ApiResponse> => {
+    const response = (await apiClient("/flashcard/update/usingMeaningList", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    })) as ApiResponse;
+    if ("message" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
   },
 
   // メディア生成
-  generateMedia: async (data: MediaGenerateRequest): Promise<Media> => {
-    const response = (await apiClient("/media", {
+  createMedia: async (
+    data: MediaCreateRequest
+  ): Promise<MediaCreateResponse> => {
+    const response = (await apiClient("/media/create", {
       method: "POST",
       body: JSON.stringify(data),
-    })) as MediaResponse;
-    return response.media;
+    })) as MediaCreateResponse;
+    if ("newMediaId" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
   },
 
-  // メディア比較
-  compareMedia: async (data: MediaCompareRequest): Promise<void> => {
-    await apiClient("/comparison", {
-      method: "POST",
+  // 比較更新
+  updateCompare: async (
+    data: ComparisonUpdateRequest
+  ): Promise<ComparisonResponse> => {
+    const response = (await apiClient("/comparison/update", {
+      method: "PUT",
       body: JSON.stringify(data),
-    });
+    })) as ComparisonResponse;
+    if ("comparisonId" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
+  },
+
+  // 単語の意味取得
+  getMeanings: async (wordId: string): Promise<MeaningResponse> => {
+    const response = (await apiClient(`/meaning/${wordId}`)) as MeaningResponse;
+    if ("meanings" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
+  },
+
+  // テンプレート取得
+  getTemplates: async (): Promise<TemplateResponse> => {
+    const response = (await apiClient("/template")) as TemplateResponse;
+    if ("template" in response) {
+      return response;
+    } else {
+      throw new Error(
+        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
+      );
+    }
   },
 };

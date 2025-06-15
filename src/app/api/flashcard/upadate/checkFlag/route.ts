@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
-import { MemoUpdateRequest } from "@/types/type";
+import { apiService } from "@/services/apiService";
+import { CheckFlagUpdateRequest } from "@/types/type";
 
 export async function PUT(request: NextRequest) {
   try {
-    const body: MemoUpdateRequest = await request.json();
+    const body: CheckFlagUpdateRequest = await request.json();
 
-    if (!body.flashcardId || typeof body.memo !== "string") {
+    if (!body.flashcardId || typeof body.checkFlag !== "boolean") {
       return NextResponse.json(
-        { error: "flashcardId and memo are required" },
+        { error: "flashcardId and checkFlag are required" },
         { status: 400 }
       );
     }
 
-    await flashcardService.updateMemo(body);
+    await apiService.updateCheckFlag(body);
     return NextResponse.json({ success: true });
   } catch (error) {
     const errorMessage =

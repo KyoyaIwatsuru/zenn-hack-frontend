@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
-import { MeaningAddRequest } from "@/types/type";
+import { apiService } from "@/services/apiService";
+import { UsingMeaningListUpdateRequest } from "@/types/type";
 
 export async function PUT(request: NextRequest) {
   try {
-    const body: MeaningAddRequest = await request.json();
+    const body: UsingMeaningListUpdateRequest = await request.json();
 
-    if (!body.flashcardId || !body.meaning || !Array.isArray(body.meaning)) {
+    if (!body.flashcardId || !body.usingMeaningList) {
       return NextResponse.json(
         { error: "flashcardId and meaning array are required" },
         { status: 400 }
       );
     }
 
-    await flashcardService.addMeaning(body);
+    await apiService.updateMeaning(body);
     return NextResponse.json({ success: true });
   } catch (error) {
     const errorMessage =

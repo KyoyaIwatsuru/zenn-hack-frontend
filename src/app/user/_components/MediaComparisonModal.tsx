@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
-import { mockFlashcardService } from "@/services/mockService";
+import { mockApiService } from "@/services/mockService";
 
 interface MediaComparisonModalProps {
   isOpen: boolean;
@@ -38,11 +38,12 @@ export function MediaComparisonModal({
     setIsSubmitting(true);
 
     try {
-      await mockFlashcardService.compareMedia({
+      await mockApiService.updateCompare({
+        flashcardId: flashcard.flashcardId,
         comparisonId: `comparison_${Date.now()}`,
         oldMediaId: "before_media_id", // 実際のBefore画像ID
         newMediaId: "after_media_id", // 実際のAfter画像ID
-        selected: "before",
+        isSelectedNew: false, // Before画像を選択
       });
 
       onComparisonSubmitted();
@@ -59,11 +60,12 @@ export function MediaComparisonModal({
     setIsSubmitting(true);
 
     try {
-      await mockFlashcardService.compareMedia({
+      await mockApiService.updateCompare({
+        flashcardId: flashcard.flashcardId,
         comparisonId: `comparison_${Date.now()}`,
         oldMediaId: "before_media_id", // 実際のBefore画像ID
         newMediaId: "after_media_id", // 実際のAfter画像ID
-        selected: "after",
+        isSelectedNew: true, // After画像を選択
       });
 
       onComparisonSubmitted();

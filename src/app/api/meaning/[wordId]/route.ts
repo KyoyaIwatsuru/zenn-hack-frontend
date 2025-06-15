@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
+import { apiService } from "@/services/apiService";
 
 export async function GET({ params }: { params: { wordId: string } }) {
   try {
@@ -12,7 +12,7 @@ export async function GET({ params }: { params: { wordId: string } }) {
       );
     }
 
-    const meanings = await flashcardService.getMeanings(wordId);
+    const meanings = await apiService.getMeanings(wordId);
     return NextResponse.json({ meaning: meanings });
   } catch (error) {
     const errorMessage =

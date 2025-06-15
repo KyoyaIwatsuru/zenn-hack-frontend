@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
-import { MediaGenerateRequest } from "@/types/type";
+import { apiService } from "@/services/apiService";
+import { ComparisonUpdateRequest } from "@/types/type";
 
 export async function POST(request: NextRequest) {
   try {
-    const body: MediaGenerateRequest = await request.json();
+    const body: ComparisonUpdateRequest = await request.json();
 
     const requiredFields = [
-      "userId",
-      "flashcardId",
-      "meaningId",
-      "generationType",
-      "templateId",
-      "userPrompt",
+      "comparisonId",
+      "oldMediaId",
+      "newMediaId",
+      "selected",
     ];
     const missingFields = requiredFields.filter(
-      (field) => !body[field as keyof MediaGenerateRequest]
+      (field) => !body[field as keyof ComparisonUpdateRequest]
     );
 
     if (missingFields.length > 0) {
@@ -25,8 +23,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const media = await flashcardService.generateMedia(body);
-    return NextResponse.json({ media });
+    await apiService.updateCompare(body);
+    return NextResponse.json({ success: true });
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

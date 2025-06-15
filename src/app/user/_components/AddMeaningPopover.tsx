@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Meaning } from "@/types/type";
-import { mockFlashcardService } from "@/services/mockService";
+import { mockApiService } from "@/services/mockService";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -63,7 +63,7 @@ export function AddMeaningPopover({
       setError("");
 
       try {
-        const allMeanings = await mockFlashcardService.getMeanings(wordId);
+        const allMeanings = await mockApiService.getMeanings(wordId);
         const available = getAvailableMeanings(allMeanings);
         setAvailableMeanings(available);
       } catch (err) {
@@ -98,9 +98,9 @@ export function AddMeaningPopover({
         selectedMeanings.has(meaning.meaningId)
       );
 
-      await mockFlashcardService.addMeaning({
+      await mockApiService.updateMeaning({
         flashcardId,
-        meaning: meaningsToAdd,
+        usingMeaningList: meaningsToAdd.map((meaning) => meaning.meaningId),
       });
 
       // 成功時の処理

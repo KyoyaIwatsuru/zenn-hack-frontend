@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Flashcard, Meaning } from "@/types/type";
 import { FlashcardDisplay } from "./FlashcardDisplay";
-import { mockFlashcardService } from "@/services/mockService";
+import { mockApiService } from "@/services/mockService";
 
 interface MediaGenerationModalProps {
   isOpen: boolean;
@@ -97,19 +97,20 @@ export function MediaGenerationModal({
         .join(", ");
 
       const requestData = {
-        userId: localStorage.getItem("userId") || "",
         flashcardId: flashcard.flashcardId,
+        oldMediaId: flashcard.media?.mediaId || "",
         meaningId: selectedMeaning.meaningId,
         generationType: selectedModel,
         templateId: "default-template", // 後でテンプレート選択機能を追加
         userPrompt,
+        allowGeneratingPerson: true, // ユーザーが人物生成を許可するかどうか
         inputMediaUrls:
           selectedModel === "image2image"
             ? flashcard.media?.mediaUrls
             : undefined,
       };
 
-      const media = await mockFlashcardService.generateMedia(requestData);
+      const media = await mockApiService.createMedia(requestData);
 
       // 成功時の処理
       onMediaGenerated(flashcard.flashcardId, media);

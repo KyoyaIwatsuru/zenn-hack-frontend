@@ -12,6 +12,12 @@ export type pos =
   | "conjunction"
   | "idiom";
 
+export type User = {
+  userId: string;
+  userName: string;
+  email: string;
+};
+
 export type Word = {
   wordId: string;
   word: string;
@@ -37,7 +43,7 @@ export type Media = {
 export type Flashcard = {
   flashcardId: string;
   word: Word;
-  meaning: Meaning[];
+  meanings: Meaning[];
   media: Media;
   version: number;
   memo: string;
@@ -52,22 +58,10 @@ export type Template = {
   promptText: string;
 };
 
-export type Comparison = {
-  comparisonId: string;
-  oldMediaId: string;
-  newMediaId: string;
-  selected: string;
-};
-
 // API Request/Response types
-export type CheckFlagRequest = {
+export type CheckFlagUpdateRequest = {
   flashcardId: string;
   checkFlag: boolean;
-};
-
-export type MeaningAddRequest = {
-  flashcardId: string;
-  meaning: Meaning[];
 };
 
 export type MemoUpdateRequest = {
@@ -75,36 +69,74 @@ export type MemoUpdateRequest = {
   memo: string;
 };
 
-export type MediaGenerateRequest = {
-  userId: string;
+export type UsingMeaningListUpdateRequest = {
   flashcardId: string;
+  usingMeaningList: string[];
+};
+
+export type MediaCreateRequest = {
+  flashcardId: string;
+  oldMediaId: string;
   meaningId: string;
   generationType: string;
   templateId: string;
   userPrompt: string;
+  allowGeneratingPerson: boolean;
   inputMediaUrls?: string[];
 };
 
-export type MediaCompareRequest = {
+export type ComparisonUpdateRequest = {
+  flashcardId: string;
   comparisonId: string;
   oldMediaId: string;
   newMediaId: string;
-  selected: string;
+  isSelectedNew: boolean;
+};
+
+// Base API Response types
+export type BaseApiResponse = {
+  message: string;
+};
+
+export type ApiError = {
+  detail: {
+    loc: string[];
+    msg: string;
+    type: string;
+  }[];
 };
 
 // API Response types
-export type FlashcardResponse = {
-  flashcard: Flashcard[];
-};
+export type ApiResponse = BaseApiResponse | ApiError;
 
-export type MeaningResponse = {
-  meaning: Meaning[];
-};
+export type FlashcardResponse =
+  | (BaseApiResponse & {
+      flashcards: Flashcard[];
+    })
+  | ApiError;
 
-export type TemplateResponse = {
-  template: Template[];
-};
+export type MediaCreateResponse =
+  | (BaseApiResponse & {
+      newMediaId: string;
+    })
+  | ApiError;
 
-export type MediaResponse = {
-  media: Media;
-};
+export type ComparisonResponse =
+  | (BaseApiResponse & {
+      comparisonId: string;
+      flashcardId: string;
+      newMediaUrls: string[];
+    })
+  | ApiError;
+
+export type MeaningResponse =
+  | (BaseApiResponse & {
+      meanings: Meaning[];
+    })
+  | ApiError;
+
+export type TemplateResponse =
+  | (BaseApiResponse & {
+      template: Template[];
+    })
+  | ApiError;

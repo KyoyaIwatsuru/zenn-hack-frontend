@@ -64,7 +64,7 @@ export function FlashcardDisplay({
             {/* 意味セクション - 2列表示 */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                {flashcard.meaning.map((meaning) => {
+                {flashcard.meanings.map((meaning) => {
                   const isSelected =
                     selectedMeaning.meaningId === meaning.meaningId;
                   return (

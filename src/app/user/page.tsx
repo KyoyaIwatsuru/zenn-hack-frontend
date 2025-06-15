@@ -17,7 +17,7 @@ import { Flashcard, Meaning } from "@/types/type";
 import { MediaGenerationModal } from "./_components/MediaGenerationModal";
 import { MediaComparisonModal } from "./_components/MediaComparisonModal";
 import { AddMeaningPopover } from "./_components/AddMeaningPopover";
-import { mockFlashcardService } from "@/services/mockService";
+import { mockApiService } from "@/services/mockService";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -82,7 +82,7 @@ export default function UserPage() {
     setError("");
 
     try {
-      const cards = await mockFlashcardService.getFlashcards();
+      const cards = await mockApiService.getFlashcards();
       setFlashcards(cards);
     } catch (err) {
       setError("フラッシュカードの読み込みに失敗しました");
@@ -117,7 +117,7 @@ export default function UserPage() {
     );
 
     try {
-      await mockFlashcardService.updateCheckFlag({
+      await mockApiService.updateCheckFlag({
         flashcardId,
         checkFlag: newCheckFlag,
       });
@@ -137,7 +137,7 @@ export default function UserPage() {
   // メモの更新
   const handleUpdateMemo = async (flashcardId: string, memo: string) => {
     try {
-      await mockFlashcardService.updateMemo({
+      await mockApiService.updateMemo({
         flashcardId,
         memo,
       });
@@ -181,11 +181,11 @@ export default function UserPage() {
     const selectedMeaningId = selectedMeanings[flashcard.flashcardId];
     if (selectedMeaningId) {
       return (
-        flashcard.meaning.find((m) => m.meaningId === selectedMeaningId) ||
-        flashcard.meaning[0]
+        flashcard.meanings.find((m) => m.meaningId === selectedMeaningId) ||
+        flashcard.meanings[0]
       );
     }
-    return flashcard.meaning[0];
+    return flashcard.meanings[0];
   };
 
   // 意味追加後の処理
@@ -193,7 +193,7 @@ export default function UserPage() {
     setFlashcards((prev) =>
       prev.map((card) =>
         card.flashcardId === flashcardId
-          ? { ...card, meaning: [...card.meaning, ...newMeanings] }
+          ? { ...card, meanings: [...card.meanings, ...newMeanings] }
           : card
       )
     );
@@ -345,7 +345,7 @@ export default function UserPage() {
                     {/* 意味セクション - 2列表示 */}
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                        {flashcard.meaning.map((meaning) => {
+                        {flashcard.meanings.map((meaning) => {
                           const isSelected =
                             getSelectedMeaning(flashcard).meaningId ===
                             meaning.meaningId;
@@ -376,7 +376,7 @@ export default function UserPage() {
                       <AddMeaningPopover
                         flashcardId={flashcard.flashcardId}
                         wordId={flashcard.word.wordId}
-                        currentMeanings={flashcard.meaning}
+                        currentMeanings={flashcard.meanings}
                         onMeaningAdded={(newMeanings) =>
                           handleMeaningAdded(flashcard.flashcardId, newMeanings)
                         }

@@ -11,7 +11,7 @@ const mockFlashcards: Flashcard[] = [
       explanation:
         "「count（数える）」という単語が語源に含まれていることから、数や出来事、問題を計算・説明するというイメージが生まれます。",
     },
-    meaning: [
+    meanings: [
       {
         meaningId: "1",
         pos: "noun",
@@ -47,7 +47,7 @@ const mockFlashcards: Flashcard[] = [
       explanation:
         "「con（一緒に）」と「sider（座る）」が組み合わさった語源で、物事について座ってじっくり考えるというイメージです。",
     },
-    meaning: [
+    meanings: [
       {
         meaningId: "3",
         pos: "transitiveVerb",
@@ -83,7 +83,7 @@ const mockFlashcards: Flashcard[] = [
       explanation:
         "「de（完全に）」と「monstrare（見せる）」から成り立ち、何かを完全に見せる・示すという意味を持ちます。",
     },
-    meaning: [
+    meanings: [
       {
         meaningId: "5",
         pos: "transitiveVerb",
@@ -202,7 +202,7 @@ const initializeData = () => {
 };
 
 // モックAPIサービス
-export const mockFlashcardService = {
+export const mockApiService = {
   // フラッシュカード取得
   getFlashcards: async (): Promise<Flashcard[]> => {
     // 初期化
@@ -231,35 +231,6 @@ export const mockFlashcardService = {
     saveToStorage(updatedFlashcards);
   },
 
-  // 単語の意味取得（追加可能な意味を含む）
-  getMeanings: async (wordId: string): Promise<Meaning[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    const flashcards = getStoredData();
-    const flashcard = flashcards.find((f) => f.word.wordId === wordId);
-    const currentMeanings = flashcard?.meaning || [];
-    const additional = additionalMeanings[wordId] || [];
-
-    return [...currentMeanings, ...additional];
-  },
-
-  // 意味追加
-  addMeaning: async (data: {
-    flashcardId: string;
-    meaning: Meaning[];
-  }): Promise<void> => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    const flashcards = getStoredData();
-    const updatedFlashcards = flashcards.map((card) =>
-      card.flashcardId === data.flashcardId
-        ? { ...card, meaning: [...card.meaning, ...data.meaning] }
-        : card
-    );
-
-    saveToStorage(updatedFlashcards);
-  },
-
   // メモ更新
   updateMemo: async (data: {
     flashcardId: string;
@@ -277,43 +248,32 @@ export const mockFlashcardService = {
     saveToStorage(updatedFlashcards);
   },
 
-  // テンプレート取得
-  getTemplates: async (): Promise<Template[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+  // 意味更新
+  updateMeaning: async (data: {
+    flashcardId: string;
+    usingMeaningList: string[];
+  }): Promise<void> => {
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
-    return [
-      {
-        templateId: "1",
-        name: "基本テンプレート",
-        promptText: "Create a simple illustration representing: {meaning}",
-        description: "",
-        generationType: ""
-      },
-      {
-        templateId: "2",
-        name: "ビジネステンプレート",
-        promptText: "Create a professional business scene showing: {meaning}",
-        description: "",
-        generationType: ""
-      },
-      {
-        templateId: "3",
-        name: "カジュアルテンプレート",
-        promptText: "Create a casual, friendly illustration of: {meaning}",
-        description: "",
-        generationType: ""
-      },
-    ];
+    const flashcards = getStoredData();
+    const updatedFlashcards = flashcards.map((card) =>
+      card.flashcardId === data.flashcardId
+        ? { ...card, meaning: [...card.meanings, ...data.usingMeaningList] }
+        : card
+    );
+
+    saveToStorage(updatedFlashcards);
   },
 
   // メディア生成
-  generateMedia: async (data: {
-    userId: string;
+  createMedia: async (data: {
     flashcardId: string;
+    oldMediaId: string;
     meaningId: string;
     generationType: string;
     templateId: string;
     userPrompt: string;
+    allowGeneratingPerson: boolean;
     inputMediaUrls?: string[];
   }): Promise<Media> => {
     await new Promise((resolve) => setTimeout(resolve, 2000)); // 生成に時間がかかることをシミュレート
@@ -340,16 +300,58 @@ export const mockFlashcardService = {
     return newMedia;
   },
 
-  // メディア比較
-  compareMedia: async (data: {
+  // 比較更新
+  updateCompare: async (data: {
+    flashcardId: string;
     comparisonId: string;
     oldMediaId: string;
     newMediaId: string;
-    selected: "before" | "after";
+    isSelectedNew: boolean;
   }): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // 比較結果をログに記録（実際のAPIでは分析データとして送信）
     console.log("比較結果:", data);
+  },
+
+  // 単語の意味取得（追加可能な意味を含む）
+  getMeanings: async (wordId: string): Promise<Meaning[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const flashcards = getStoredData();
+    const flashcard = flashcards.find((f) => f.word.wordId === wordId);
+    const currentMeanings = flashcard?.meanings || [];
+    const additional = additionalMeanings[wordId] || [];
+
+    return [...currentMeanings, ...additional];
+  },
+
+  // テンプレート取得
+  getTemplates: async (): Promise<Template[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    return [
+      {
+        templateId: "1",
+        name: "基本テンプレート",
+        promptText: "Create a simple illustration representing: {meaning}",
+        description: "",
+        generationType: "",
+      },
+      {
+        templateId: "2",
+        name: "ビジネステンプレート",
+        promptText: "Create a professional business scene showing: {meaning}",
+        description: "",
+        generationType: "",
+      },
+      {
+        templateId: "3",
+        name: "カジュアルテンプレート",
+        promptText: "Create a casual, friendly illustration of: {meaning}",
+        description: "",
+        generationType: "",
+      },
+    ];
   },
 };

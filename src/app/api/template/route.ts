@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
+import { apiService } from "@/services/apiService";
 
 export async function GET() {
   try {
-    const templates = await flashcardService.getTemplates();
+    const templates = await apiService.getTemplates();
     return NextResponse.json({ template: templates });
   } catch (error) {
     const errorMessage =
