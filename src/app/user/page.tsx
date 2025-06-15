@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import { Edit3, FileText, Check } from "lucide-react";
+import { Edit3, FileText, Check, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ import { Flashcard, Meaning } from "@/types/type";
 import { MediaGenerationModal } from "./_components/MediaGenerationModal";
 import { MediaComparisonModal } from "./_components/MediaComparisonModal";
 import { AddMeaningPopover } from "./_components/AddMeaningPopover";
+import { ProfileEditModal } from "./_components/ProfileEditModal";
 
 const posTranslations: Record<string, string> = {
   noun: "名",
@@ -36,8 +38,10 @@ const posTranslations: Record<string, string> = {
 
 export default function UserPage() {
   const router = useRouter();
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
+  const { data: session, status } = useSession();
+  const userId = session?.user?.id || null;
+  const userEmail = session?.user?.email || null;
+  const [displayUserName, setDisplayUserName] = useState(session?.user?.name || null);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,6 +58,7 @@ export default function UserPage() {
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [currentCompareFlashcard, setCurrentCompareFlashcard] =
     useState<Flashcard | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const loadFlashcards = useCallback(async () => {
     if (!userId) return;
@@ -80,27 +85,29 @@ export default function UserPage() {
     }
   }, [userId]);
 
+  // displayUserNameを初期化
   useEffect(() => {
-    const checkAuth = () => {
-      const fixedUserId = "cergU7H1N7gRnzZmiZcC";
-      const storedUserName =
-        localStorage.getItem("userName") ||
-        localStorage.getItem("userEmail")?.split("@")[0] ||
-        "テストユーザー";
+    if (session?.user?.name && !displayUserName) {
+      setDisplayUserName(session.user.name);
+    }
+  }, [session?.user?.name, displayUserName]);
 
-      setUserId(fixedUserId);
-      setUserName(storedUserName);
-      loadFlashcards();
-    };
+  // 認証状態のチェックとリダイレクト
+  useEffect(() => {
+    if (status === "loading") return; // ローディング中は何もしない
+    
+    if (status === "unauthenticated" || !session?.user) {
+      router.push("/"); // 未認証の場合はログインページにリダイレクト
+      return;
+    }
+    
+    if (userId) {
+      loadFlashcards(); // 認証済みでuserIdがある場合のみフラッシュカードを読み込み
+    }
+  }, [status, session, userId, router, loadFlashcards]);
 
-    checkAuth();
-  }, [router, loadFlashcards]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
-    router.push("/");
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
   };
 
   const toggleCheckFlag = async (flashcardId: string) => {
@@ -257,9 +264,31 @@ export default function UserPage() {
     console.log("比較結果が送信されました");
   };
 
+  const handleProfileUpdated = (newUserName: string) => {
+    setDisplayUserName(newUserName);
+  };
+
+  const openProfileModal = () => {
+    setProfileModalOpen(true);
+  };
+
   const currentEditingFlashcard = editingMemo
     ? flashcards.find((f) => f.flashcardId === editingMemo)
     : null;
+
+  // 認証状態をチェック中はローディング表示
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="text-custom">読み込み中...</div>
+      </div>
+    );
+  }
+
+  // 未認証の場合は何も表示しない（リダイレクト待ち）
+  if (status === "unauthenticated" || !session?.user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-primary">
@@ -268,10 +297,21 @@ export default function UserPage() {
           <div className="flex items-center gap-2">
             <FileText className="w-6 h-6" />
             <span className="font-medium">フラッシュカード</span>
-            {userName && (
-              <span className="ml-4 text-sm opacity-90">
-                ようこそ、{userName}さん
-              </span>
+            {displayUserName && (
+              <div className="ml-4 flex items-center gap-2">
+                <span className="text-sm opacity-90">
+                  ようこそ、{displayUserName}さん
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={openProfileModal}
+                  className="text-white hover:bg-white/10 p-1 h-auto transition-all duration-200 hover:scale-110"
+                  title="プロフィールを編集"
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+              </div>
             )}
           </div>
           <Button
@@ -507,6 +547,15 @@ export default function UserPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ProfileEditModal
+        isOpen={profileModalOpen}
+        onOpenChange={setProfileModalOpen}
+        currentUserName={displayUserName || ""}
+        currentEmail={userEmail || ""}
+        userId={userId || ""}
+        onProfileUpdated={handleProfileUpdated}
+      />
     </div>
   );
 }
