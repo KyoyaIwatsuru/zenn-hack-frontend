@@ -1,0 +1,28 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@custom-variant",
+      "description": "TailwindCSS v4 custom variant definition"
+    },
+    {
+      "name": "@theme",
+      "description": "TailwindCSS v4 theme configuration"
+    },
+    {
+      "name": "@apply",
+      "description": "TailwindCSS utility application directive"
+    },
+    {
+      "name": "@layer",
+      "description": "TailwindCSS layer directive"
+    },
+    {
+      "name": "@config",
+      "description": "TailwindCSS configuration directive"
+    }
+  ],
+  "properties": [],
+  "pseudoClasses": [],
+  "pseudoElements": []
+}
