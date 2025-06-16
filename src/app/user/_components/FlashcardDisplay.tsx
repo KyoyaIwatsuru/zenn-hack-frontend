@@ -4,7 +4,7 @@ import { Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Flashcard, Meaning } from "@/types/type";
+import { Flashcard, Meaning } from "@/types";
 import { posTranslations } from "@/constants";
 
 interface FlashcardDisplayProps {

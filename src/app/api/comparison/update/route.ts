@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
-import { ComparisonUpdateRequest } from "@/types/type";
+import { ComparisonUpdateRequest } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {

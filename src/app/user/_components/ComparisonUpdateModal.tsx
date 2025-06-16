@@ -7,8 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Flashcard, Meaning } from "@/types/type";
+import { Flashcard, Meaning } from "@/types";
 import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
+import { httpClient, ErrorHandler } from "@/lib";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
 interface ComparisonUpdateModalProps {
@@ -37,63 +38,45 @@ export function ComparisonUpdateModal({
   const handleSelectBefore = async () => {
     setIsSubmitting(true);
 
-    try {
-      const response = await fetch(API_ENDPOINTS.COMPARISON.UPDATE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardId: flashcard.flashcardId,
-          comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
-          oldMediaId: flashcard.media?.mediaId || "",
-          newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
-          isSelectedNew: false,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
+    const response = await httpClient.post<void>(API_ENDPOINTS.COMPARISON.UPDATE, {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
+      isSelectedNew: false,
+    });
+    
+    if (response.success) {
       onComparisonSubmitted();
       onOpenChange(false);
-    } catch (error) {
-      console.error("比較結果送信エラー:", error);
-    } finally {
-      setIsSubmitting(false);
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      console.error("比較結果送信エラー:", ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    setIsSubmitting(false);
   };
 
   const handleSelectAfter = async () => {
     setIsSubmitting(true);
 
-    try {
-      const response = await fetch(API_ENDPOINTS.COMPARISON.UPDATE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardId: flashcard.flashcardId,
-          comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
-          oldMediaId: flashcard.media?.mediaId || "",
-          newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
-          isSelectedNew: true,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
+    const response = await httpClient.post<void>(API_ENDPOINTS.COMPARISON.UPDATE, {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
+      isSelectedNew: true,
+    });
+    
+    if (response.success) {
       onComparisonSubmitted();
       onOpenChange(false);
-    } catch (error) {
-      console.error("比較結果送信エラー:", error);
-    } finally {
-      setIsSubmitting(false);
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      console.error("比較結果送信エラー:", ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    setIsSubmitting(false);
   };
 
   return (

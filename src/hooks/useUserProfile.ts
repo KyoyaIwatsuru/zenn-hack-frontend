@@ -42,11 +42,11 @@ export function useUserProfile() {
 
     try {
       // Firebase updateProfile
-      const { auth } = await import("@/lib/firebase");
+      const { firebaseAuth } = await import("@/lib/auth");
       const { updateProfile } = await import("firebase/auth");
       
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
+      if (firebaseAuth.currentUser) {
+        await updateProfile(firebaseAuth.currentUser, {
           displayName: trimmedUserName,
         });
       }

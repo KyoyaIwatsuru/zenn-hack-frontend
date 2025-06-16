@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
-import { MediaCreateRequest } from "@/types/type";
+import { MediaCreateRequest } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,4 +1,5 @@
-import { apiClient } from "@/lib/apiClient";
+import { backendClient } from "@/lib/httpClient";
+import { ErrorHandler } from "@/lib/errorHandler";
 import {
   User,
   CheckFlagUpdateRequest,
@@ -6,176 +7,168 @@ import {
   UsingMeaningListUpdateRequest,
   MediaCreateRequest,
   ComparisonUpdateRequest,
-  ApiResponse,
-  FlashcardResponse,
-  MediaCreateResponse,
-  ComparisonResponse,
-  MeaningResponse,
-  TemplateResponse,
-} from "@/types/type";
+} from "@/types";
 
 export const apiService = {
   // ユーザー登録
-  setupUser: async (data: User): Promise<ApiResponse> => {
-    const response = (await apiClient("/user/setup", {
-      method: "POST",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  setupUser: async (data: User): Promise<{ message: string }> => {
+    const response = await backendClient.post<{ message: string }>("/user/setup", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // ユーザー情報更新
-  updateUser: async (data: User): Promise<ApiResponse> => {
-    const response = (await apiClient("/user/update", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  updateUser: async (data: User): Promise<{ message: string }> => {
+    const response = await backendClient.put<{ message: string }>("/user/update", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // フラッシュカード取得
-  getFlashcards: async (userId: string): Promise<FlashcardResponse> => {
-    const response = (await apiClient(
-      `/flashcard/${userId}`
-    )) as FlashcardResponse;
-    if ("flashcards" in response) {
-      return response;
+  getFlashcards: async (userId: string) => {
+    const response = await backendClient.get(`/flashcard/${userId}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
-    throw new Error(
-      response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-    );
+    
+    throw new Error("Unknown error occurred");
   },
 
   // チェックフラグ更新
   updateCheckFlag: async (
     data: CheckFlagUpdateRequest
-  ): Promise<ApiResponse> => {
-    const response = (await apiClient("/flashcard/update/checkFlag", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  ): Promise<{ message: string }> => {
+    const response = await backendClient.put<{ message: string }>("/flashcard/update/checkFlag", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // メモ更新
-  updateMemo: async (data: MemoUpdateRequest): Promise<ApiResponse> => {
-    const response = (await apiClient("/flashcard/update/memo", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  updateMemo: async (data: MemoUpdateRequest): Promise<{ message: string }> => {
+    const response = await backendClient.put<{ message: string }>("/flashcard/update/memo", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // 意味更新
   updateMeaning: async (
     data: UsingMeaningListUpdateRequest
-  ): Promise<ApiResponse> => {
-    const response = (await apiClient("/flashcard/update/usingMeaningIdList", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  ): Promise<{ message: string }> => {
+    const response = await backendClient.put<{ message: string }>("/flashcard/update/usingMeaningIdList", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // メディア生成
   createMedia: async (
     data: MediaCreateRequest
-  ): Promise<MediaCreateResponse> => {
-    const response = (await apiClient("/media/create", {
-      method: "POST",
-      body: JSON.stringify(data),
-    })) as MediaCreateResponse;
-    if ("newMediaId" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  ) => {
+    const response = await backendClient.post("/media/create", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // 比較取得
-  getComparison: async (userId: string): Promise<ComparisonResponse> => {
-    const response = (await apiClient(
-      `/comparison/${userId}`
-    )) as ComparisonResponse;
-    if ("comparisonId" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  getComparison: async (userId: string) => {
+    const response = await backendClient.get(`/comparison/${userId}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // 比較更新
   updateCompare: async (
     data: ComparisonUpdateRequest
-  ): Promise<ApiResponse> => {
-    const response = (await apiClient("/comparison/update", {
-      method: "POST",
-      body: JSON.stringify(data),
-    })) as ApiResponse;
-    if ("message" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  ): Promise<{ message: string }> => {
+    const response = await backendClient.post<{ message: string }>("/comparison/update", data);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // 単語の意味取得
-  getMeanings: async (wordId: string): Promise<MeaningResponse> => {
-    const response = (await apiClient(`/meaning/${wordId}`)) as MeaningResponse;
-    if ("meanings" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  getMeanings: async (wordId: string) => {
+    const response = await backendClient.get(`/meaning/${wordId}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 
   // テンプレート取得
-  getTemplates: async (): Promise<TemplateResponse> => {
-    const response = (await apiClient("/template")) as TemplateResponse;
-    if ("template" in response) {
-      return response;
-    } else {
-      throw new Error(
-        response.detail.map((d) => `${d.loc.join(".")}: ${d.msg}`).join(", ")
-      );
+  getTemplates: async () => {
+    const response = await backendClient.get("/template");
+    
+    if (response.success && response.data) {
+      return response.data;
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      throw new Error(ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    throw new Error("Unknown error occurred");
   },
 };

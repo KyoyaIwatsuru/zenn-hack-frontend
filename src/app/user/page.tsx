@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Flashcard, Meaning } from "@/types/type";
+import { Flashcard, Meaning } from "@/types";
 import { useFlashcards } from "@/hooks";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -123,7 +123,7 @@ export default function UserPage() {
 
   // メディア生成後の処理
   const handleMediaGenerated = (flashcardId: string, media: unknown) => {
-    updateMedia(flashcardId, media);
+    updateMedia(flashcardId, media as Flashcard["media"]);
   };
 
   // 比較モーダルを開く
@@ -200,7 +200,7 @@ export default function UserPage() {
         <FlashcardList
           flashcards={flashcards}
           isLoading={isLoading}
-          error={error}
+          error={error || ""}
           selectedMeanings={selectedMeanings}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find((c) => c.flashcardId === flashcardId);

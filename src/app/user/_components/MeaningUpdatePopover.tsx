@@ -7,8 +7,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Meaning } from "@/types/type";
-import { posTranslations } from "@/constants";
+import { Meaning } from "@/types";
+import { posTranslations, API_ENDPOINTS } from "@/constants";
+import { httpClient, ErrorHandler } from "@/lib";
 
 interface MeaningUpdatePopoverProps {
   flashcardId: string;
@@ -45,21 +46,19 @@ export function MeaningUpdatePopover({
       setIsLoading(true);
       setError("");
 
-      try {
-        const response = await fetch(`/api/meaning/${wordId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
-        const allMeanings = data.meanings || [];
+      const response = await httpClient.get<{ meanings: Meaning[] }>(API_ENDPOINTS.MEANING.GET(wordId));
+      
+      if (response.success && response.data) {
+        const allMeanings = response.data.meanings || [];
         const available = getAvailableMeanings(allMeanings);
         setAvailableMeanings(available);
-      } catch (err) {
-        setError("意味の取得に失敗しました");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+      } else if (response.error) {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+        setError(errorMessage);
+        ErrorHandler.logError(response.error);
       }
+      
+      setIsLoading(false);
     }
   };
 
@@ -91,19 +90,17 @@ export function MeaningUpdatePopover({
       // 既存 + 新規をマージして重複除去
       const allMeaningIds = [...new Set([...existingMeaningIds, ...newMeaningIds])];
 
-      const response = await fetch("/api/flashcard/update/usingMeaningIdList", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardId,
-          usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
-        }),
+      const response = await httpClient.put<void>(API_ENDPOINTS.FLASHCARD.UPDATE_MEANINGS, {
+        flashcardId,
+        usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      if (!response.success && response.error) {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+        setError(errorMessage);
+        ErrorHandler.logError(response.error);
+        setIsLoading(false);
+        return;
       }
 
       onMeaningAdded(meaningsToAdd);

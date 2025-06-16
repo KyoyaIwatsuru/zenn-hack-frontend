@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
-import { CheckFlagUpdateRequest } from "@/types/type";
+import { CheckFlagUpdateRequest } from "@/types";
 
 export async function PUT(request: NextRequest) {
   try {

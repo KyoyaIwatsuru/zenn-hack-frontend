@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Flashcard, Meaning } from "@/types/type";
+import { Flashcard, Meaning } from "@/types";
 import { FlashcardItem } from "./FlashcardItem";
 
 interface FlashcardListProps {

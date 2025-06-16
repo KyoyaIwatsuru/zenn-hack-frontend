@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { createUserAccount, signInUserAccount } from "./firebaseAuth";
+import { createUserAccount, signInUserAccount } from "./providers";
 import { apiService } from "@/services/apiService";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

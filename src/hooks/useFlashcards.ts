@@ -1,121 +1,74 @@
-import { useState, useCallback } from "react";
-import { Flashcard, Meaning } from "@/types/type";
+import { useReducer, useCallback } from "react";
+import { Flashcard, Meaning } from "@/types";
 import { API_ENDPOINTS } from "@/constants";
+import { flashcardReducer, initialFlashcardState } from "@/reducers";
+import { httpClient, ErrorHandler } from "@/lib";
 
 export function useFlashcards() {
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [state, dispatch] = useReducer(flashcardReducer, initialFlashcardState);
+  const { flashcards, isLoading, error } = state;
 
   const loadFlashcards = useCallback(async (userId: string) => {
     if (!userId) return;
     
-    setIsLoading(true);
-    setError("");
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
 
-    try {
-      const response = await fetch(API_ENDPOINTS.FLASHCARD.GET(userId));
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const data = await response.json();
-      if (data.flashcards) {
-        setFlashcards(data.flashcards);
-      } else {
-        setFlashcards([]);
-      }
-    } catch (err) {
-      setError("フラッシュカードの読み込みに失敗しました");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+    const response = await httpClient.get<{ flashcards: Flashcard[] }>(API_ENDPOINTS.FLASHCARD.GET(userId));
+    
+    if (response.success && response.data) {
+      dispatch({ type: "SET_FLASHCARDS", payload: response.data.flashcards || [] });
+    } else if (response.error) {
+      const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+      ErrorHandler.logError(response.error);
     }
   }, []);
 
   const updateCheckFlag = useCallback(async (flashcardId: string, checkFlag: boolean) => {
     // Optimistic update
-    setFlashcards((prev) =>
-      prev.map((card) =>
-        card.flashcardId === flashcardId
-          ? { ...card, checkFlag }
-          : card
-      )
-    );
+    dispatch({ type: "UPDATE_CHECK_FLAG", payload: { flashcardId, checkFlag } });
 
-    try {
-      const response = await fetch(API_ENDPOINTS.FLASHCARD.UPDATE_CHECK_FLAG, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardId,
-          checkFlag,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-    } catch (err) {
+    const response = await httpClient.put<void>(API_ENDPOINTS.FLASHCARD.UPDATE_CHECK_FLAG, {
+      flashcardId,
+      checkFlag,
+    });
+    
+    if (!response.success && response.error) {
       // Rollback on error
-      setFlashcards((prev) =>
-        prev.map((card) =>
-          card.flashcardId === flashcardId
-            ? { ...card, checkFlag: !checkFlag }
-            : card
-        )
-      );
-      console.error("チェックフラグ更新エラー:", err);
+      dispatch({ type: "UPDATE_CHECK_FLAG", payload: { flashcardId, checkFlag: !checkFlag } });
+      const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+      ErrorHandler.logError(response.error);
     }
   }, []);
 
   const updateMemo = useCallback(async (flashcardId: string, memo: string) => {
-    try {
-      const response = await fetch(API_ENDPOINTS.FLASHCARD.UPDATE_MEMO, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          flashcardId,
-          memo,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      setFlashcards((prev) =>
-        prev.map((card) =>
-          card.flashcardId === flashcardId ? { ...card, memo } : card
-        )
-      );
-    } catch (err) {
-      console.error("メモ更新エラー:", err);
-      throw err;
+    const response = await httpClient.put<void>(API_ENDPOINTS.FLASHCARD.UPDATE_MEMO, {
+      flashcardId,
+      memo,
+    });
+    
+    if (response.success) {
+      dispatch({ type: "UPDATE_MEMO", payload: { flashcardId, memo } });
+    } else if (response.error) {
+      const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+      ErrorHandler.logError(response.error);
+      throw new Error(errorMessage);
     }
   }, []);
 
   const addMeanings = useCallback((flashcardId: string, newMeanings: Meaning[]) => {
-    setFlashcards((prev) =>
-      prev.map((card) =>
-        card.flashcardId === flashcardId
-          ? { ...card, meanings: [...card.meanings, ...newMeanings] }
-          : card
-      )
-    );
-  }, []);
+    const flashcard = flashcards.find(f => f.flashcardId === flashcardId);
+    if (flashcard) {
+      const updatedMeanings = [...flashcard.meanings, ...newMeanings];
+      dispatch({ type: "UPDATE_MEANINGS", payload: { flashcardId, meanings: updatedMeanings } });
+    }
+  }, [flashcards]);
 
-  const updateMedia = useCallback((flashcardId: string, media: unknown) => {
-    setFlashcards((prev) =>
-      prev.map((card) =>
-        card.flashcardId === flashcardId
-          ? { ...card, media: media as Flashcard["media"] }
-          : card
-      )
-    );
+  const updateMedia = useCallback((flashcardId: string, media: Flashcard["media"]) => {
+    dispatch({ type: "UPDATE_MEDIA", payload: { flashcardId, media } });
   }, []);
 
   return {

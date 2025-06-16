@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
-import { UsingMeaningListUpdateRequest } from "@/types/type";
+import { UsingMeaningListUpdateRequest } from "@/types";
 
 export async function PUT(request: NextRequest) {
   try {

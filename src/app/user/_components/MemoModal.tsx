@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Flashcard } from "@/types/type";
+import { Flashcard } from "@/types";
 
 interface MemoModalProps {
   isOpen: boolean;

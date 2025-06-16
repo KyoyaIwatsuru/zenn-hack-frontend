@@ -15,8 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Flashcard, Meaning } from "@/types/type";
+import { Flashcard, Meaning } from "@/types";
 import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
+import { httpClient, ErrorHandler } from "@/lib";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
 interface MediaCreateModalProps {
@@ -85,47 +86,36 @@ export function MediaCreateModal({
   const handleGenerateMedia = async () => {
     setIsGenerating(true);
 
-    try {
-      const userPrompt = promptConditions
-        .filter((condition) => condition.value.trim())
-        .map((condition) => `${condition.type}: ${condition.value}`)
-        .join(", ");
+    const userPrompt = promptConditions
+      .filter((condition) => condition.value.trim())
+      .map((condition) => `${condition.type}: ${condition.value}`)
+      .join(", ");
 
-      const requestData = {
-        flashcardId: flashcard.flashcardId,
-        oldMediaId: flashcard.media?.mediaId || "",
-        meaningId: selectedMeaning.meaningId,
-        generationType: selectedModel,
-        templateId: DEFAULT_VALUES.TEMPLATE_ID,
-        userPrompt,
-        allowGeneratingPerson: true,
-        inputMediaUrls:
-          selectedModel === "image2image"
-            ? flashcard.media?.mediaUrls
-            : undefined,
-      };
+    const requestData = {
+      flashcardId: flashcard.flashcardId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      meaningId: selectedMeaning.meaningId,
+      generationType: selectedModel,
+      templateId: DEFAULT_VALUES.TEMPLATE_ID,
+      userPrompt,
+      allowGeneratingPerson: true,
+      inputMediaUrls:
+        selectedModel === "image2image"
+          ? flashcard.media?.mediaUrls
+          : undefined,
+    };
 
-      const response = await fetch(API_ENDPOINTS.MEDIA.CREATE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const media = await response.json();
-
-      onMediaGenerated(flashcard.flashcardId, media);
+    const response = await httpClient.post(API_ENDPOINTS.MEDIA.CREATE, requestData);
+    
+    if (response.success && response.data) {
+      onMediaGenerated(flashcard.flashcardId, response.data);
       onOpenChange(false);
-    } catch (error) {
-      console.error("メディア生成エラー:", error);
-    } finally {
-      setIsGenerating(false);
+    } else if (response.error) {
+      ErrorHandler.logError(response.error);
+      console.error("メディア生成エラー:", ErrorHandler.getUserFriendlyMessage(response.error));
     }
+    
+    setIsGenerating(false);
   };
 
   const getConditionLabel = (type: string) => {
