@@ -77,13 +77,13 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* カスタムカラーパレット */
-  --bg-primary: #FFFDF6;
-  --bg-secondary: #FAF6E9;
-  --color-main: #A0C878;
-  --color-sub: #DDEB9D;
+  --bg-primary: #fffdf6;
+  --bg-secondary: #faf6e9;
+  --color-main: #a0c878;
+  --color-sub: #ddeb9d;
   --color-text: #757575;
-  --color-red: #C87A78;
-  --color-blue: #78A3C8;
+  --color-red: #c87a78;
+  --color-blue: #78a3c8;
 }
 
 .dark {

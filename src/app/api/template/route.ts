@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { flashcardService } from "@/services/apiService";
+import { apiService } from "@/services/apiService";
 
 export async function GET() {
   try {
-    const templates = await flashcardService.getTemplates();
-    return NextResponse.json({ template: templates });
+    const result = await apiService.getTemplates();
+    return NextResponse.json(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
