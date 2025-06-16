@@ -77,13 +77,15 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* カスタムカラーパレット */
-  --bg-primary: #fffdf6;
-  --bg-secondary: #faf6e9;
-  --color-main: #a0c878;
-  --color-sub: #ddeb9d;
-  --color-text: #757575;
-  --color-red: #c87a78;
-  --color-blue: #78a3c8;
+  --bg-primary: #FFFDF6;
+  --bg-secondary: #FAF6E9;
+  --bg-whole: #EAEFD2;
+  --color-main: #A0C878;
+  --color-sub: #DDEB9D;
+  --color-text-main: #302c53;
+  --color-text-sub: #6B6A8E;
+  --color-red: #C87A78;
+  --color-blue: #78A3C8;
 }
 
 .dark {
@@ -126,7 +128,7 @@
   }
 
   body {
-    @apply bg-[var(--bg-primary)] text-[var(--color-text)];
+    @apply bg-[var(--bg-primary)] text-[var(--color-text-main)];
   }
 }
 
@@ -138,6 +140,10 @@
   .bg-secondary {
     background-color: var(--bg-secondary);
   }
+  
+  .bg-whole {
+    background-color: var(--bg-whole);
+  }
 
   .text-main {
     color: var(--color-main);
@@ -148,7 +154,11 @@
   }
 
   .text-custom {
-    color: var(--color-text);
+    color: var(--color-text-main);
+  }
+
+  .text-custom-sub {
+    color: var(--color-text-sub);
   }
 
   .text-red {
