@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Flashcard, Meaning } from "@/types/type";
+import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
 interface ComparisonUpdateModalProps {
@@ -37,16 +38,16 @@ export function ComparisonUpdateModal({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/comparison/update", {
+      const response = await fetch(API_ENDPOINTS.COMPARISON.UPDATE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           flashcardId: flashcard.flashcardId,
-          comparisonId: `comparison_${Date.now()}`,
-          oldMediaId: "before_media_id",
-          newMediaId: "after_media_id",
+          comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
+          oldMediaId: flashcard.media?.mediaId || "",
+          newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
           isSelectedNew: false,
         }),
       });
@@ -68,16 +69,16 @@ export function ComparisonUpdateModal({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/comparison/update", {
+      const response = await fetch(API_ENDPOINTS.COMPARISON.UPDATE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           flashcardId: flashcard.flashcardId,
-          comparisonId: `comparison_${Date.now()}`,
-          oldMediaId: "before_media_id",
-          newMediaId: "after_media_id",
+          comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
+          oldMediaId: flashcard.media?.mediaId || "",
+          newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
           isSelectedNew: true,
         }),
       });

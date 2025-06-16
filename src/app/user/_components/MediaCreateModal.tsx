@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Flashcard, Meaning } from "@/types/type";
+import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 
 interface MediaCreateModalProps {
@@ -95,7 +96,7 @@ export function MediaCreateModal({
         oldMediaId: flashcard.media?.mediaId || "",
         meaningId: selectedMeaning.meaningId,
         generationType: selectedModel,
-        templateId: "default-template",
+        templateId: DEFAULT_VALUES.TEMPLATE_ID,
         userPrompt,
         allowGeneratingPerson: true,
         inputMediaUrls:
@@ -104,7 +105,7 @@ export function MediaCreateModal({
             : undefined,
       };
 
-      const response = await fetch("/api/media/create", {
+      const response = await fetch(API_ENDPOINTS.MEDIA.CREATE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
