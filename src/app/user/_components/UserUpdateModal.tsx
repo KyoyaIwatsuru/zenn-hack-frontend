@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Check, AlertCircle, Loader2 } from "lucide-react";
 import { ModalLayout } from "@/components/layout";
+import { validators } from "@/constants/validation";
 
 interface UserUpdateModalProps {
   isOpen: boolean;
@@ -43,22 +44,12 @@ export function UserUpdateModal({
     setHasChanges(userName.trim() !== currentUserName && userName.trim().length > 0);
   }, [userName, currentUserName]);
 
-  const validateUserName = (name: string): string | null => {
-    if (!name.trim()) {
-      return "ユーザー名は必須です";
-    }
-    if (name.trim().length > 50) {
-      return "ユーザー名は50文字以内で入力してください";
-    }
-    return null;
-  };
-
   const handleSave = async () => {
     const trimmedUserName = userName.trim();
-    const validationError = validateUserName(trimmedUserName);
+    const validationResult = validators.userName(trimmedUserName);
     
-    if (validationError) {
-      setError(validationError);
+    if (!validationResult.valid) {
+      setError(validationResult.error);
       return;
     }
 

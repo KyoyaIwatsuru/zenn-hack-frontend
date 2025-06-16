@@ -98,45 +98,25 @@ export type BaseApiResponse = {
   message: string;
 };
 
-export type ApiError = {
-  detail: {
-    loc: string[];
-    msg: string;
-    type: string;
-  }[];
+// Specific response data types
+export type FlashcardData = {
+  flashcards: Flashcard[];
 };
 
-// API Response types
-export type ApiResponse = BaseApiResponse | ApiError;
+export type MediaCreateData = {
+  newMediaId: string;
+};
 
-export type FlashcardResponse =
-  | (BaseApiResponse & {
-      flashcards: Flashcard[];
-    })
-  | ApiError;
+export type ComparisonData = {
+  comparisonId: string;
+  flashcardId: string;
+  newMediaUrls: string[];
+};
 
-export type MediaCreateResponse =
-  | (BaseApiResponse & {
-      newMediaId: string;
-    })
-  | ApiError;
+export type MeaningData = {
+  meanings: Meaning[];
+};
 
-export type ComparisonResponse =
-  | (BaseApiResponse & {
-      comparisonId: string;
-      flashcardId: string;
-      newMediaUrls: string[];
-    })
-  | ApiError;
-
-export type MeaningResponse =
-  | (BaseApiResponse & {
-      meanings: Meaning[];
-    })
-  | ApiError;
-
-export type TemplateResponse =
-  | (BaseApiResponse & {
-      template: Template[];
-    })
-  | ApiError;
+export type TemplateData = {
+  template: Template[];
+};

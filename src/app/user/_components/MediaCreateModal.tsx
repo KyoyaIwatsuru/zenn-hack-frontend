@@ -107,10 +107,10 @@ export function MediaCreateModal({
 
     const response = await httpClient.post(API_ENDPOINTS.MEDIA.CREATE, requestData);
     
-    if (response.success && response.data) {
+    if (response.success) {
       onMediaGenerated(flashcard.flashcardId, response.data);
       onOpenChange(false);
-    } else if (response.error) {
+    } else {
       ErrorHandler.logError(response.error);
       console.error("メディア生成エラー:", ErrorHandler.getUserFriendlyMessage(response.error));
     }

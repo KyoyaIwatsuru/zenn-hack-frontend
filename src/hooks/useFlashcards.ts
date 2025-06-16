@@ -16,9 +16,9 @@ export function useFlashcards() {
 
     const response = await httpClient.get<{ flashcards: Flashcard[] }>(API_ENDPOINTS.FLASHCARD.GET(userId));
     
-    if (response.success && response.data) {
+    if (response.success) {
       dispatch({ type: "SET_FLASHCARDS", payload: response.data.flashcards || [] });
-    } else if (response.error) {
+    } else {
       const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
       dispatch({ type: "SET_ERROR", payload: errorMessage });
       ErrorHandler.logError(response.error);
@@ -34,7 +34,7 @@ export function useFlashcards() {
       checkFlag,
     });
     
-    if (!response.success && response.error) {
+    if (!response.success) {
       // Rollback on error
       dispatch({ type: "UPDATE_CHECK_FLAG", payload: { flashcardId, checkFlag: !checkFlag } });
       const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
@@ -51,7 +51,7 @@ export function useFlashcards() {
     
     if (response.success) {
       dispatch({ type: "UPDATE_MEMO", payload: { flashcardId, memo } });
-    } else if (response.error) {
+    } else {
       const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
       dispatch({ type: "SET_ERROR", payload: errorMessage });
       ErrorHandler.logError(response.error);

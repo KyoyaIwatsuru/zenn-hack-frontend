@@ -1,10 +1,9 @@
 import { ErrorHandler, AppError } from "./errorHandler";
 
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: AppError;
-}
+// 判別可能なUnion型によるAPIレスポンス
+export type ApiResponse<T = unknown> =
+  | { success: true; data: T }
+  | { success: false; error: AppError };
 
 export interface RequestConfig {
   timeout?: number;
@@ -140,24 +139,6 @@ export class HttpClient {
     );
   }
 
-  async patch<T>(
-    url: string,
-    data?: unknown,
-    config?: RequestConfig
-  ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(
-      url,
-      {
-        method: "PATCH",
-        body: data ? JSON.stringify(data) : undefined,
-      },
-      config
-    );
-  }
-
-  async delete<T>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(url, { method: "DELETE" }, config);
-  }
 }
 
 export const httpClient = new HttpClient();

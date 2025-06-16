@@ -48,11 +48,11 @@ export function MeaningUpdatePopover({
 
       const response = await httpClient.get<{ meanings: Meaning[] }>(API_ENDPOINTS.MEANING.GET(wordId));
       
-      if (response.success && response.data) {
+      if (response.success) {
         const allMeanings = response.data.meanings || [];
         const available = getAvailableMeanings(allMeanings);
         setAvailableMeanings(available);
-      } else if (response.error) {
+      } else {
         const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
         setError(errorMessage);
         ErrorHandler.logError(response.error);
@@ -95,7 +95,7 @@ export function MeaningUpdatePopover({
         usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
       });
       
-      if (!response.success && response.error) {
+      if (!response.success) {
         const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
         setError(errorMessage);
         ErrorHandler.logError(response.error);
