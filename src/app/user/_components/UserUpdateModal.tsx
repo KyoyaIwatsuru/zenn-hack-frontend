@@ -71,12 +71,12 @@ export function UserUpdateModal({
     setError("");
     setSuccess(false);
 
-    try {
-      // 段階1: 楽観的更新 - UI即座反映
-      const originalName = currentUserName;
-      setIsOptimisticUpdate(true);
-      onProfileUpdated(trimmedUserName);
+    // 段階1: 楽観的更新 - UI即座反映
+    const originalName = currentUserName;
+    setIsOptimisticUpdate(true);
+    onProfileUpdated(trimmedUserName);
 
+    try {
       // 段階2: Firebase updateProfile
       const { auth } = await import("@/lib/firebase");
       const { updateProfile } = await import("firebase/auth");
