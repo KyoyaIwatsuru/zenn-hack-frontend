@@ -28,19 +28,27 @@ const handleApiResponse = <T>(response: ApiResponse<T>): T => {
 export const apiService = {
   // ユーザー登録
   setupUser: async (data: User): Promise<BaseApiResponse> => {
-    const response = await backendClient.post<BaseApiResponse>("/user/setup", data);
+    const response = await backendClient.post<BaseApiResponse>(
+      "/user/setup",
+      data
+    );
     return handleApiResponse(response);
   },
 
   // ユーザー情報更新
   updateUser: async (data: User): Promise<BaseApiResponse> => {
-    const response = await backendClient.put<BaseApiResponse>("/user/update", data);
+    const response = await backendClient.put<BaseApiResponse>(
+      "/user/update",
+      data
+    );
     return handleApiResponse(response);
   },
 
   // フラッシュカード取得
   getFlashcards: async (userId: string): Promise<FlashcardData> => {
-    const response = await backendClient.get<FlashcardData>(`/flashcard/${userId}`);
+    const response = await backendClient.get<FlashcardData>(
+      `/flashcard/${userId}`
+    );
     return handleApiResponse(response);
   },
 
@@ -48,13 +56,19 @@ export const apiService = {
   updateCheckFlag: async (
     data: CheckFlagUpdateRequest
   ): Promise<BaseApiResponse> => {
-    const response = await backendClient.put<BaseApiResponse>("/flashcard/update/checkFlag", data);
+    const response = await backendClient.put<BaseApiResponse>(
+      "/flashcard/update/checkFlag",
+      data
+    );
     return handleApiResponse(response);
   },
 
   // メモ更新
   updateMemo: async (data: MemoUpdateRequest): Promise<BaseApiResponse> => {
-    const response = await backendClient.put<BaseApiResponse>("/flashcard/update/memo", data);
+    const response = await backendClient.put<BaseApiResponse>(
+      "/flashcard/update/memo",
+      data
+    );
     return handleApiResponse(response);
   },
 
@@ -62,21 +76,27 @@ export const apiService = {
   updateMeaning: async (
     data: UsingMeaningListUpdateRequest
   ): Promise<BaseApiResponse> => {
-    const response = await backendClient.put<BaseApiResponse>("/flashcard/update/usingMeaningIdList", data);
+    const response = await backendClient.put<BaseApiResponse>(
+      "/flashcard/update/usingMeaningIdList",
+      data
+    );
     return handleApiResponse(response);
   },
 
   // メディア生成
-  createMedia: async (
-    data: MediaCreateRequest
-  ): Promise<MediaCreateData> => {
-    const response = await backendClient.post<MediaCreateData>("/media/create", data);
+  createMedia: async (data: MediaCreateRequest): Promise<MediaCreateData> => {
+    const response = await backendClient.post<MediaCreateData>(
+      "/media/create",
+      data
+    );
     return handleApiResponse(response);
   },
 
   // 比較取得
   getComparison: async (userId: string): Promise<ComparisonData> => {
-    const response = await backendClient.get<ComparisonData>(`/comparison/${userId}`);
+    const response = await backendClient.get<ComparisonData>(
+      `/comparison/${userId}`
+    );
     return handleApiResponse(response);
   },
 
@@ -84,7 +104,10 @@ export const apiService = {
   updateCompare: async (
     data: ComparisonUpdateRequest
   ): Promise<BaseApiResponse> => {
-    const response = await backendClient.post<BaseApiResponse>("/comparison/update", data);
+    const response = await backendClient.post<BaseApiResponse>(
+      "/comparison/update",
+      data
+    );
     return handleApiResponse(response);
   },
 

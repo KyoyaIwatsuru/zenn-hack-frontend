@@ -16,11 +16,11 @@ export const createUserAccount = async (
     email,
     password
   );
-  
+
   await updateProfile(userCredential.user, {
     displayName: userName,
   });
-  
+
   return userCredential.user;
 };
 
@@ -28,7 +28,11 @@ export const signInUserAccount = async (
   email: string,
   password: string
 ): Promise<User> => {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const userCredential = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
   return userCredential.user;
 };
 

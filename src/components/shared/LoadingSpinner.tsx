@@ -6,14 +6,14 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export function LoadingSpinner({ 
-  message = "読み込み中...", 
+export function LoadingSpinner({
+  message = "読み込み中...",
   size = "medium",
-  className = "" 
+  className = "",
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     small: "py-4",
-    medium: "py-8", 
+    medium: "py-8",
     large: "py-12",
   };
 

@@ -21,7 +21,7 @@ export default function AuthPage() {
   // 認証状態を確認中の場合はローディング表示
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="bg-primary flex min-h-screen items-center justify-center">
         <LoadingSpinner size="large" />
       </div>
     );

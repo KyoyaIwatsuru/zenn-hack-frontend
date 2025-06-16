@@ -72,12 +72,12 @@ export class HttpClient {
             new Error(errorText || response.statusText),
             response.status
           );
-          
+
           if (!ErrorHandler.shouldRetry(error) || attempt === retries) {
             ErrorHandler.logError(error);
             return { success: false, error };
           }
-          
+
           lastError = error;
         } else {
           const data = await response.json();
@@ -85,19 +85,21 @@ export class HttpClient {
         }
       } catch (err) {
         clearTimeout(timeoutId);
-        
+
         const error = ErrorHandler.fromFetchError(err);
-        
+
         if (!ErrorHandler.shouldRetry(error) || attempt === retries) {
           ErrorHandler.logError(error);
           return { success: false, error };
         }
-        
+
         lastError = error;
       }
 
       if (attempt < retries) {
-        await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, retryDelay * (attempt + 1))
+        );
       }
     }
 
@@ -138,7 +140,6 @@ export class HttpClient {
       config
     );
   }
-
 }
 
 export const httpClient = new HttpClient();

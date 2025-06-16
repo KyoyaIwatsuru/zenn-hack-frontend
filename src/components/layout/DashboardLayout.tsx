@@ -6,13 +6,15 @@ interface DashboardLayoutProps {
   className?: string;
 }
 
-export function DashboardLayout({ header, children, className = "" }: DashboardLayoutProps) {
+export function DashboardLayout({
+  header,
+  children,
+  className = "",
+}: DashboardLayoutProps) {
   return (
-    <div className={`min-h-screen bg-primary ${className}`}>
+    <div className={`bg-primary min-h-screen ${className}`}>
       {header}
-      <div className="container mx-auto p-4">
-        {children}
-      </div>
+      <div className="container mx-auto p-4">{children}</div>
     </div>
   );
 }

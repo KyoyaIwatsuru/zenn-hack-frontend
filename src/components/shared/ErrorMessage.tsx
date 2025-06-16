@@ -9,22 +9,18 @@ interface ErrorMessageProps {
   className?: string;
 }
 
-export function ErrorMessage({ 
-  message, 
-  onRetry, 
+export function ErrorMessage({
+  message,
+  onRetry,
   retryText = "再読み込み",
   showRetry = true,
-  className = "" 
+  className = "",
 }: ErrorMessageProps) {
   return (
-    <div className={`text-center py-8 ${className}`}>
-      <div className="text-red-600 mb-4">{message}</div>
+    <div className={`py-8 text-center ${className}`}>
+      <div className="mb-4 text-red-600">{message}</div>
       {showRetry && onRetry && (
-        <Button
-          variant="outline"
-          onClick={onRetry}
-          className="mt-4"
-        >
+        <Button variant="outline" onClick={onRetry} className="mt-4">
           {retryText}
         </Button>
       )}

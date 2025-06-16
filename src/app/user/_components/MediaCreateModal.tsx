@@ -105,16 +105,22 @@ export function MediaCreateModal({
           : undefined,
     };
 
-    const response = await httpClient.post(API_ENDPOINTS.MEDIA.CREATE, requestData);
-    
+    const response = await httpClient.post(
+      API_ENDPOINTS.MEDIA.CREATE,
+      requestData
+    );
+
     if (response.success) {
       onMediaGenerated(flashcard.flashcardId, response.data);
       onOpenChange(false);
     } else {
       ErrorHandler.logError(response.error);
-      console.error("メディア生成エラー:", ErrorHandler.getUserFriendlyMessage(response.error));
+      console.error(
+        "メディア生成エラー:",
+        ErrorHandler.getUserFriendlyMessage(response.error)
+      );
     }
-    
+
     setIsGenerating(false);
   };
 
@@ -133,7 +139,7 @@ export function MediaCreateModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="!max-w-[95vw] !w-[95vw] !max-h-[95vh] !h-[95vh] overflow-y-auto p-6"
+        className="!h-[95vh] !max-h-[95vh] !w-[95vw] !max-w-[95vw] overflow-y-auto p-6"
         style={{
           maxWidth: "95vw",
           width: "95vw",
@@ -142,7 +148,7 @@ export function MediaCreateModal({
         }}
       >
         <DialogHeader>
-          <DialogTitle className="text-custom text-xl mb-4">
+          <DialogTitle className="text-custom mb-4 text-xl">
             画像編集
           </DialogTitle>
         </DialogHeader>
@@ -155,57 +161,57 @@ export function MediaCreateModal({
           />
 
           <div className="border-t pt-8">
-            <h3 className="text-xl font-semibold text-custom mb-6">画像生成</h3>
+            <h3 className="text-custom mb-6 text-xl font-semibold">画像生成</h3>
 
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-custom mb-2">
+                  <label className="text-custom mb-2 block text-sm font-medium">
                     モデル <span className="text-gray-400">ⓘ</span>
                   </label>
                   <div className="flex gap-3">
                     <div
-                      className={`flex flex-col items-center p-3 border-2 rounded-lg cursor-pointer ${
+                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
                         selectedModel === "text2image"
                           ? "border-main bg-sub/20"
                           : "border-gray-200 hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedModel("text2image")}
                     >
-                      <div className="w-8 h-8 bg-green-400 rounded mb-1 flex items-center justify-center text-white text-xs">
+                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-green-400 text-xs text-white">
                         画
                       </div>
-                      <span className="text-xs font-medium text-custom">
+                      <span className="text-custom text-xs font-medium">
                         text2image
                       </span>
                     </div>
                     <div
-                      className={`flex flex-col items-center p-3 border-2 rounded-lg cursor-pointer ${
+                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
                         selectedModel === "image2image"
                           ? "border-main bg-sub/20"
                           : "border-gray-200 hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedModel("image2image")}
                     >
-                      <div className="w-8 h-8 bg-blue-400 rounded mb-1 flex items-center justify-center text-white text-xs">
+                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-blue-400 text-xs text-white">
                         編
                       </div>
-                      <span className="text-xs font-medium text-custom">
+                      <span className="text-custom text-xs font-medium">
                         image2image
                       </span>
                     </div>
                     <div
-                      className={`flex flex-col items-center p-3 border-2 rounded-lg cursor-pointer ${
+                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
                         selectedModel === "text2video"
                           ? "border-main bg-sub/20"
                           : "border-gray-200 hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedModel("text2video")}
                     >
-                      <div className="w-8 h-8 bg-red-400 rounded mb-1 flex items-center justify-center text-white text-xs">
+                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-red-400 text-xs text-white">
                         動
                       </div>
-                      <span className="text-xs font-medium text-custom">
+                      <span className="text-custom text-xs font-medium">
                         text2video
                       </span>
                     </div>
@@ -213,7 +219,7 @@ export function MediaCreateModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-custom mb-2">
+                  <label className="text-custom mb-2 block text-sm font-medium">
                     描写対象 <span className="text-gray-400">ⓘ</span>
                   </label>
                   <Select
@@ -231,7 +237,7 @@ export function MediaCreateModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-custom mb-2">
+                  <label className="text-custom mb-2 block text-sm font-medium">
                     編集形式 <span className="text-gray-400">ⓘ</span>
                   </label>
                   <Select value={editFormat} onValueChange={setEditFormat}>
@@ -275,7 +281,7 @@ export function MediaCreateModal({
                       onChange={(e) =>
                         updateCondition(condition.id, "value", e.target.value)
                       }
-                      className="flex-1 border-gray-200 focus:border-main"
+                      className="focus:border-main flex-1 border-gray-200"
                     />
                     <Button
                       variant="ghost"
@@ -293,17 +299,17 @@ export function MediaCreateModal({
                   onClick={addCondition}
                   className="text-main hover:text-main hover:bg-sub/20 mt-4"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   条件を追加する
                 </Button>
               </div>
             </div>
 
-            <div className="flex justify-center mt-8">
+            <div className="mt-8 flex justify-center">
               <Button
                 onClick={handleGenerateMedia}
                 disabled={isGenerating}
-                className="bg-main hover:bg-main/90 text-white px-8 py-3"
+                className="bg-main hover:bg-main/90 px-8 py-3 text-white"
               >
                 {isGenerating ? "生成中..." : "画像を生成"}
               </Button>

@@ -32,10 +32,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (!userName) {
               throw new Error("User name is required for signup");
             }
-            
+
             // Firebase認証でユーザー作成
             firebaseUser = await createUserAccount(email, password, userName);
-            
+
             // FastAPIにユーザー情報を保存
             await apiService.setupUser({
               userId: firebaseUser.uid,

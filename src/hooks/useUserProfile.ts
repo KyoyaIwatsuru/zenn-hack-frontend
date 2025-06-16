@@ -25,7 +25,7 @@ export function useUserProfile() {
   ) => {
     const trimmedUserName = userName.trim();
     const validationError = validateUserName(trimmedUserName);
-    
+
     if (validationError) {
       setError(validationError);
       return false;
@@ -44,7 +44,7 @@ export function useUserProfile() {
       // Firebase updateProfile
       const { firebaseAuth } = await import("@/lib/auth");
       const { updateProfile } = await import("firebase/auth");
-      
+
       if (firebaseAuth.currentUser) {
         await updateProfile(firebaseAuth.currentUser, {
           displayName: trimmedUserName,
@@ -61,19 +61,21 @@ export function useUserProfile() {
 
       setIsOptimisticUpdate(false);
       setSuccess(true);
-      
+
       return true;
     } catch (err) {
       // Rollback on error
       setIsOptimisticUpdate(false);
       onOptimisticUpdate(originalName);
-      
+
       let errorMessage = "プロフィールの更新に失敗しました。";
       if (err instanceof Error) {
         if (err.message.includes("Firebase")) {
-          errorMessage = "Firebase認証の更新に失敗しました。再試行してください。";
+          errorMessage =
+            "Firebase認証の更新に失敗しました。再試行してください。";
         } else if (err.message.includes("Network")) {
-          errorMessage = "ネットワークエラーが発生しました。接続を確認して再試行してください。";
+          errorMessage =
+            "ネットワークエラーが発生しました。接続を確認して再試行してください。";
         } else {
           errorMessage = err.message;
         }

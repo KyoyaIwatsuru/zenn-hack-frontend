@@ -46,18 +46,22 @@ export function MeaningUpdatePopover({
       setIsLoading(true);
       setError("");
 
-      const response = await httpClient.get<{ meanings: Meaning[] }>(API_ENDPOINTS.MEANING.GET(wordId));
-      
+      const response = await httpClient.get<{ meanings: Meaning[] }>(
+        API_ENDPOINTS.MEANING.GET(wordId)
+      );
+
       if (response.success) {
         const allMeanings = response.data.meanings || [];
         const available = getAvailableMeanings(allMeanings);
         setAvailableMeanings(available);
       } else {
-        const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
         setError(errorMessage);
         ErrorHandler.logError(response.error);
       }
-      
+
       setIsLoading(false);
     }
   };
@@ -84,19 +88,26 @@ export function MeaningUpdatePopover({
       );
 
       // 既存の意味IDリストを取得
-      const existingMeaningIds = currentMeanings.map(m => m.meaningId);
+      const existingMeaningIds = currentMeanings.map((m) => m.meaningId);
       // 新しく追加する意味IDリストを取得
-      const newMeaningIds = meaningsToAdd.map(meaning => meaning.meaningId);
+      const newMeaningIds = meaningsToAdd.map((meaning) => meaning.meaningId);
       // 既存 + 新規をマージして重複除去
-      const allMeaningIds = [...new Set([...existingMeaningIds, ...newMeaningIds])];
+      const allMeaningIds = [
+        ...new Set([...existingMeaningIds, ...newMeaningIds]),
+      ];
 
-      const response = await httpClient.put<void>(API_ENDPOINTS.FLASHCARD.UPDATE_MEANINGS, {
-        flashcardId,
-        usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
-      });
-      
+      const response = await httpClient.put<void>(
+        API_ENDPOINTS.FLASHCARD.UPDATE_MEANINGS,
+        {
+          flashcardId,
+          usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
+        }
+      );
+
       if (!response.success) {
-        const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
         setError(errorMessage);
         ErrorHandler.logError(response.error);
         setIsLoading(false);
@@ -124,38 +135,38 @@ export function MeaningUpdatePopover({
         <Button
           variant="ghost"
           size="sm"
-          className="text-main hover:text-main hover:bg-sub/20 p-0 h-auto font-normal"
+          className="text-main hover:text-main hover:bg-sub/20 h-auto p-0 font-normal"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="mr-1 h-4 w-4" />
           意味を追加する
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">
         <div className="space-y-4">
-          <div className="font-medium text-custom">追加可能な意味</div>
+          <div className="text-custom font-medium">追加可能な意味</div>
 
           {isLoading && (
-            <div className="text-center py-4 text-gray-500">読み込み中...</div>
+            <div className="py-4 text-center text-gray-500">読み込み中...</div>
           )}
 
-          {error && <div className="text-red-600 text-sm">{error}</div>}
+          {error && <div className="text-sm text-red-600">{error}</div>}
 
           {!isLoading && !error && availableMeanings.length === 0 && (
-            <div className="text-center py-4 text-gray-500">
+            <div className="py-4 text-center text-gray-500">
               追加可能な意味がありません
             </div>
           )}
 
           {!isLoading && !error && availableMeanings.length > 0 && (
             <>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <div className="max-h-64 space-y-2 overflow-y-auto">
                 {availableMeanings.map((meaning) => {
                   const isSelected = selectedMeanings.has(meaning.meaningId);
                   return (
                     <div
                       key={meaning.meaningId}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      className={`cursor-pointer rounded-lg border p-3 transition-colors ${
                         isSelected
                           ? "border-main bg-sub/20"
                           : "border-gray-200 hover:border-gray-300"
@@ -164,14 +175,14 @@ export function MeaningUpdatePopover({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Badge className="bg-sub text-custom border-0 text-xs px-2 py-1">
+                          <Badge className="bg-sub text-custom border-0 px-2 py-1 text-xs">
                             {posTranslations[meaning.pos] || meaning.pos}
                           </Badge>
-                          <span className="text-custom font-medium text-sm">
+                          <span className="text-custom text-sm font-medium">
                             {meaning.translation}
                           </span>
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-main" />}
+                        {isSelected && <Check className="text-main h-4 w-4" />}
                       </div>
 
                       <div className="mt-2 space-y-1">
@@ -187,7 +198,7 @@ export function MeaningUpdatePopover({
                 })}
               </div>
 
-              <div className="flex justify-between items-center pt-2 border-t">
+              <div className="flex items-center justify-between border-t pt-2">
                 <span className="text-sm text-gray-500">
                   {selectedMeanings.size}個選択中
                 </span>

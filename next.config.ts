@@ -4,10 +4,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'storage.googleapis.com',
-        port: '',
-        pathname: '/zenn-hack-backend.firebasestorage.app/**',
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+        port: "",
+        pathname: "/zenn-hack-backend.firebasestorage.app/**",
       },
     ],
   },

@@ -30,26 +30,26 @@ export function FlashcardItem({
   onCompareClick,
 }: FlashcardItemProps) {
   return (
-    <Card className="bg-white shadow-sm border-0">
+    <Card className="border-0 bg-white shadow-sm">
       <CardContent className="p-6">
         <div className="grid grid-cols-12 gap-6">
           {/* 左側：チェックボックス + 単語情報 + 画像 */}
           <div className="col-span-6 space-y-4">
             <div className="flex items-start gap-3">
               <div
-                className={`w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer transition-colors mt-1 ${
+                className={`mt-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded border-2 transition-colors ${
                   flashcard.checkFlag
                     ? "bg-main border-main"
-                    : "border-main bg-transparent hover:bg-main/10"
+                    : "border-main hover:bg-main/10 bg-transparent"
                 }`}
                 onClick={() => onCheckFlagToggle(flashcard.flashcardId)}
               >
                 {flashcard.checkFlag && (
-                  <Check className="w-4 h-4 text-white" />
+                  <Check className="h-4 w-4 text-white" />
                 )}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-custom mb-1">
+                <h2 className="text-custom mb-1 text-2xl font-bold">
                   {flashcard.word.word}
                 </h2>
                 <p className="text-custom text-sm">
@@ -59,23 +59,26 @@ export function FlashcardItem({
             </div>
 
             <div
-              className="bg-secondary rounded-lg p-8 text-center cursor-pointer hover:bg-secondary/80 transition-colors"
+              className="bg-secondary hover:bg-secondary/80 cursor-pointer rounded-lg p-8 text-center transition-colors"
               onClick={() => onMediaClick(flashcard)}
             >
-              <div className="w-32 h-32 rounded-lg mx-auto mb-2 overflow-hidden relative">
+              <div className="relative mx-auto mb-2 h-32 w-32 overflow-hidden rounded-lg">
                 {flashcard.media?.mediaUrls?.[0] ? (
                   <Image
                     src={flashcard.media.mediaUrls[0]}
                     alt={`${flashcard.word.word} - ${selectedMeaning?.translation}`}
                     fill
-                    className="object-cover rounded-lg"
+                    className="rounded-lg object-cover"
                     onError={() => {
-                      console.error("Failed to load image:", flashcard.media.mediaUrls[0]);
+                      console.error(
+                        "Failed to load image:",
+                        flashcard.media.mediaUrls[0]
+                      );
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
-                    <div className="text-gray-500 text-xs">画像</div>
+                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
+                    <div className="text-xs text-gray-500">画像</div>
                   </div>
                 )}
               </div>
@@ -92,17 +95,20 @@ export function FlashcardItem({
                   return (
                     <div
                       key={meaning.meaningId}
-                      className={`flex items-center gap-2 cursor-pointer p-2 rounded transition-colors ${
+                      className={`flex cursor-pointer items-center gap-2 rounded p-2 transition-colors ${
                         isSelected ? "bg-sub/30" : "hover:bg-gray-50"
                       }`}
                       onClick={() =>
-                        onMeaningSelect(flashcard.flashcardId, meaning.meaningId)
+                        onMeaningSelect(
+                          flashcard.flashcardId,
+                          meaning.meaningId
+                        )
                       }
                     >
-                      <Badge className="bg-sub text-custom border-0 text-sm px-2 py-1 flex-shrink-0">
+                      <Badge className="bg-sub text-custom flex-shrink-0 border-0 px-2 py-1 text-sm">
                         {posTranslations[meaning.pos] || meaning.pos}
                       </Badge>
-                      <span className="text-custom font-medium text-sm">
+                      <span className="text-custom text-sm font-medium">
                         {meaning.translation}
                       </span>
                     </div>
@@ -120,7 +126,7 @@ export function FlashcardItem({
               />
             </div>
 
-            <div className="space-y-2 pt-4 border-t border-gray-100">
+            <div className="space-y-2 border-t border-gray-100 pt-4">
               <p className="text-custom text-sm leading-relaxed">
                 {selectedMeaning?.exampleEng}
               </p>
@@ -130,16 +136,16 @@ export function FlashcardItem({
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="text-sm text-custom bg-secondary p-3 rounded flex-1">
+              <div className="text-custom bg-secondary flex-1 rounded p-3 text-sm">
                 <p>{flashcard.word.explanation}</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onMemoEdit(flashcard)}
-                className="text-custom hover:text-custom hover:bg-gray-100 p-2 flex-shrink-0"
+                className="text-custom hover:text-custom flex-shrink-0 p-2 hover:bg-gray-100"
               >
-                <Edit3 className="w-4 h-4" />
+                <Edit3 className="h-4 w-4" />
               </Button>
             </div>
 

@@ -27,7 +27,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-custom">
+        <label className="text-custom text-sm font-medium">
           メールアドレス
         </label>
         <Input
@@ -41,14 +41,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           }
           placeholder="example@email.com"
           required
-          className="border-gray-200 focus:border-main"
+          className="focus:border-main border-gray-200"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-custom">
-          パスワード
-        </label>
+        <label className="text-custom text-sm font-medium">パスワード</label>
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
@@ -61,13 +59,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             }
             placeholder="パスワードを入力"
             required
-            className="border-gray-200 focus:border-main pr-10"
+            className="focus:border-main border-gray-200 pr-10"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
@@ -80,14 +78,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       {error && (
-        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
           {error}
         </div>
       )}
 
       <Button
         type="submit"
-        className="w-full bg-main hover:bg-main/90 text-white"
+        className="bg-main hover:bg-main/90 w-full text-white"
         disabled={isLoading}
       >
         {isLoading ? "ログイン中..." : "ログイン"}

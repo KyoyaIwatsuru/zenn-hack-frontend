@@ -7,7 +7,5 @@ export default function SessionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <NextAuthSessionProvider>{children}</NextAuthSessionProvider>
-  );
+  return <NextAuthSessionProvider>{children}</NextAuthSessionProvider>;
 }

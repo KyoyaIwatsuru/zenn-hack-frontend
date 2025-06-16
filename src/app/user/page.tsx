@@ -18,7 +18,9 @@ export default function UserPage() {
   const { data: session, status } = useSession();
   const userId = session?.user?.id || null;
   const userEmail = session?.user?.email || null;
-  const [displayUserName, setDisplayUserName] = useState(session?.user?.name || null);
+  const [displayUserName, setDisplayUserName] = useState(
+    session?.user?.name || null
+  );
 
   // フラッシュカード関連の状態とロジック
   const {
@@ -33,21 +35,25 @@ export default function UserPage() {
   } = useFlashcards();
 
   // UI状態管理
-  const [selectedMeanings, setSelectedMeanings] = useState<Record<string, string>>({});
-  
+  const [selectedMeanings, setSelectedMeanings] = useState<
+    Record<string, string>
+  >({});
+
   // メモモーダル関連
   const [editingMemo, setEditingMemo] = useState<string | null>(null);
   const [memoText, setMemoText] = useState("");
   const [memoModalOpen, setMemoModalOpen] = useState(false);
-  
+
   // メディア関連モーダル
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
-  const [currentMediaFlashcard, setCurrentMediaFlashcard] = useState<Flashcard | null>(null);
-  
+  const [currentMediaFlashcard, setCurrentMediaFlashcard] =
+    useState<Flashcard | null>(null);
+
   // 比較関連モーダル
   const [compareModalOpen, setCompareModalOpen] = useState(false);
-  const [currentCompareFlashcard, setCurrentCompareFlashcard] = useState<Flashcard | null>(null);
-  
+  const [currentCompareFlashcard, setCurrentCompareFlashcard] =
+    useState<Flashcard | null>(null);
+
   // プロフィールモーダル
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
@@ -61,12 +67,12 @@ export default function UserPage() {
   // 認証状態のチェックとリダイレクト
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (status === "unauthenticated" || !session?.user) {
       router.push("/");
       return;
     }
-    
+
     if (userId) {
       loadFlashcards(userId);
     }
@@ -144,7 +150,10 @@ export default function UserPage() {
   };
 
   // 比較モーダル内での意味選択
-  const selectMeaningInModal = (meaningId: string, flashcard: Flashcard | null) => {
+  const selectMeaningInModal = (
+    meaningId: string,
+    flashcard: Flashcard | null
+  ) => {
     if (flashcard) {
       setSelectedMeanings((prev) => ({
         ...prev,
@@ -178,7 +187,7 @@ export default function UserPage() {
   // 認証状態をチェック中はローディング表示
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="bg-primary flex min-h-screen items-center justify-center">
         <div className="text-custom">読み込み中...</div>
       </div>
     );
@@ -200,23 +209,25 @@ export default function UserPage() {
       }
     >
       <FlashcardList
-          flashcards={flashcards}
-          isLoading={isLoading}
-          error={error || ""}
-          selectedMeanings={selectedMeanings}
-          onCheckFlagToggle={(flashcardId) => {
-            const flashcard = flashcards.find((c) => c.flashcardId === flashcardId);
-            if (flashcard) {
-              updateCheckFlag(flashcardId, !flashcard.checkFlag);
-            }
-          }}
-          onMeaningSelect={selectMeaning}
-          onMeaningAdded={handleMeaningAdded}
-          onMediaClick={openMediaModal}
-          onMemoEdit={startEditMemo}
-          onCompareClick={openCompareModal}
-          onRetry={() => userId && loadFlashcards(userId)}
-        />
+        flashcards={flashcards}
+        isLoading={isLoading}
+        error={error || ""}
+        selectedMeanings={selectedMeanings}
+        onCheckFlagToggle={(flashcardId) => {
+          const flashcard = flashcards.find(
+            (c) => c.flashcardId === flashcardId
+          );
+          if (flashcard) {
+            updateCheckFlag(flashcardId, !flashcard.checkFlag);
+          }
+        }}
+        onMeaningSelect={selectMeaning}
+        onMeaningAdded={handleMeaningAdded}
+        onMediaClick={openMediaModal}
+        onMemoEdit={startEditMemo}
+        onCompareClick={openCompareModal}
+        onRetry={() => userId && loadFlashcards(userId)}
+      />
 
       {/* メモ編集モーダル */}
       <MemoModal
@@ -235,7 +246,9 @@ export default function UserPage() {
         onOpenChange={setMediaModalOpen}
         flashcard={currentMediaFlashcard}
         selectedMeaning={
-          currentMediaFlashcard ? getSelectedMeaning(currentMediaFlashcard) : null
+          currentMediaFlashcard
+            ? getSelectedMeaning(currentMediaFlashcard)
+            : null
         }
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentMediaFlashcard)
@@ -249,7 +262,9 @@ export default function UserPage() {
         onOpenChange={setCompareModalOpen}
         flashcard={currentCompareFlashcard}
         selectedMeaning={
-          currentCompareFlashcard ? getSelectedMeaning(currentCompareFlashcard) : null
+          currentCompareFlashcard
+            ? getSelectedMeaning(currentCompareFlashcard)
+            : null
         }
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentCompareFlashcard)

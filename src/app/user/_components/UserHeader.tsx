@@ -14,10 +14,10 @@ export function UserHeader({
   onLogout,
 }: UserHeaderProps) {
   return (
-    <div className="bg-main text-white p-4">
+    <div className="bg-main p-4 text-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FileText className="w-6 h-6" />
+          <FileText className="h-6 w-6" />
           <span className="font-medium">フラッシュカード</span>
           {displayUserName && (
             <div className="ml-4 flex items-center gap-2">
@@ -28,10 +28,10 @@ export function UserHeader({
                 variant="ghost"
                 size="sm"
                 onClick={onProfileClick}
-                className="text-white hover:bg-white/10 p-1 h-auto transition-all duration-200 hover:scale-110"
+                className="h-auto p-1 text-white transition-all duration-200 hover:scale-110 hover:bg-white/10"
                 title="プロフィールを編集"
               >
-                <User className="w-4 h-4" />
+                <User className="h-4 w-4" />
               </Button>
             </div>
           )}

@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
 
     if (missingFields.length > 0) {
       return NextResponse.json(
-        { error: `Missing or invalid required fields: ${missingFields.join(", ")}` },
+        {
+          error: `Missing or invalid required fields: ${missingFields.join(", ")}`,
+        },
         { status: 400 }
       );
     }

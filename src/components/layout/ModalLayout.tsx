@@ -27,9 +27,7 @@ export function ModalLayout({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className={contentClassName}>
         <DialogHeader>
-          <DialogTitle className={titleClassName}>
-            {title}
-          </DialogTitle>
+          <DialogTitle className={titleClassName}>{title}</DialogTitle>
         </DialogHeader>
         {children}
       </DialogContent>

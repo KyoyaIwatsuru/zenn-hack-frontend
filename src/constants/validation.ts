@@ -43,7 +43,7 @@ export const VALIDATION_MESSAGES = {
 } as const;
 
 // バリデーション結果の型定義
-export type ValidationResult = 
+export type ValidationResult =
   | { valid: true }
   | { valid: false; error: string };
 
@@ -52,15 +52,15 @@ export const validators = {
   // ユーザー名バリデーション
   userName: (value: string): ValidationResult => {
     const trimmed = value.trim();
-    
+
     if (!trimmed) {
       return { valid: false, error: VALIDATION_MESSAGES.USER_NAME.REQUIRED };
     }
-    
+
     if (trimmed.length > VALIDATION_RULES.USER_NAME.MAX_LENGTH) {
       return { valid: false, error: VALIDATION_MESSAGES.USER_NAME.TOO_LONG };
     }
-    
+
     return { valid: true };
   },
 } as const;

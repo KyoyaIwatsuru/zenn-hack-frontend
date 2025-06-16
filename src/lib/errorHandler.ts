@@ -112,13 +112,17 @@ export class ErrorHandler {
   }
 
   static shouldRetry(error: AppError): boolean {
-    return error.type === ErrorType.NETWORK_ERROR || error.type === ErrorType.SERVER_ERROR;
+    return (
+      error.type === ErrorType.NETWORK_ERROR ||
+      error.type === ErrorType.SERVER_ERROR
+    );
   }
 
   static isTemporaryError(error: AppError): boolean {
     return (
       error.type === ErrorType.NETWORK_ERROR ||
-      (error.type === ErrorType.SERVER_ERROR && (error.statusCode === 502 || error.statusCode === 503))
+      (error.type === ErrorType.SERVER_ERROR &&
+        (error.statusCode === 502 || error.statusCode === 503))
     );
   }
 }
