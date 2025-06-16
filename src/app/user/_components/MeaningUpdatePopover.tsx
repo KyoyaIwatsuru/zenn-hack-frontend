@@ -98,6 +98,13 @@ export function MeaningUpdatePopover({
         selectedMeanings.has(meaning.meaningId)
       );
 
+      // 既存の意味IDリストを取得
+      const existingMeaningIds = currentMeanings.map(m => m.meaningId);
+      // 新しく追加する意味IDリストを取得
+      const newMeaningIds = meaningsToAdd.map(meaning => meaning.meaningId);
+      // 既存 + 新規をマージして重複除去
+      const allMeaningIds = [...new Set([...existingMeaningIds, ...newMeaningIds])];
+
       const response = await fetch("/api/flashcard/update/usingMeaningIdList", {
         method: "PUT",
         headers: {
@@ -105,7 +112,7 @@ export function MeaningUpdatePopover({
         },
         body: JSON.stringify({
           flashcardId,
-          usingMeaningIdList: meaningsToAdd.map((meaning) => meaning.meaningId),
+          usingMeaningIdList: allMeaningIds, // 全ての意味ID（既存 + 新規）
         }),
       });
       
