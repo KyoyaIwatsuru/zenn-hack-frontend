@@ -19,6 +19,7 @@ import { Flashcard, Meaning } from "@/types";
 import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
 import { httpClient, ErrorHandler } from "@/lib";
 import { FlashcardDisplay } from "./FlashcardDisplay";
+import { ModelSelectionButton } from "./ModelSelectionButton";
 
 interface MediaCreateModalProps {
   isOpen: boolean;
@@ -170,51 +171,21 @@ export function MediaCreateModal({
                     モデル <span className="text-gray-400">ⓘ</span>
                   </label>
                   <div className="flex gap-3">
-                    <div
-                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
-                        selectedModel === "text2image"
-                          ? "border-main bg-sub/20"
-                          : "border-gray-200 hover:bg-gray-50"
-                      }`}
+                    <ModelSelectionButton
+                      modelType="text2image"
+                      isSelected={selectedModel === "text2image"}
                       onClick={() => setSelectedModel("text2image")}
-                    >
-                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-green-400 text-xs text-white">
-                        画
-                      </div>
-                      <span className="text-custom text-xs font-medium">
-                        text2image
-                      </span>
-                    </div>
-                    <div
-                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
-                        selectedModel === "image2image"
-                          ? "border-main bg-sub/20"
-                          : "border-gray-200 hover:bg-gray-50"
-                      }`}
+                    />
+                    <ModelSelectionButton
+                      modelType="image2image"
+                      isSelected={selectedModel === "image2image"}
                       onClick={() => setSelectedModel("image2image")}
-                    >
-                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-blue-400 text-xs text-white">
-                        編
-                      </div>
-                      <span className="text-custom text-xs font-medium">
-                        image2image
-                      </span>
-                    </div>
-                    <div
-                      className={`flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
-                        selectedModel === "text2video"
-                          ? "border-main bg-sub/20"
-                          : "border-gray-200 hover:bg-gray-50"
-                      }`}
+                    />
+                    <ModelSelectionButton
+                      modelType="text2video"
+                      isSelected={selectedModel === "text2video"}
                       onClick={() => setSelectedModel("text2video")}
-                    >
-                      <div className="mb-1 flex h-8 w-8 items-center justify-center rounded bg-red-400 text-xs text-white">
-                        動
-                      </div>
-                      <span className="text-custom text-xs font-medium">
-                        text2video
-                      </span>
-                    </div>
+                    />
                   </div>
                 </div>
 
