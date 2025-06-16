@@ -1,3 +1,4 @@
+// 画像比較のためのコンポーネント
 import React from "react";
 import Image from "next/image";
 import { Plus, Check } from "lucide-react";
@@ -78,7 +79,7 @@ export function FlashcardDisplay({
                       <Badge className="bg-sub text-custom flex-shrink-0 border-0 px-2 py-1 text-sm">
                         {posTranslations[meaning.pos] || meaning.pos}
                       </Badge>
-                      <span className="text-custom text-sm font-medium">
+                      <span className="text-custom text-base font-medium">
                         {meaning.translation}
                       </span>
                     </div>
@@ -103,8 +104,9 @@ export function FlashcardDisplay({
               </Button>
             </div>
 
+            {/* 例文セクション */}
             <div className="space-y-2 border-t border-gray-100 pt-4">
-              <p className="text-custom text-sm leading-relaxed">
+              <p className="text-custom text-base leading-relaxed">
                 {selectedMeaning?.exampleEng}
               </p>
               <p className="text-custom text-sm leading-relaxed">
