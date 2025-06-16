@@ -1,13 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Flashcard } from "@/types";
+import { ModalLayout } from "@/components/layout";
 
 interface MemoModalProps {
   isOpen: boolean;
@@ -29,14 +24,12 @@ export function MemoModal({
   onCancel,
 }: MemoModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-custom">
-            {flashcard?.word.word} のメモ
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
+    <ModalLayout
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title={`${flashcard?.word.word} のメモ`}
+    >
+      <div className="space-y-4">
           <Textarea
             value={memoText}
             onChange={(e) => onMemoTextChange(e.target.value)}
@@ -61,7 +54,6 @@ export function MemoModal({
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ModalLayout>
   );
 }

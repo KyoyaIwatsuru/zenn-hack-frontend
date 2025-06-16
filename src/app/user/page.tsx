@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Flashcard, Meaning } from "@/types";
 import { useFlashcards } from "@/hooks";
+import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
 import { MemoModal } from "./_components/MemoModal";
@@ -189,15 +190,16 @@ export default function UserPage() {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
-      <UserHeader
-        displayUserName={displayUserName}
-        onProfileClick={openProfileModal}
-        onLogout={handleLogout}
-      />
-
-      <div className="container mx-auto p-4">
-        <FlashcardList
+    <DashboardLayout
+      header={
+        <UserHeader
+          displayUserName={displayUserName}
+          onProfileClick={openProfileModal}
+          onLogout={handleLogout}
+        />
+      }
+    >
+      <FlashcardList
           flashcards={flashcards}
           isLoading={isLoading}
           error={error || ""}
@@ -215,7 +217,6 @@ export default function UserPage() {
           onCompareClick={openCompareModal}
           onRetry={() => userId && loadFlashcards(userId)}
         />
-      </div>
 
       {/* メモ編集モーダル */}
       <MemoModal
@@ -265,6 +266,6 @@ export default function UserPage() {
         userId={userId || ""}
         onProfileUpdated={handleProfileUpdated}
       />
-    </div>
+    </DashboardLayout>
   );
 }

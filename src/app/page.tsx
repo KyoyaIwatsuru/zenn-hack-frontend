@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthLayout, LoginForm, SignupForm } from "@/components/auth";
+import { LoadingSpinner } from "@/components/shared";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function AuthPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
-        <div className="text-custom">読み込み中...</div>
+        <LoadingSpinner size="large" />
       </div>
     );
   }

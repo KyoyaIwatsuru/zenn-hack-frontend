@@ -1,6 +1,6 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Flashcard, Meaning } from "@/types";
+import { LoadingSpinner, ErrorMessage } from "@/components/shared";
 import { FlashcardItem } from "./FlashcardItem";
 
 interface FlashcardListProps {
@@ -42,26 +42,11 @@ export function FlashcardList({
   };
 
   if (isLoading) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-custom">読み込み中...</div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-red-600">{error}</div>
-        <Button
-          variant="outline"
-          onClick={onRetry}
-          className="mt-4"
-        >
-          再読み込み
-        </Button>
-      </div>
-    );
+    return <ErrorMessage message={error} onRetry={onRetry} />;
   }
 
   return (

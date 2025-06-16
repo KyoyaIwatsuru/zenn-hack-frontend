@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Check, AlertCircle, Loader2 } from "lucide-react";
+import { ModalLayout } from "@/components/layout";
 
 interface UserUpdateModalProps {
   isOpen: boolean;
@@ -153,23 +148,27 @@ export function UserUpdateModal({
     }
   };
 
+  const titleContent = (
+    <div className="flex items-center gap-2">
+      {isLoading ? (
+        <Loader2 className="w-5 h-5 animate-spin" />
+      ) : success ? (
+        <Check className="w-5 h-5 text-green-600" />
+      ) : (
+        <User className="w-5 h-5" />
+      )}
+      {success ? "プロフィールを更新しました" : "プロフィール編集"}
+    </div>
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-custom flex items-center gap-2">
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : success ? (
-              <Check className="w-5 h-5 text-green-600" />
-            ) : (
-              <User className="w-5 h-5" />
-            )}
-            {success ? "プロフィールを更新しました" : "プロフィール編集"}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4">
+    <ModalLayout
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title={titleContent}
+      titleClassName="text-custom flex items-center"
+    >
+      <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-custom">
               ユーザー名
@@ -281,7 +280,6 @@ export function UserUpdateModal({
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ModalLayout>
   );
 }
