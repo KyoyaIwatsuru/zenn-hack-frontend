@@ -10,11 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals", 
-    "next/typescript",
-    "prettier"
-  ),
+  ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
   {
     plugins: {
       prettier: (await import("eslint-plugin-prettier")).default,
@@ -22,10 +18,13 @@ const eslintConfig = [
     rules: {
       "prettier/prettier": "error",
       // TypeScript関連のルール
-      "@typescript-eslint/no-unused-vars": ["error", { 
-        argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_" 
-      }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
       // React関連のルール
       "react/jsx-key": "error",
       "react/no-array-index-key": "warn",

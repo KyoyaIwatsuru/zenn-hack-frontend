@@ -13,22 +13,22 @@ const modelConfig = {
     tooltip: "text-to-image",
     label: "text2image",
     tooltipBg: "bg-main",
-    selectedBorder: "border-main"
+    selectedBorder: "border-main",
   },
   image2image: {
     icon: "/image2image.svg",
     tooltip: "image-to-image",
     label: "image2image",
     tooltipBg: "bg-blue",
-    selectedBorder: "border-blue" //ここの色を変える
+    selectedBorder: "border-blue", //ここの色を変える
   },
   text2video: {
     icon: "/text2video.svg",
     tooltip: "text-to-video",
     label: "text2video",
     tooltipBg: "bg-red",
-    selectedBorder: "border-red"
-  }
+    selectedBorder: "border-red",
+  },
 };
 
 export function ModelSelectionButton({
@@ -40,24 +40,21 @@ export function ModelSelectionButton({
 
   return (
     <div
-      className={`flex flex-col items-center p-3 border-2 rounded-lg cursor-pointer relative group ${
+      className={`group relative flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
         isSelected
           ? "border-main bg-sub/20"
           : "border-gray-200 hover:bg-gray-50"
       }`}
       onClick={onClick}
     >
-      <div className="w-12 h-12 mb-1 flex items-center justify-center">
-        <Image 
-          src={config.icon} 
-          alt={config.label} 
-          width={48}
-          height={48}
-        />
+      <div className="mb-1 flex h-12 w-12 items-center justify-center">
+        <Image src={config.icon} alt={config.label} width={48} height={48} />
       </div>
-      
+
       {/* ツールチップ */}
-      <div className={`absolute bottom-[-32px] left-1/2 transform -translate-x-1/2 ${config.tooltipBg} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap`}>
+      <div
+        className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 transform ${config.tooltipBg} pointer-events-none rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
+      >
         {config.tooltip}
       </div>
     </div>
