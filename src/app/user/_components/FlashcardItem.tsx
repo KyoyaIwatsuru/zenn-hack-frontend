@@ -1,12 +1,17 @@
+// 単語帳一覧での単語カードコンポーネント
 import React from "react";
-import Image from "next/image";
-import { Edit3, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Flashcard, Meaning } from "@/types";
-import { posTranslations } from "@/constants";
 import { MeaningUpdatePopover } from "./MeaningUpdatePopover";
+import {
+  CheckMark,
+  WordHeader,
+  MediaDisplay,
+  MeaningList,
+  ExampleSection,
+  ExplanationSection,
+} from "./shared";
 
 interface FlashcardItemProps {
   flashcard: Flashcard;
@@ -30,91 +35,42 @@ export function FlashcardItem({
   onCompareClick,
 }: FlashcardItemProps) {
   return (
-    <Card className="border-0 bg-white shadow-sm">
+    <Card className="bg-primary border-0 shadow-sm">
       <CardContent className="p-6">
         <div className="grid grid-cols-12 gap-6">
           {/* 左側：チェックボックス + 単語情報 + 画像 */}
-          <div className="col-span-6 space-y-4">
+          <div className="col-span-3 space-y-4">
             <div className="flex items-start gap-3">
-              <div
-                className={`mt-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded border-2 transition-colors ${
-                  flashcard.checkFlag
-                    ? "bg-main border-main"
-                    : "border-main hover:bg-main/10 bg-transparent"
-                }`}
+              <CheckMark
+                isChecked={flashcard.checkFlag}
                 onClick={() => onCheckFlagToggle(flashcard.flashcardId)}
-              >
-                {flashcard.checkFlag && (
-                  <Check className="h-4 w-4 text-white" />
-                )}
-              </div>
-              <div>
-                <h2 className="text-custom mb-1 text-2xl font-bold">
-                  {flashcard.word.word}
-                </h2>
-                <p className="text-custom text-sm">
-                  [{selectedMeaning?.pronunciation || ""}]
-                </p>
-              </div>
+                isInteractive={true}
+              />
+              <WordHeader
+                word={flashcard.word.word}
+                pronunciation={selectedMeaning?.pronunciation}
+              />
             </div>
 
-            <div
-              className="bg-secondary hover:bg-secondary/80 cursor-pointer rounded-lg p-8 text-center transition-colors"
+            <MediaDisplay
+              mediaUrls={flashcard.media?.mediaUrls}
+              word={flashcard.word.word}
+              translation={selectedMeaning?.translation}
               onClick={() => onMediaClick(flashcard)}
-            >
-              <div className="relative mx-auto mb-2 h-32 w-32 overflow-hidden rounded-lg">
-                {flashcard.media?.mediaUrls?.[0] ? (
-                  <Image
-                    src={flashcard.media.mediaUrls[0]}
-                    alt={`${flashcard.word.word} - ${selectedMeaning?.translation}`}
-                    fill
-                    className="rounded-lg object-cover"
-                    onError={() => {
-                      console.error(
-                        "Failed to load image:",
-                        flashcard.media.mediaUrls[0]
-                      );
-                    }}
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
-                    <div className="text-xs text-gray-500">画像</div>
-                  </div>
-                )}
-              </div>
-            </div>
+              isInteractive={true}
+            />
           </div>
 
-          <div className="col-span-6 space-y-4">
-            {/* 意味セクション - 2列表示 */}
+          <div className="col-span-9 space-y-4">
+            {/* 意味セクション - 3列表示 */}
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                {flashcard.meanings.map((meaning) => {
-                  const isSelected =
-                    selectedMeaning.meaningId === meaning.meaningId;
-                  return (
-                    <div
-                      key={meaning.meaningId}
-                      className={`flex cursor-pointer items-center gap-2 rounded p-2 transition-colors ${
-                        isSelected ? "bg-sub/30" : "hover:bg-gray-50"
-                      }`}
-                      onClick={() =>
-                        onMeaningSelect(
-                          flashcard.flashcardId,
-                          meaning.meaningId
-                        )
-                      }
-                    >
-                      <Badge className="bg-sub text-custom flex-shrink-0 border-0 px-2 py-1 text-sm">
-                        {posTranslations[meaning.pos] || meaning.pos}
-                      </Badge>
-                      <span className="text-custom text-sm font-medium">
-                        {meaning.translation}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              <MeaningList
+                meanings={flashcard.meanings}
+                selectedMeaningId={selectedMeaning.meaningId}
+                onMeaningSelect={(meaningId) =>
+                  onMeaningSelect(flashcard.flashcardId, meaningId)
+                }
+              />
 
               <MeaningUpdatePopover
                 flashcardId={flashcard.flashcardId}
@@ -126,28 +82,17 @@ export function FlashcardItem({
               />
             </div>
 
-            <div className="space-y-2 border-t border-gray-100 pt-4">
-              <p className="text-custom text-sm leading-relaxed">
-                {selectedMeaning?.exampleEng}
-              </p>
-              <p className="text-custom text-sm leading-relaxed">
-                {selectedMeaning?.exampleJpn}
-              </p>
-            </div>
+            {/* 例文セクション */}
+            <ExampleSection
+              exampleEng={selectedMeaning?.exampleEng}
+              exampleJpn={selectedMeaning?.exampleJpn}
+            />
 
-            <div className="flex items-start gap-3">
-              <div className="text-custom bg-secondary flex-1 rounded p-3 text-sm">
-                <p>{flashcard.word.explanation}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onMemoEdit(flashcard)}
-                className="text-custom hover:text-custom flex-shrink-0 p-2 hover:bg-gray-100"
-              >
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            </div>
+            <ExplanationSection
+              explanation={flashcard.word.explanation}
+              showEditButton={true}
+              onEdit={() => onMemoEdit(flashcard)}
+            />
 
             <div className="flex justify-end">
               <Button

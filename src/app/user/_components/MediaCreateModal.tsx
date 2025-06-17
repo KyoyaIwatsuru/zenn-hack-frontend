@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -14,12 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Flashcard, Meaning } from "@/types";
 import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
 import { httpClient, ErrorHandler } from "@/lib";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { ModelSelectionButton } from "./ModelSelectionButton";
+import { QuestionMode, PromptMode, PromptCondition } from "./shared";
 
 interface MediaCreateModalProps {
   isOpen: boolean;
@@ -28,12 +22,6 @@ interface MediaCreateModalProps {
   selectedMeaning: Meaning | null;
   onMeaningSelect: (meaningId: string) => void;
   onMediaGenerated: (flashcardId: string, media: unknown) => void;
-}
-
-interface PromptCondition {
-  id: string;
-  type: string;
-  value: string;
 }
 
 export function MediaCreateModal({
@@ -51,6 +39,9 @@ export function MediaCreateModal({
     { id: "1", type: "taste", value: "" },
     { id: "2", type: "character", value: "" },
   ]);
+  const [promptText, setPromptText] = useState(
+    "画像生成AIを用いて，以下で指示する画像を生成するためのプロンプトを英語で出力してください．\nプロンプトは，「An Illustration of ~」から始まる文章で，なるべく詳細に記述してください．\n\n###画像の指示\n以下の例文を適切に表現しており，以下の{pos}の英単語「{word}」に関する解説文の内容も考慮した画像．\n\n###例文\n{example}\n\n###解説文\n{explanation}"
+  );
   const [isGenerating, setIsGenerating] = useState(false);
 
   if (!flashcard || !selectedMeaning) {
@@ -125,22 +116,10 @@ export function MediaCreateModal({
     setIsGenerating(false);
   };
 
-  const getConditionLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      taste: "どんなテイスト？",
-      style: "どんなスタイル？",
-      mood: "どんな雰囲気？",
-      character: "登場人物は？",
-      setting: "どんな場所？",
-      time: "いつの時代？",
-    };
-    return labels[type] || type;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="!h-[95vh] !max-h-[95vh] !w-[95vw] !max-w-[95vw] overflow-y-auto p-6"
+        className="bg-sub !h-[95vh] !max-h-[95vh] !w-[70vw] !max-w-[95vw] overflow-y-auto p-6"
         style={{
           maxWidth: "95vw",
           width: "95vw",
@@ -148,27 +127,25 @@ export function MediaCreateModal({
           height: "95vh",
         }}
       >
-        <DialogHeader>
-          <DialogTitle className="text-custom mb-4 text-xl">
-            画像編集
-          </DialogTitle>
-        </DialogHeader>
+        <DialogTitle className="sr-only">画像編集</DialogTitle>
+        {/*Title is not used in the UI, but required for accessibility: */}
+        <div className="flex h-full flex-col">
+          <div className="flex-shrink-0">
+            <FlashcardDisplay
+              flashcard={flashcard}
+              selectedMeaning={selectedMeaning}
+              onMeaningSelect={onMeaningSelect}
+            />
+          </div>
 
-        <div className="space-y-8">
-          <FlashcardDisplay
-            flashcard={flashcard}
-            selectedMeaning={selectedMeaning}
-            onMeaningSelect={onMeaningSelect}
-          />
-
-          <div className="border-t pt-8">
+          <div className="bg-secondary -mx-6 mt-8 -mb-6 flex-1 rounded-t-3xl p-6 pt-8">
             <h3 className="text-custom mb-6 text-xl font-semibold">画像生成</h3>
 
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
                   <label className="text-custom mb-2 block text-sm font-medium">
-                    モデル <span className="text-gray-400">ⓘ</span>
+                    モデル <span className="text-custom">ⓘ</span>
                   </label>
                   <div className="flex gap-3">
                     <ModelSelectionButton
@@ -197,7 +174,7 @@ export function MediaCreateModal({
                     value={descriptionTarget}
                     onValueChange={setDescriptionTarget}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-primary">
                       <SelectValue placeholder="例文" />
                     </SelectTrigger>
                     <SelectContent>
@@ -212,7 +189,7 @@ export function MediaCreateModal({
                     編集形式 <span className="text-gray-400">ⓘ</span>
                   </label>
                   <Select value={editFormat} onValueChange={setEditFormat}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-primary">
                       <SelectValue placeholder="質問" />
                     </SelectTrigger>
                     <SelectContent>
@@ -223,57 +200,21 @@ export function MediaCreateModal({
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {promptConditions.map((condition) => (
-                  <div key={condition.id} className="flex gap-2">
-                    <Select
-                      value={condition.type}
-                      onValueChange={(value) =>
-                        updateCondition(condition.id, "type", value)
-                      }
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue
-                          placeholder={getConditionLabel(condition.type)}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="taste">どんなテイスト？</SelectItem>
-                        <SelectItem value="style">どんなスタイル？</SelectItem>
-                        <SelectItem value="mood">どんな雰囲気？</SelectItem>
-                        <SelectItem value="character">登場人物は？</SelectItem>
-                        <SelectItem value="setting">どんな場所？</SelectItem>
-                        <SelectItem value="time">いつの時代？</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="回答を記入"
-                      value={condition.value}
-                      onChange={(e) =>
-                        updateCondition(condition.id, "value", e.target.value)
-                      }
-                      className="focus:border-main flex-1 border-gray-200"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCondition(condition.id)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      🗑️
-                    </Button>
-                  </div>
-                ))}
+              {editFormat === "question" && (
+                <QuestionMode
+                  promptConditions={promptConditions}
+                  onAddCondition={addCondition}
+                  onRemoveCondition={removeCondition}
+                  onUpdateCondition={updateCondition}
+                />
+              )}
 
-                <Button
-                  variant="ghost"
-                  onClick={addCondition}
-                  className="text-main hover:text-main hover:bg-sub/20 mt-4"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  条件を追加する
-                </Button>
-              </div>
+              {editFormat === "prompt" && (
+                <PromptMode
+                  promptText={promptText}
+                  onPromptTextChange={setPromptText}
+                />
+              )}
             </div>
 
             <div className="mt-8 flex justify-center">

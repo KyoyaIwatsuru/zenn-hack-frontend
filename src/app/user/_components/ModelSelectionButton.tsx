@@ -14,13 +14,15 @@ const modelConfig = {
     label: "text2image",
     tooltipBg: "bg-main",
     selectedBorder: "border-main",
+    selectedBg: "bg-green-50",
   },
   image2image: {
     icon: "/image2image.svg",
     tooltip: "image-to-image",
     label: "image2image",
     tooltipBg: "bg-blue",
-    selectedBorder: "border-blue", //ここの色を変える
+    selectedBorder: "border-blue",
+    selectedBg: "bg-blue-50",
   },
   text2video: {
     icon: "/text2video.svg",
@@ -28,6 +30,7 @@ const modelConfig = {
     label: "text2video",
     tooltipBg: "bg-red",
     selectedBorder: "border-red",
+    selectedBg: "bg-red-50",
   },
 };
 
@@ -42,7 +45,7 @@ export function ModelSelectionButton({
     <div
       className={`group relative flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
         isSelected
-          ? "border-main bg-sub/20"
+          ? `${config.selectedBorder} ${config.selectedBg}`
           : "border-gray-200 hover:bg-gray-50"
       }`}
       onClick={onClick}
