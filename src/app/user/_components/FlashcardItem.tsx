@@ -36,7 +36,7 @@ export function FlashcardItem({
 }: FlashcardItemProps) {
   return (
     <Card className="bg-primary border-0 shadow-sm">
-      <CardContent className="p-6">
+      <CardContent className="px-6">
         <div className="grid grid-cols-12 gap-6">
           {/* 左側：チェックボックス + 単語情報 + 画像 */}
           <div className="col-span-3 space-y-4">
