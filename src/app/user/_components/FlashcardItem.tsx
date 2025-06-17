@@ -1,3 +1,4 @@
+// 単語帳一覧での単語カードコンポーネント
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

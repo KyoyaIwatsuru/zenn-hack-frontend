@@ -1,4 +1,4 @@
-// 画像比較のためのコンポーネント
+// 画像比較画面や生成画面での単語カード
 import React from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
