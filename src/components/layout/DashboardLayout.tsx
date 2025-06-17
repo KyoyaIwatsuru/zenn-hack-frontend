@@ -12,7 +12,7 @@ export function DashboardLayout({
   className = "",
 }: DashboardLayoutProps) {
   return (
-    <div className={`bg-primary min-h-screen ${className}`}>
+    <div className={`bg-whole min-h-screen ${className}`}>
       {header}
       <div className="container mx-auto p-4">{children}</div>
     </div>
