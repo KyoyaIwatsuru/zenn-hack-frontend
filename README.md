@@ -53,7 +53,6 @@ npm install
 ```bash
 # NextAuth.js
 NEXTAUTH_SECRET="your-nextauth-secret"
-NEXTAUTH_URL="http://localhost:3000"
 
 # Firebase
 NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
