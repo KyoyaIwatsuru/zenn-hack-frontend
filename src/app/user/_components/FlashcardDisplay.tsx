@@ -17,16 +17,26 @@ interface FlashcardDisplayProps {
   flashcard: Flashcard;
   selectedMeaning: Meaning;
   onMeaningSelect: (meaningId: string) => void;
+  borderColor?: string;
+  customMedia?: {
+    mediaUrls?: string[];
+  };
 }
 
 export function FlashcardDisplay({
   flashcard,
   selectedMeaning,
   onMeaningSelect,
+  borderColor,
+  customMedia,
 }: FlashcardDisplayProps) {
+  const displayMedia = customMedia || flashcard.media;
+
   return (
-    <Card className="bg-primary mb-6 border-0 shadow-sm">
-      <CardContent className="p-6">
+    <Card
+      className={`bg-primary border-4 shadow-sm ${borderColor || "border-gray-200"}`}
+    >
+      <CardContent className="px-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-3 space-y-4">
             <div className="flex items-start gap-3">
@@ -38,7 +48,7 @@ export function FlashcardDisplay({
             </div>
 
             <MediaDisplay
-              mediaUrls={flashcard.media?.mediaUrls}
+              mediaUrls={displayMedia?.mediaUrls}
               word={flashcard.word.word}
               translation={selectedMeaning?.translation}
             />
