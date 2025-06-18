@@ -17,15 +17,15 @@ export function MediaDisplay({
   isInteractive = false,
 }: MediaDisplayProps) {
   const containerClasses = isInteractive
-    ? "bg-secondary hover:bg-secondary/80 cursor-pointer rounded-lg p-8 text-center transition-colors"
-    : "bg-secondary rounded-lg p-8 text-center";
+    ? "bg-secondary hover:bg-secondary/80 cursor-pointer rounded-lg px-6 py-2 text-center transition-colors"
+    : "bg-secondary rounded-lg p-6 text-center";
 
   return (
     <div
       className={containerClasses}
       onClick={isInteractive ? onClick : undefined}
     >
-      <div className="relative mx-auto mb-2 h-32 w-32 overflow-hidden rounded-lg">
+      <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-lg">
         {mediaUrls?.[0] ? (
           <Image
             src={mediaUrls[0]}
