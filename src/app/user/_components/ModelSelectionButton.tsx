@@ -9,28 +9,25 @@ interface ModelSelectionButtonProps {
 
 const modelConfig = {
   text2image: {
-    icon: "/text2image.svg",
+    selectedIcon: "/text2image.svg",
+    notSelectedIcon: "/text2image_notselected.svg",
     tooltip: "text-to-image",
     label: "text2image",
     tooltipBg: "bg-main",
-    selectedBorder: "border-main",
-    selectedBg: "bg-green-50",
   },
   image2image: {
-    icon: "/image2image.svg",
+    selectedIcon: "/image2image.svg",
+    notSelectedIcon: "/image2image_notselected.svg",
     tooltip: "image-to-image",
     label: "image2image",
     tooltipBg: "bg-blue",
-    selectedBorder: "border-blue",
-    selectedBg: "bg-blue-50",
   },
   text2video: {
-    icon: "/text2video.svg",
+    selectedIcon: "/text2video.svg",
+    notSelectedIcon: "/text2video_notselected.svg",
     tooltip: "text-to-video",
     label: "text2video",
     tooltipBg: "bg-red",
-    selectedBorder: "border-red",
-    selectedBg: "bg-red-50",
   },
 };
 
@@ -40,19 +37,17 @@ export function ModelSelectionButton({
   onClick,
 }: ModelSelectionButtonProps) {
   const config = modelConfig[modelType];
+  const iconSrc = isSelected ? config.selectedIcon : config.notSelectedIcon;
 
   return (
-    <div
-      className={`group relative flex cursor-pointer flex-col items-center rounded-lg border-2 p-3 ${
-        isSelected
-          ? `${config.selectedBorder} ${config.selectedBg}`
-          : "border-gray-200 hover:bg-gray-50"
-      }`}
-      onClick={onClick}
-    >
-      <div className="mb-1 flex h-12 w-12 items-center justify-center">
-        <Image src={config.icon} alt={config.label} width={48} height={48} />
-      </div>
+    <div className="group relative cursor-pointer" onClick={onClick}>
+      <Image
+        src={iconSrc}
+        alt={config.label}
+        width={56}
+        height={56}
+        className="h-18 w-18"
+      />
 
       {/* ツールチップ */}
       <div
