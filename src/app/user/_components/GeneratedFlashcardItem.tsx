@@ -33,11 +33,11 @@ export function GeneratedFlashcardItem({
   onMemoEdit,
 }: GeneratedFlashcardItemProps) {
   return (
-    <Card className="bg-primary max-w-[75vw] border-0 shadow-sm">
+    <Card className="bg-primary w-full max-w-5xl border-0 shadow-sm">
       <CardContent className="px-6">
-        <div className="grid grid-cols-12 gap-6">
-          {/* 左側：チェックボックス + 単語情報 + 画像 (col-span-2) */}
-          <div className="col-span-2 space-y-4">
+        <div className="flex gap-6">
+          {/* 左側：チェックボックス + 単語情報 + 画像 (固定幅) */}
+          <div className="w-48 flex-shrink-0 space-y-4">
             <div className="flex items-start gap-3">
               <CheckMark
                 isChecked={flashcard.checkFlag}
@@ -59,8 +59,8 @@ export function GeneratedFlashcardItem({
             />
           </div>
 
-          {/* 中央：意味・例文・説明 (col-span-9) */}
-          <div className="col-span-9 space-y-4">
+          {/* 中央：意味・例文・説明 (可変幅) */}
+          <div className="flex-1 space-y-4">
             {/* 意味セクション - 3列表示 */}
             <div className="space-y-4">
               <MeaningList
@@ -84,8 +84,8 @@ export function GeneratedFlashcardItem({
             />
           </div>
 
-          {/* 右側：ボタン類 (col-span-1) */}
-          <div className="col-span-1 flex flex-col items-center space-y-4">
+          {/* 右側：ボタン類 (固定幅) */}
+          <div className="flex w-16 flex-shrink-0 flex-col items-center space-y-4">
             <MeaningUpdatePopover
               flashcardId={flashcard.flashcardId}
               wordId={flashcard.word.wordId}
