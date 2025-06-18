@@ -8,6 +8,7 @@ import { useFlashcards } from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
+import { GeneratedFlashcardList } from "./_components/GeneratedFlashcardList";
 import { MemoModal } from "./_components/MemoModal";
 import { MediaCreateModal } from "./_components/MediaCreateModal";
 import { ComparisonUpdateModal } from "./_components/ComparisonUpdateModal";
@@ -56,6 +57,9 @@ export default function UserPage() {
 
   // プロフィールモーダル
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  // タブ状態
+  const [currentTab, setCurrentTab] = useState("all");
 
   // displayUserNameを初期化
   useEffect(() => {
@@ -122,21 +126,26 @@ export default function UserPage() {
     setMemoModalOpen(false);
   };
 
-  // メディアモーダルを開く
+  // メディアモーダルを開く（画像生成用）
   const openMediaModal = (flashcard: Flashcard) => {
     setCurrentMediaFlashcard(flashcard);
     setMediaModalOpen(true);
   };
 
-  // メディア生成後の処理
-  const handleMediaGenerated = (flashcardId: string, media: unknown) => {
-    updateMedia(flashcardId, media as Flashcard["media"]);
-  };
-
-  // 比較モーダルを開く
+  // 比較モーダルを開く（画像比較用）
   const openCompareModal = (flashcard: Flashcard) => {
     setCurrentCompareFlashcard(flashcard);
     setCompareModalOpen(true);
+  };
+
+  // タブ変更ハンドラ
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+  };
+
+  // メディア生成後の処理
+  const handleMediaGenerated = (flashcardId: string, media: unknown) => {
+    updateMedia(flashcardId, media as Flashcard["media"]);
   };
 
   // プロフィールモーダルを開く
@@ -205,29 +214,53 @@ export default function UserPage() {
           displayUserName={displayUserName}
           onProfileClick={openProfileModal}
           onLogout={handleLogout}
+          currentTab={currentTab}
+          onTabChange={handleTabChange}
         />
       }
     >
-      <FlashcardList
-        flashcards={flashcards}
-        isLoading={isLoading}
-        error={error || ""}
-        selectedMeanings={selectedMeanings}
-        onCheckFlagToggle={(flashcardId) => {
-          const flashcard = flashcards.find(
-            (c) => c.flashcardId === flashcardId
-          );
-          if (flashcard) {
-            updateCheckFlag(flashcardId, !flashcard.checkFlag);
-          }
-        }}
-        onMeaningSelect={selectMeaning}
-        onMeaningAdded={handleMeaningAdded}
-        onMediaClick={openMediaModal}
-        onMemoEdit={startEditMemo}
-        onCompareClick={openCompareModal}
-        onRetry={() => userId && loadFlashcards(userId)}
-      />
+      {/* タブコンテンツ */}
+      {currentTab === "all" ? (
+        <FlashcardList
+          flashcards={flashcards}
+          isLoading={isLoading}
+          error={error || ""}
+          selectedMeanings={selectedMeanings}
+          onCheckFlagToggle={(flashcardId) => {
+            const flashcard = flashcards.find(
+              (c) => c.flashcardId === flashcardId
+            );
+            if (flashcard) {
+              updateCheckFlag(flashcardId, !flashcard.checkFlag);
+            }
+          }}
+          onMeaningSelect={selectMeaning}
+          onMeaningAdded={handleMeaningAdded}
+          onMediaClick={openMediaModal}
+          onMemoEdit={startEditMemo}
+          onRetry={() => userId && loadFlashcards(userId)}
+        />
+      ) : (
+        <GeneratedFlashcardList
+          flashcards={flashcards}
+          isLoading={isLoading}
+          error={error || ""}
+          selectedMeanings={selectedMeanings}
+          onCheckFlagToggle={(flashcardId) => {
+            const flashcard = flashcards.find(
+              (c) => c.flashcardId === flashcardId
+            );
+            if (flashcard) {
+              updateCheckFlag(flashcardId, !flashcard.checkFlag);
+            }
+          }}
+          onMeaningSelect={selectMeaning}
+          onMeaningAdded={handleMeaningAdded}
+          onMediaClick={openCompareModal}
+          onMemoEdit={startEditMemo}
+          onRetry={() => userId && loadFlashcards(userId)}
+        />
+      )}
 
       {/* メモ編集モーダル */}
       <MemoModal

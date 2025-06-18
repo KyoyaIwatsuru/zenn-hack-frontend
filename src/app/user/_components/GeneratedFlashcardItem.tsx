@@ -1,4 +1,4 @@
-// 単語帳一覧での単語カードコンポーネント
+// 生成済み単語一覧での単語カードコンポーネント（画像比較用）
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -13,7 +13,7 @@ import {
   ExplanationSection,
 } from "./shared";
 
-interface FlashcardItemProps {
+interface GeneratedFlashcardItemProps {
   flashcard: Flashcard;
   selectedMeaning: Meaning;
   onCheckFlagToggle: (flashcardId: string) => void;
@@ -23,7 +23,7 @@ interface FlashcardItemProps {
   onMemoEdit: (flashcard: Flashcard) => void;
 }
 
-export function FlashcardItem({
+export function GeneratedFlashcardItem({
   flashcard,
   selectedMeaning,
   onCheckFlagToggle,
@@ -31,7 +31,7 @@ export function FlashcardItem({
   onMeaningAdded,
   onMediaClick,
   onMemoEdit,
-}: FlashcardItemProps) {
+}: GeneratedFlashcardItemProps) {
   return (
     <Card className="bg-primary w-full max-w-5xl border-0 shadow-sm">
       <CardContent className="px-6">

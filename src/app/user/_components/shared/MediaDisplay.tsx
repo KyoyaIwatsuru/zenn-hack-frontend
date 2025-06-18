@@ -16,32 +16,30 @@ export function MediaDisplay({
   onClick,
   isInteractive = false,
 }: MediaDisplayProps) {
-  const containerClasses = isInteractive
-    ? "bg-secondary hover:bg-secondary/80 cursor-pointer rounded-lg p-8 text-center transition-colors"
-    : "bg-secondary rounded-lg p-8 text-center";
+  const imageClasses = isInteractive
+    ? "hover:opacity-80 cursor-pointer transition-opacity"
+    : "";
 
   return (
     <div
-      className={containerClasses}
+      className={`relative mx-auto aspect-square w-full max-w-40 overflow-hidden rounded-lg ${imageClasses}`}
       onClick={isInteractive ? onClick : undefined}
     >
-      <div className="relative mx-auto mb-2 h-32 w-32 overflow-hidden rounded-lg">
-        {mediaUrls?.[0] ? (
-          <Image
-            src={mediaUrls[0]}
-            alt={`${word} - ${translation}`}
-            fill
-            className="rounded-lg object-cover"
-            onError={() => {
-              console.error("Failed to load image:", mediaUrls[0]);
-            }}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
-            <div className="text-xs text-gray-500">画像</div>
-          </div>
-        )}
-      </div>
+      {mediaUrls?.[0] ? (
+        <Image
+          src={mediaUrls[0]}
+          alt={`${word} - ${translation}`}
+          fill
+          className="rounded-lg object-cover"
+          onError={() => {
+            console.error("Failed to load image:", mediaUrls[0]);
+          }}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
+          <div className="text-xs text-gray-500">画像</div>
+        </div>
+      )}
     </div>
   );
 }

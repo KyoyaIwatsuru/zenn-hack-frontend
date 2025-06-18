@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -119,7 +120,7 @@ export function MediaCreateModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-sub !h-[95vh] !max-h-[95vh] !w-[70vw] !max-w-[95vw] overflow-y-auto p-6"
+        className="bg-whole !h-[95vh] !max-h-[95vh] !w-[70vw] !max-w-[95vw] overflow-y-auto p-6"
         style={{
           maxWidth: "95vw",
           width: "95vw",
@@ -138,11 +139,11 @@ export function MediaCreateModal({
             />
           </div>
 
-          <div className="bg-secondary -mx-6 mt-8 -mb-6 flex-1 rounded-t-3xl p-6 pt-8">
+          <div className="bg-secondary -mx-6 mt-8 -mb-6 flex-1 rounded-t-3xl p-12 pt-8">
             <h3 className="text-custom mb-6 text-xl font-semibold">画像生成</h3>
 
             <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-6">
+              <div className="space-y-9">
                 <div>
                   <label className="text-custom mb-2 block text-sm font-medium">
                     モデル <span className="text-custom">ⓘ</span>
@@ -221,9 +222,12 @@ export function MediaCreateModal({
               <Button
                 onClick={handleGenerateMedia}
                 disabled={isGenerating}
-                className="bg-main hover:bg-main/90 px-8 py-3 text-white"
+                className="bg-main hover-green px-6 py-3 text-base text-white"
               >
-                {isGenerating ? "生成中..." : "画像を生成"}
+                <span className="flex items-center gap-2">
+                  <Bot className="h-8 w-8" />
+                  {isGenerating ? "生成中..." : "画像を生成"}
+                </span>
               </Button>
             </div>
           </div>

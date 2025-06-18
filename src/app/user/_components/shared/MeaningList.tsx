@@ -29,7 +29,7 @@ export function MeaningList({
             <Badge className="bg-sub text-custom flex-shrink-0 border-0 px-2 py-1 text-sm">
               {posTranslations[meaning.pos] || meaning.pos}
             </Badge>
-            <span className="text-custom text-base font-medium">
+            <span className="text-custom text-sm font-medium">
               {meaning.translation}
             </span>
           </div>
