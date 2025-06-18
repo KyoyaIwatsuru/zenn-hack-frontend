@@ -85,7 +85,7 @@ export function GeneratedFlashcardItem({
           </div>
 
           {/* 右側：ボタン類 (固定幅) */}
-          <div className="flex w-16 flex-shrink-0 flex-col items-center space-y-4">
+          <div className="flex w-16 flex-shrink-0 flex-col items-center justify-between pb-4">
             <MeaningUpdatePopover
               flashcardId={flashcard.flashcardId}
               wordId={flashcard.word.wordId}
