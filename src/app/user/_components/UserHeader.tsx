@@ -1,22 +1,28 @@
 import React from "react";
 import { FileText, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UserHeaderProps {
   displayUserName: string | null;
   onProfileClick: () => void;
   onLogout: () => void;
+  currentTab: string;
+  onTabChange: (tab: string) => void;
 }
 
 export function UserHeader({
   displayUserName,
   onProfileClick,
   onLogout,
+  currentTab,
+  onTabChange,
 }: UserHeaderProps) {
   return (
     <div className="bg-main p-4 text-white">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="grid grid-cols-3 items-center">
+        {/* 左側：フラッシュカードとユーザー情報（左寄せ） */}
+        <div className="flex items-center gap-2 justify-self-start">
           <FileText className="h-6 w-6" />
           <span className="font-medium">フラッシュカード</span>
           {displayUserName && (
@@ -36,13 +42,37 @@ export function UserHeader({
             </div>
           )}
         </div>
-        <Button
-          variant="ghost"
-          onClick={onLogout}
-          className="text-white hover:bg-white/10"
-        >
-          ログアウト
-        </Button>
+
+        {/* 中央：タブ（中央配置） */}
+        <div className="justify-self-center">
+          <Tabs value={currentTab} onValueChange={onTabChange}>
+            <TabsList className="bg-white/10 text-white">
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:text-main data-[state=active]:bg-white"
+              >
+                単語学習
+              </TabsTrigger>
+              <TabsTrigger
+                value="generated"
+                className="data-[state=active]:text-main data-[state=active]:bg-white"
+              >
+                画像選択
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* 右側：ログアウトボタン（右寄せ） */}
+        <div className="justify-self-end">
+          <Button
+            variant="ghost"
+            onClick={onLogout}
+            className="text-white hover:bg-white/10"
+          >
+            ログアウト
+          </Button>
+        </div>
       </div>
     </div>
   );
