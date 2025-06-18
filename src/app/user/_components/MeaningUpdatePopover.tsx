@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Check } from "lucide-react";
+import { Check, CirclePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -132,14 +132,20 @@ export function MeaningUpdatePopover({
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-main hover:text-main hover:bg-sub/20 h-auto p-0 font-normal"
-        >
-          <Plus className="mr-1 h-4 w-4" />
-          意味を追加する
-        </Button>
+        <div className="group relative">
+          <Button
+            variant="ghost"
+            size="lg"
+            className="text-main hover:text-main hover:bg-sub/20 font-normal"
+          >
+            <CirclePlus className="size-6" />
+          </Button>
+
+          {/* ツールチップ */}
+          <div className="bg-main pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            意味を追加する
+          </div>
+        </div>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">
