@@ -1,7 +1,5 @@
 // 画像比較画面や生成画面での単語カード
 import React from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flashcard, Meaning } from "@/types";
 import {
@@ -34,7 +32,7 @@ export function FlashcardDisplay({
 
   return (
     <Card
-      className={`bg-primary border-4 shadow-sm ${borderColor || "border-gray-200"}`}
+      className={`bg-primary border-4 shadow-sm ${borderColor || "border-sub"}`}
     >
       <CardContent className="px-6">
         <div className="grid grid-cols-12 gap-6">
@@ -62,15 +60,6 @@ export function FlashcardDisplay({
                 selectedMeaningId={selectedMeaning.meaningId}
                 onMeaningSelect={onMeaningSelect}
               />
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-main hover:text-main hover:bg-sub/20 h-auto p-0 font-normal"
-              >
-                <Plus className="mr-1 h-4 w-4" />
-                意味を追加する
-              </Button>
             </div>
 
             {/* 例文セクション */}
