@@ -240,12 +240,12 @@
 - **レスポンス**:
   - `200 OK`: テンプレートの取得に成功
     - `コンテンツ`:
-      - `template`: template[]
+      - `message`: string
+      - `templates`: template[]
         - `templateId`: string
-        - `name`: string
-        - `description`: string
         - `generationType`: string
-        - `promptText`: string
+        - `target`: string
+        - `preText`: string
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]

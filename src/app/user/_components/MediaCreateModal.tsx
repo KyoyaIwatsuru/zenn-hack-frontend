@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -9,18 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Flashcard, Meaning } from "@/types";
+import { Flashcard, Meaning, Template } from "@/types";
 import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
 import { httpClient, ErrorHandler } from "@/lib";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { ModelSelectionButton } from "./ModelSelectionButton";
 import { QuestionMode, PromptMode, PromptCondition } from "./shared";
+import { LoadingSpinner, ErrorMessage } from "@/components/shared";
 
 interface MediaCreateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
   selectedMeaning: Meaning | null;
+  templates: Template[];
+  isLoading: boolean;
+  error: string | null;
+  onTemplatesRetry: () => void;
   onMeaningSelect: (meaningId: string) => void;
   onMediaGenerated: (flashcardId: string, media: unknown) => void;
 }
@@ -30,20 +35,64 @@ export function MediaCreateModal({
   onOpenChange,
   flashcard,
   selectedMeaning,
+  templates,
+  isLoading,
+  error,
+  onTemplatesRetry,
   onMeaningSelect,
   onMediaGenerated,
 }: MediaCreateModalProps) {
-  const [selectedModel, setSelectedModel] = useState("text2image");
-  const [descriptionTarget, setDescriptionTarget] = useState("example");
+  const [selectedModel, setSelectedModel] = useState("text-to-image");
+  const [descriptionTarget, setDescriptionTarget] = useState("");
   const [editFormat, setEditFormat] = useState("question");
   const [promptConditions, setPromptConditions] = useState<PromptCondition[]>([
     { id: "1", type: "taste", value: "" },
     { id: "2", type: "character", value: "" },
   ]);
-  const [promptText, setPromptText] = useState(
-    "画像生成AIを用いて，以下で指示する画像を生成するためのプロンプトを英語で出力してください．\nプロンプトは，「An Illustration of ~」から始まる文章で，なるべく詳細に記述してください．\n\n###画像の指示\n以下の例文を適切に表現しており，以下の{pos}の英単語「{word}」に関する解説文の内容も考慮した画像．\n\n###例文\n{example}\n\n###解説文\n{explanation}"
+  const [promptText, setPromptText] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null
   );
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // 選択されたモデルに対応する利用可能なTargetを取得
+  const getAvailableTargets = () => {
+    return templates
+      .filter((template) => template.generationType === selectedModel)
+      .map((template) => template.target)
+      .filter((value, index, self) => self.indexOf(value) === index); // 重複除去
+  };
+
+  const availableTargets = getAvailableTargets();
+
+  // モデル変更時に利用可能な最初のTargetに自動設定
+  useEffect(() => {
+    if (availableTargets.length > 0) {
+      const currentTargetExists = availableTargets.includes(descriptionTarget);
+      if (!currentTargetExists) {
+        setDescriptionTarget(availableTargets[0]);
+      }
+    }
+  }, [selectedModel, templates, descriptionTarget, availableTargets]);
+
+  // Template自動選択ロジック
+  useEffect(() => {
+    const template = templates.find(
+      (t) =>
+        t.generationType === selectedModel && t.target === descriptionTarget
+    );
+
+    if (template) {
+      setSelectedTemplate(template);
+      setPromptText(template.preText);
+    } else {
+      setSelectedTemplate(null);
+      // フォールバック用のデフォルトプロンプト
+      setPromptText(
+        "画像生成AIを用いて，以下で指示する画像を生成するためのプロンプトを英語で出力してください．\nプロンプトは，「An Illustration of ~」から始まる文章で，なるべく詳細に記述してください．\n\n###画像の指示\n以下の例文を適切に表現しており，以下の{pos}の英単語「{word}」に関する解説文の内容も考慮した画像．\n\n###例文\n{example}\n\n###解説文\n{explanation}"
+      );
+    }
+  }, [selectedModel, descriptionTarget, templates]);
 
   if (!flashcard || !selectedMeaning) {
     return null;
@@ -89,11 +138,11 @@ export function MediaCreateModal({
       oldMediaId: flashcard.media?.mediaId || "",
       meaningId: selectedMeaning.meaningId,
       generationType: selectedModel,
-      templateId: DEFAULT_VALUES.TEMPLATE_ID,
+      templateId: selectedTemplate?.templateId || DEFAULT_VALUES.TEMPLATE_ID,
       userPrompt,
       allowGeneratingPerson: true,
       inputMediaUrls:
-        selectedModel === "image2image"
+        selectedModel === "image-to-image"
           ? flashcard.media?.mediaUrls
           : undefined,
     };
@@ -150,19 +199,19 @@ export function MediaCreateModal({
                   </label>
                   <div className="flex gap-3">
                     <ModelSelectionButton
-                      modelType="text2image"
-                      isSelected={selectedModel === "text2image"}
-                      onClick={() => setSelectedModel("text2image")}
+                      modelType="text-to-image"
+                      isSelected={selectedModel === "text-to-image"}
+                      onClick={() => setSelectedModel("text-to-image")}
                     />
                     <ModelSelectionButton
-                      modelType="image2image"
-                      isSelected={selectedModel === "image2image"}
-                      onClick={() => setSelectedModel("image2image")}
+                      modelType="image-to-image"
+                      isSelected={selectedModel === "image-to-image"}
+                      onClick={() => setSelectedModel("image-to-image")}
                     />
                     <ModelSelectionButton
-                      modelType="text2video"
-                      isSelected={selectedModel === "text2video"}
-                      onClick={() => setSelectedModel("text2video")}
+                      modelType="text-to-video"
+                      isSelected={selectedModel === "text-to-video"}
+                      onClick={() => setSelectedModel("text-to-video")}
                     />
                   </div>
                 </div>
@@ -171,27 +220,40 @@ export function MediaCreateModal({
                   <label className="text-custom mb-2 block text-sm font-medium">
                     描写対象 <span className="text-gray-400">ⓘ</span>
                   </label>
-                  <Select
-                    value={descriptionTarget}
-                    onValueChange={setDescriptionTarget}
-                  >
-                    <SelectTrigger className="bg-primary">
-                      <SelectValue placeholder="例文" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="example">例文</SelectItem>
-                      <SelectItem value="core">コアミーニング</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {isLoading ? (
+                    <LoadingSpinner
+                      message="テンプレート読み込み中..."
+                      size="small"
+                    />
+                  ) : error ? (
+                    <ErrorMessage
+                      message={error}
+                      onRetry={onTemplatesRetry}
+                      retryText="テンプレート再読み込み"
+                    />
+                  ) : (
+                    <Select onValueChange={setDescriptionTarget}>
+                      <SelectTrigger className="bg-primary">
+                        <SelectValue placeholder="描写対象を選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTargets.map((target) => (
+                          <SelectItem key={target} value={target}>
+                            {target}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 <div>
                   <label className="text-custom mb-2 block text-sm font-medium">
                     編集形式 <span className="text-gray-400">ⓘ</span>
                   </label>
-                  <Select value={editFormat} onValueChange={setEditFormat}>
+                  <Select onValueChange={setEditFormat}>
                     <SelectTrigger className="bg-primary">
-                      <SelectValue placeholder="質問" />
+                      <SelectValue placeholder="編集形式を選択" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="question">質問</SelectItem>
@@ -221,12 +283,16 @@ export function MediaCreateModal({
             <div className="mt-8 flex justify-center">
               <Button
                 onClick={handleGenerateMedia}
-                disabled={isGenerating}
+                disabled={isGenerating || isLoading || !!error}
                 className="bg-main hover-green px-6 py-3 text-base text-white"
               >
                 <span className="flex items-center gap-2">
                   <Bot className="h-8 w-8" />
-                  {isGenerating ? "生成中..." : "画像を生成"}
+                  {isGenerating
+                    ? "生成中..."
+                    : isLoading
+                      ? "テンプレート読み込み中..."
+                      : "画像を生成"}
                 </span>
               </Button>
             </div>

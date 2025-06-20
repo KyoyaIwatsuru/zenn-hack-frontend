@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Flashcard, Meaning } from "@/types";
-import { useFlashcards } from "@/hooks";
+import { useFlashcards, useTemplates } from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -26,14 +26,22 @@ export default function UserPage() {
   // フラッシュカード関連の状態とロジック
   const {
     flashcards,
-    isLoading,
-    error,
+    isLoading: isFlashcardsLoading,
+    error: flashcardsError,
     loadFlashcards,
     updateCheckFlag,
     updateMemo,
     addMeanings,
     updateMedia,
   } = useFlashcards();
+
+  // テンプレート関連の状態とロジック
+  const {
+    templates,
+    isLoading: isTemplatesLoading,
+    error: templatesError,
+    loadTemplates,
+  } = useTemplates();
 
   // UI状態管理
   const [selectedMeanings, setSelectedMeanings] = useState<
@@ -79,8 +87,9 @@ export default function UserPage() {
 
     if (userId) {
       loadFlashcards(userId);
+      loadTemplates();
     }
-  }, [status, session, userId, router, loadFlashcards]);
+  }, [status, session, userId, router, loadFlashcards, loadTemplates]);
 
   // ログアウト処理
   const handleLogout = async () => {
@@ -223,8 +232,8 @@ export default function UserPage() {
       {currentTab === "all" ? (
         <FlashcardList
           flashcards={flashcards}
-          isLoading={isLoading}
-          error={error || ""}
+          isLoading={isFlashcardsLoading}
+          error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
@@ -243,8 +252,8 @@ export default function UserPage() {
       ) : (
         <GeneratedFlashcardList
           flashcards={flashcards}
-          isLoading={isLoading}
-          error={error || ""}
+          isLoading={isFlashcardsLoading}
+          error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
@@ -283,6 +292,10 @@ export default function UserPage() {
             ? getSelectedMeaning(currentMediaFlashcard)
             : null
         }
+        templates={templates}
+        isLoading={isTemplatesLoading}
+        error={templatesError}
+        onTemplatesRetry={() => loadTemplates()}
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentMediaFlashcard)
         }

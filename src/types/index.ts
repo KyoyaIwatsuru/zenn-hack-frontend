@@ -52,10 +52,9 @@ export type Flashcard = {
 
 export type Template = {
   templateId: string;
-  name: string;
-  description: string;
   generationType: string;
-  promptText: string;
+  target: string;
+  preText: string;
 };
 
 // API Request/Response types
@@ -118,5 +117,5 @@ export type MeaningData = {
 };
 
 export type TemplateData = {
-  template: Template[];
+  templates: Template[];
 };
