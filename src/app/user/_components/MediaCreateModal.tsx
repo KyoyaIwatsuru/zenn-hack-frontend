@@ -9,9 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Flashcard, Meaning, Template } from "@/types";
-import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
-import { httpClient, ErrorHandler } from "@/lib";
+import { Flashcard, Meaning, Template, MediaCreateRequest } from "@/types";
+import {
+  DEFAULT_VALUES,
+  BASE_TEMPLATE,
+  AVAILABLE_QUESTION_TYPES,
+} from "@/constants";
+import { useMedia, useFlashcards } from "@/hooks";
+import { buildQuestionModePrompt } from "@/utils";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { ModelSelectionButton } from "./ModelSelectionButton";
 import { QuestionMode, PromptMode, PromptCondition } from "./shared";
@@ -22,12 +27,12 @@ interface MediaCreateModalProps {
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
   selectedMeaning: Meaning | null;
+  selectedMeanings: Record<string, string>;
   templates: Template[];
   isLoading: boolean;
   error: string | null;
   onTemplatesRetry: () => void;
   onMeaningSelect: (meaningId: string) => void;
-  onMediaGenerated: (flashcardId: string, media: unknown) => void;
 }
 
 export function MediaCreateModal({
@@ -35,13 +40,23 @@ export function MediaCreateModal({
   onOpenChange,
   flashcard,
   selectedMeaning,
+  selectedMeanings,
   templates,
   isLoading,
   error,
   onTemplatesRetry,
   onMeaningSelect,
-  onMediaGenerated,
 }: MediaCreateModalProps) {
+  const {
+    isCreating,
+    error: mediaError,
+    createdMedia,
+    createMedia,
+    resetState,
+  } = useMedia();
+
+  const { updateMedia } = useFlashcards();
+
   const [selectedModel, setSelectedModel] = useState("text-to-image");
   const [descriptionTarget, setDescriptionTarget] = useState("");
   const [editFormat, setEditFormat] = useState("question");
@@ -53,7 +68,6 @@ export function MediaCreateModal({
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null
   );
-  const [isGenerating, setIsGenerating] = useState(false);
 
   // 選択されたモデルに対応する利用可能なTargetを取得
   const getAvailableTargets = () => {
@@ -72,36 +86,103 @@ export function MediaCreateModal({
       if (!currentTargetExists) {
         setDescriptionTarget(availableTargets[0]);
       }
+    } else {
+      // 利用可能なTargetがない場合は空文字に設定
+      setDescriptionTarget("");
     }
   }, [selectedModel, templates, descriptionTarget, availableTargets]);
 
-  // Template自動選択ロジック
+  // Template自動選択とPromptText更新の統合ロジック
   useEffect(() => {
-    const template = templates.find(
-      (t) =>
-        t.generationType === selectedModel && t.target === descriptionTarget
-    );
+    let template = null;
 
-    if (template) {
-      setSelectedTemplate(template);
-      setPromptText(template.preText);
-    } else {
-      setSelectedTemplate(null);
-      // フォールバック用のデフォルトプロンプト
-      setPromptText(
-        "画像生成AIを用いて，以下で指示する画像を生成するためのプロンプトを英語で出力してください．\nプロンプトは，「An Illustration of ~」から始まる文章で，なるべく詳細に記述してください．\n\n###画像の指示\n以下の例文を適切に表現しており，以下の{pos}の英単語「{word}」に関する解説文の内容も考慮した画像．\n\n###例文\n{example}\n\n###解説文\n{explanation}"
+    // 1. descriptionTargetが設定されている場合は完全一致で検索
+    if (descriptionTarget) {
+      const foundTemplate = templates.find(
+        (t) =>
+          t.generationType === selectedModel && t.target === descriptionTarget
       );
+      template = foundTemplate || null;
     }
-  }, [selectedModel, descriptionTarget, templates]);
+
+    // 2. 見つからない場合は同じgenerationTypeの最初のテンプレートを使用
+    if (!template && templates.length > 0) {
+      const fallbackTemplate = templates.find(
+        (t) => t.generationType === selectedModel
+      );
+      template = fallbackTemplate || null;
+    }
+
+    // 3. テンプレート状態を更新
+    setSelectedTemplate(template);
+
+    // 4. PromptModeの場合のみpromptTextを更新
+    if (editFormat === "prompt") {
+      const templateText = template?.preText || BASE_TEMPLATE;
+      setPromptText(templateText);
+    }
+  }, [selectedModel, descriptionTarget, templates, editFormat]);
+
+  // メディア生成成功時の処理
+  useEffect(() => {
+    if (createdMedia && flashcard) {
+      // 新しいメディアオブジェクトを作成
+      const newMedia: Flashcard["media"] = {
+        mediaId: createdMedia.mediaId,
+        meaningId:
+          selectedMeanings[flashcard.flashcardId] ||
+          flashcard.meanings[0]?.meaningId ||
+          "",
+        mediaUrls: [], // 生成直後なので空配列、実際のURLはバックエンドから別途取得される想定
+      };
+      updateMedia(flashcard.flashcardId, newMedia);
+      onOpenChange(false);
+      resetState();
+    }
+  }, [
+    createdMedia,
+    flashcard,
+    selectedMeanings,
+    updateMedia,
+    onOpenChange,
+    resetState,
+  ]);
+
+  // モーダルが閉じられた時の状態リセット
+  useEffect(() => {
+    if (!isOpen) {
+      resetState();
+    }
+  }, [isOpen, resetState]);
 
   if (!flashcard || !selectedMeaning) {
     return null;
   }
 
+  // 現在使用されているタイプを取得（「その他」以外、指定されたIDを除く）
+  const getUsedTypes = (excludeId?: string) => {
+    return promptConditions
+      .filter(
+        (condition) => condition.id !== excludeId && condition.type !== "other"
+      )
+      .map((condition) => condition.type);
+  };
+
+  // 利用可能な次のタイプを取得
+  const getNextAvailableType = () => {
+    const usedTypes = getUsedTypes();
+    const availableType = AVAILABLE_QUESTION_TYPES.find(
+      (questionType) =>
+        questionType.value !== "other" &&
+        !usedTypes.includes(questionType.value)
+    );
+    return availableType ? availableType.value : "other";
+  };
+
   const addCondition = () => {
     const newCondition: PromptCondition = {
       id: Date.now().toString(),
-      type: "taste",
+      type: getNextAvailableType(),
       value: "",
     };
     setPromptConditions([...promptConditions, newCondition]);
@@ -118,6 +199,15 @@ export function MediaCreateModal({
     field: "type" | "value",
     newValue: string
   ) => {
+    // タイプ変更の場合、重複チェック
+    if (field === "type" && newValue !== "other") {
+      const usedTypes = getUsedTypes(id);
+      if (usedTypes.includes(newValue)) {
+        // 既に使用されているタイプへの変更は防ぐ
+        return;
+      }
+    }
+
     setPromptConditions(
       promptConditions.map((condition) =>
         condition.id === id ? { ...condition, [field]: newValue } : condition
@@ -126,44 +216,54 @@ export function MediaCreateModal({
   };
 
   const handleGenerateMedia = async () => {
-    setIsGenerating(true);
+    if (!flashcard || !selectedMeaning) return;
 
-    const userPrompt = promptConditions
-      .filter((condition) => condition.value.trim())
-      .map((condition) => `${condition.type}: ${condition.value}`)
-      .join(", ");
+    // QuestionModeの場合、「その他」項目を抽出してotherSettingsを作成
+    const otherSettings: string[] = [];
+    let filteredConditions = promptConditions;
 
-    const requestData = {
+    if (editFormat === "question") {
+      filteredConditions = promptConditions.filter((condition) => {
+        if (condition.type === "other" && condition.value.trim() !== "") {
+          otherSettings.push(condition.value.trim());
+          return false; // プロンプトからは除外
+        }
+        return true;
+      });
+    }
+
+    // 選択されたモードに応じてプロンプトを構築
+    const userPrompt =
+      editFormat === "question"
+        ? buildQuestionModePrompt(
+            selectedTemplate?.preText || BASE_TEMPLATE,
+            filteredConditions
+          )
+        : promptText;
+
+    const requestData: MediaCreateRequest = {
       flashcardId: flashcard.flashcardId,
       oldMediaId: flashcard.media?.mediaId || "",
       meaningId: selectedMeaning.meaningId,
+      pos: selectedMeaning.pos,
+      word: flashcard.word.word,
+      meaning: selectedMeaning.translation,
+      example: selectedMeaning.exampleJpn,
+      explanation: flashcard.word.explanation,
+      coreMeaning: flashcard.word.coreMeaning,
       generationType: selectedModel,
       templateId: selectedTemplate?.templateId || DEFAULT_VALUES.TEMPLATE_ID,
       userPrompt,
-      allowGeneratingPerson: true,
+      otherSettings: otherSettings.length > 0 ? otherSettings : undefined,
+      allowGeneratingPerson: false,
       inputMediaUrls:
-        selectedModel === "image-to-image"
-          ? flashcard.media?.mediaUrls
-          : undefined,
+        selectedModel === "image-to-image" && flashcard.media?.mediaUrls
+          ? flashcard.media.mediaUrls
+          : [],
     };
 
-    const response = await httpClient.post(
-      API_ENDPOINTS.MEDIA.CREATE,
-      requestData
-    );
-
-    if (response.success) {
-      onMediaGenerated(flashcard.flashcardId, response.data);
-      onOpenChange(false);
-    } else {
-      ErrorHandler.logError(response.error);
-      console.error(
-        "メディア生成エラー:",
-        ErrorHandler.getUserFriendlyMessage(response.error)
-      );
-    }
-
-    setIsGenerating(false);
+    console.log("Sending media create request:", requestData);
+    await createMedia(requestData);
   };
 
   return (
@@ -269,6 +369,7 @@ export function MediaCreateModal({
                   onAddCondition={addCondition}
                   onRemoveCondition={removeCondition}
                   onUpdateCondition={updateCondition}
+                  usedTypes={getUsedTypes()}
                 />
               )}
 
@@ -280,15 +381,26 @@ export function MediaCreateModal({
               )}
             </div>
 
+            {/* メディア生成エラー表示 */}
+            {mediaError && (
+              <div className="mt-4">
+                <ErrorMessage
+                  message={mediaError}
+                  onRetry={() => resetState()}
+                  retryText="エラーをクリア"
+                />
+              </div>
+            )}
+
             <div className="mt-8 flex justify-center">
               <Button
                 onClick={handleGenerateMedia}
-                disabled={isGenerating || isLoading || !!error}
+                disabled={isCreating || isLoading || !!error || !!mediaError}
                 className="bg-main hover-green px-6 py-3 text-base text-white"
               >
                 <span className="flex items-center gap-2">
                   <Bot className="h-8 w-8" />
-                  {isGenerating
+                  {isCreating
                     ? "生成中..."
                     : isLoading
                       ? "テンプレート読み込み中..."

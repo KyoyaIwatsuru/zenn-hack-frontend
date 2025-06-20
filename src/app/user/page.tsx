@@ -32,7 +32,6 @@ export default function UserPage() {
     updateCheckFlag,
     updateMemo,
     addMeanings,
-    updateMedia,
   } = useFlashcards();
 
   // テンプレート関連の状態とロジック
@@ -150,11 +149,6 @@ export default function UserPage() {
   // タブ変更ハンドラ
   const handleTabChange = (tab: string) => {
     setCurrentTab(tab);
-  };
-
-  // メディア生成後の処理
-  const handleMediaGenerated = (flashcardId: string, media: unknown) => {
-    updateMedia(flashcardId, media as Flashcard["media"]);
   };
 
   // プロフィールモーダルを開く
@@ -292,6 +286,7 @@ export default function UserPage() {
             ? getSelectedMeaning(currentMediaFlashcard)
             : null
         }
+        selectedMeanings={selectedMeanings}
         templates={templates}
         isLoading={isTemplatesLoading}
         error={templatesError}
@@ -299,7 +294,6 @@ export default function UserPage() {
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentMediaFlashcard)
         }
-        onMediaGenerated={handleMediaGenerated}
       />
 
       {/* 比較モーダル */}

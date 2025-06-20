@@ -147,16 +147,23 @@
   - `flashcardId`: string (必須)
   - `oldMediaId`: string (必須)
   - `meaningId`: string (必須)
+  - `pos`: string (必須)
+  - `word`: string (必須)
+  - `meaning`: string (必須)
+  - `example`: string (必須)
+  - `explanation`: string (必須)
+  - `coreMeaning`: string
   - `generationType`: string (必須)
   - `templateId`: string (必須)
   - `userPrompt`: string (必須)
+  - `otherSettings`: string[]
   - `allowGeneratingPerson`: boolean (必須)
   - `inputMediaUrls`: string[]
 - **レスポンス**:
   - `200 OK`: メディアの生成に成功
     - `コンテンツ`:
       - `message`: string
-      - `newMediaId`: string
+      - `mediaId`: string
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]

@@ -77,9 +77,16 @@ export type MediaCreateRequest = {
   flashcardId: string;
   oldMediaId: string;
   meaningId: string;
+  pos: pos;
+  word: string;
+  meaning: string;
+  example: string;
+  explanation: string;
+  coreMeaning?: string;
   generationType: string;
   templateId: string;
   userPrompt: string;
+  otherSettings?: string[];
   allowGeneratingPerson: boolean;
   inputMediaUrls?: string[];
 };
@@ -103,7 +110,7 @@ export type FlashcardData = {
 };
 
 export type MediaCreateData = {
-  newMediaId: string;
+  mediaId: string;
 };
 
 export type ComparisonData = {

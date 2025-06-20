@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { AVAILABLE_QUESTION_TYPES, QUESTION_LABELS } from "@/constants";
 import { PromptCondition } from "./types";
 
 interface QuestionModeProps {
@@ -20,6 +21,7 @@ interface QuestionModeProps {
     field: "type" | "value",
     newValue: string
   ) => void;
+  usedTypes: string[];
 }
 
 export function QuestionMode({
@@ -27,21 +29,35 @@ export function QuestionMode({
   onAddCondition,
   onRemoveCondition,
   onUpdateCondition,
+  usedTypes,
 }: QuestionModeProps) {
   const getConditionLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      taste: "どんなテイスト？",
-      style: "どんなスタイル？",
-      mood: "どんな雰囲気？",
-      character: "登場人物は？",
-      setting: "どんな場所？",
-      time: "いつの時代？",
+    return QUESTION_LABELS[type as keyof typeof QUESTION_LABELS] || type;
+  };
+
+  const getPlaceholderText = (type: string) => {
+    const placeholders: Record<string, string> = {
+      taste: "例: アニメイラスト風、水彩画風、写実的",
+      style: "例: かわいい、クール、エレガント",
+      mood: "例: 明るい、神秘的、穏やか",
+      character: "例: 猫、女性、子供",
+      setting: "例: 公園、家の中、森",
+      time: "例: 現代、中世、未来",
+      other: "例: 猫は三毛猫にして、和室の廊下を歩いている様子にして",
     };
-    return labels[type] || type;
+    return placeholders[type] || "回答を記入";
   };
 
   return (
     <div className="space-y-4">
+      <div className="mb-4">
+        <h4 className="mb-2 text-sm font-medium text-gray-700">
+          質問に答えることで画像生成のためのプロンプトが自動作成されます
+        </h4>
+        <p className="text-xs text-gray-500">
+          各項目は任意です。より詳細に指定することで、理想的な画像に近づきます。
+        </p>
+      </div>
       {promptConditions.map((condition) => (
         <div key={condition.id} className="flex gap-2">
           <Select
@@ -54,16 +70,50 @@ export function QuestionMode({
               <SelectValue placeholder={getConditionLabel(condition.type)} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="taste">どんなテイスト？</SelectItem>
-              <SelectItem value="style">どんなスタイル？</SelectItem>
-              <SelectItem value="mood">どんな雰囲気？</SelectItem>
-              <SelectItem value="character">登場人物は？</SelectItem>
-              <SelectItem value="setting">どんな場所？</SelectItem>
-              <SelectItem value="time">いつの時代？</SelectItem>
+              {AVAILABLE_QUESTION_TYPES.map((questionType) => {
+                // 「その他」は常に利用可能
+                if (questionType.value === "other") {
+                  return (
+                    <SelectItem
+                      key={questionType.value}
+                      value={questionType.value}
+                    >
+                      {questionType.label}
+                    </SelectItem>
+                  );
+                }
+
+                // 現在の条件のタイプは利用可能
+                if (questionType.value === condition.type) {
+                  return (
+                    <SelectItem
+                      key={questionType.value}
+                      value={questionType.value}
+                    >
+                      {questionType.label}
+                    </SelectItem>
+                  );
+                }
+
+                // まだ使用されていないタイプのみ利用可能
+                if (!usedTypes.includes(questionType.value)) {
+                  return (
+                    <SelectItem
+                      key={questionType.value}
+                      value={questionType.value}
+                    >
+                      {questionType.label}
+                    </SelectItem>
+                  );
+                }
+
+                // 使用済みタイプは表示しない
+                return null;
+              })}
             </SelectContent>
           </Select>
           <Input
-            placeholder="回答を記入"
+            placeholder={getPlaceholderText(condition.type)}
             value={condition.value}
             onChange={(e) =>
               onUpdateCondition(condition.id, "value", e.target.value)

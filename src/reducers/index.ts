@@ -11,3 +11,10 @@ export {
   type TemplateState,
   type TemplateAction,
 } from "./templateReducer";
+
+export {
+  mediaReducer,
+  initialMediaState,
+  type MediaState,
+  type MediaAction,
+} from "./mediaReducer";
