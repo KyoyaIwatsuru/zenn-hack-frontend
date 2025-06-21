@@ -1,6 +1,7 @@
 // 生成済み単語一覧での単語カードコンポーネント（画像比較用）
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Flashcard, Meaning } from "@/types";
 import { MeaningUpdatePopover } from "./MeaningUpdatePopover";
@@ -44,10 +45,15 @@ export function GeneratedFlashcardItem({
                 onClick={() => onCheckFlagToggle(flashcard.flashcardId)}
                 isInteractive={true}
               />
-              <WordHeader
-                word={flashcard.word.word}
-                pronunciation={selectedMeaning?.pronunciation}
-              />
+              <div className="space-y-2">
+                <WordHeader
+                  word={flashcard.word.word}
+                  pronunciation={selectedMeaning?.pronunciation}
+                />
+                <Badge variant="secondary" className="text-xs">
+                  比較待ち
+                </Badge>
+              </div>
             </div>
 
             <MediaDisplay

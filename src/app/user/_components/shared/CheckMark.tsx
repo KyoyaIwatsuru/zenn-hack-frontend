@@ -19,7 +19,7 @@ export function CheckMark({
           ? "bg-main border-main"
           : isInteractive
             ? "border-main hover:bg-main/10 cursor-pointer bg-transparent"
-            : "bg-main border-main"
+            : "!bg-main border-main"
       }`}
       onClick={isInteractive ? onClick : undefined}
     >

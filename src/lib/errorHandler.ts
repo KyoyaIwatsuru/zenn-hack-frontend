@@ -1,5 +1,7 @@
 export enum ErrorType {
   NETWORK_ERROR = "NETWORK_ERROR",
+  TIMEOUT_ERROR = "TIMEOUT_ERROR",
+  CONTENT_POLICY_ERROR = "CONTENT_POLICY_ERROR",
   VALIDATION_ERROR = "VALIDATION_ERROR",
   AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR",
   AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR",
@@ -34,6 +36,20 @@ export class ErrorHandler {
 
   static fromHttpError(error: unknown, statusCode?: number): AppError {
     if (error instanceof Error) {
+      // Google AIのコンテンツポリシー違反エラーを検出
+      if (
+        error.message.includes("violated Google's Responsible AI practices") ||
+        error.message.includes("All images were filtered out") ||
+        error.message.includes("Try rephrasing the prompt")
+      ) {
+        return this.createError(
+          ErrorType.CONTENT_POLICY_ERROR,
+          "生成しようとした内容がコンテンツポリシーに違反している可能性があります。プロンプトを見直してください。",
+          statusCode,
+          error
+        );
+      }
+
       const type = this.getErrorTypeFromStatus(statusCode);
       return this.createError(type, error.message, statusCode, error);
     }
@@ -47,11 +63,26 @@ export class ErrorHandler {
   }
 
   static fromFetchError(error: unknown): AppError {
-    if (error instanceof TypeError && error.message.includes("fetch")) {
-      return this.createError(
-        ErrorType.NETWORK_ERROR,
-        "ネットワークエラーが発生しました。インターネット接続を確認してください。"
-      );
+    if (error instanceof Error) {
+      // AbortErrorの処理
+      if (error.name === "AbortError" || error.message.includes("aborted")) {
+        return this.createError(
+          ErrorType.TIMEOUT_ERROR,
+          "リクエストがタイムアウトしました。しばらく待ってから再度お試しください。",
+          undefined,
+          error
+        );
+      }
+
+      // TypeError（ネットワークエラー）の処理
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        return this.createError(
+          ErrorType.NETWORK_ERROR,
+          "ネットワークエラーが発生しました。インターネット接続を確認してください。",
+          undefined,
+          error
+        );
+      }
     }
 
     return this.fromHttpError(error);
@@ -86,6 +117,10 @@ export class ErrorHandler {
     switch (error.type) {
       case ErrorType.NETWORK_ERROR:
         return "ネットワークエラーが発生しました。インターネット接続を確認してください。";
+      case ErrorType.TIMEOUT_ERROR:
+        return "処理に時間がかかっています。しばらく待ってから再度お試しください。";
+      case ErrorType.CONTENT_POLICY_ERROR:
+        return "画像生成が制限されました。プロンプトの内容を変更して、より適切な表現で再度お試しください。";
       case ErrorType.VALIDATION_ERROR:
         return error.message || "入力内容に誤りがあります。";
       case ErrorType.AUTHENTICATION_ERROR:
@@ -114,13 +149,16 @@ export class ErrorHandler {
   static shouldRetry(error: AppError): boolean {
     return (
       error.type === ErrorType.NETWORK_ERROR ||
+      error.type === ErrorType.TIMEOUT_ERROR ||
       error.type === ErrorType.SERVER_ERROR
     );
+    // CONTENT_POLICY_ERROR はリトライしない（同じプロンプトでは同じ結果になるため）
   }
 
   static isTemporaryError(error: AppError): boolean {
     return (
       error.type === ErrorType.NETWORK_ERROR ||
+      error.type === ErrorType.TIMEOUT_ERROR ||
       (error.type === ErrorType.SERVER_ERROR &&
         (error.statusCode === 502 || error.statusCode === 503))
     );

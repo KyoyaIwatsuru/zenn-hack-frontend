@@ -87,7 +87,11 @@ export const apiService = {
   createMedia: async (data: MediaCreateRequest): Promise<MediaCreateData> => {
     const response = await backendClient.post<MediaCreateData>(
       "/media/create",
-      data
+      data,
+      {
+        timeout: 60000, // AI画像生成のため60秒
+        retries: 1, // リトライ回数を減らす
+      }
     );
     return handleApiResponse(response);
   },

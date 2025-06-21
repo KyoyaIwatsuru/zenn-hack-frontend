@@ -43,28 +43,34 @@ export class HttpClient {
     } = config;
 
     const fullUrl = this.baseUrl + url;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const requestOptions: RequestInit = {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-        ...options.headers,
-      },
-    };
-
     let lastError: AppError;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
+      // 各リトライで新しいAbortControllerを作成
+      const controller = new AbortController();
+      let timeoutId: NodeJS.Timeout | null = null;
+
       try {
-        clearTimeout(timeoutId);
-        const timeoutId2 = setTimeout(() => controller.abort(), timeout);
+        // タイムアウト設定
+        timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        const requestOptions: RequestInit = {
+          ...options,
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+            ...headers,
+            ...options.headers,
+          },
+        };
 
         const response = await fetch(fullUrl, requestOptions);
-        clearTimeout(timeoutId2);
+
+        // 成功時はタイムアウトをクリア
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -84,7 +90,11 @@ export class HttpClient {
           return { success: true, data };
         }
       } catch (err) {
-        clearTimeout(timeoutId);
+        // エラー時もタイムアウトをクリア
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         const error = ErrorHandler.fromFetchError(err);
 
