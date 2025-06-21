@@ -3,8 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Flashcard, Meaning } from "@/types";
+import {
+  Flashcard,
+  Meaning,
+  ComparisonUpdateRequest,
+  MediaCreateData,
+} from "@/types";
 import { useFlashcards, useTemplates } from "@/hooks";
+import { API_ENDPOINTS } from "@/constants";
+import { httpClient, ErrorHandler } from "@/lib";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -67,6 +74,11 @@ export default function UserPage() {
 
   // タブ状態
   const [currentTab, setCurrentTab] = useState("all");
+
+  // メディア生成結果の状態管理
+  const [mediaCreateResults, setMediaCreateResults] = useState<
+    Record<string, MediaCreateData>
+  >({});
 
   // displayUserNameを初期化
   useEffect(() => {
@@ -174,9 +186,44 @@ export default function UserPage() {
     }
   };
 
-  // 比較提出処理
-  const handleComparisonSubmitted = () => {
-    console.log("比較結果が送信されました");
+  // 比較更新処理（直接API呼び出し）
+  const handleComparisonUpdate = async (request: ComparisonUpdateRequest) => {
+    const response = await httpClient.post<void>(
+      API_ENDPOINTS.COMPARISON.UPDATE,
+      request
+    );
+
+    if (!response.success) {
+      const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
+      ErrorHandler.logError(response.error);
+      throw new Error(errorMessage);
+    }
+  };
+
+  // メディア生成成功時の処理
+  const handleMediaCreateSuccess = (
+    flashcardId: string,
+    result: MediaCreateData
+  ) => {
+    setMediaCreateResults((prev) => ({
+      ...prev,
+      [flashcardId]: result,
+    }));
+  };
+
+  // 比較完了処理
+  const handleComparisonComplete = (flashcardId: string) => {
+    // MediaCreateData を削除
+    setMediaCreateResults((prev) => {
+      const newResults = { ...prev };
+      delete newResults[flashcardId];
+      return newResults;
+    });
+
+    // フラッシュカード再読み込み
+    if (userId) {
+      loadFlashcards(userId);
+    }
   };
 
   // 選択された意味を取得する関数
@@ -249,6 +296,7 @@ export default function UserPage() {
           isLoading={isFlashcardsLoading}
           error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
+          mediaCreateResults={mediaCreateResults}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
               (c) => c.flashcardId === flashcardId
@@ -286,7 +334,6 @@ export default function UserPage() {
             ? getSelectedMeaning(currentMediaFlashcard)
             : null
         }
-        selectedMeanings={selectedMeanings}
         templates={templates}
         isLoading={isTemplatesLoading}
         error={templatesError}
@@ -294,6 +341,7 @@ export default function UserPage() {
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentMediaFlashcard)
         }
+        onMediaCreateSuccess={handleMediaCreateSuccess}
       />
 
       {/* 比較モーダル */}
@@ -306,10 +354,12 @@ export default function UserPage() {
             ? getSelectedMeaning(currentCompareFlashcard)
             : null
         }
+        mediaCreateResults={mediaCreateResults}
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentCompareFlashcard)
         }
-        onComparisonSubmitted={handleComparisonSubmitted}
+        onComparisonUpdate={handleComparisonUpdate}
+        onComparisonComplete={handleComparisonComplete}
       />
 
       {/* プロフィール更新モーダル */}

@@ -150,7 +150,7 @@
   - `pos`: string (必須)
   - `word`: string (必須)
   - `meaning`: string (必須)
-  - `example`: string (必須)
+  - `exampleJpn`: string (必須)
   - `explanation`: string (必須)
   - `coreMeaning`: string
   - `generationType`: string (必須)
@@ -163,7 +163,9 @@
   - `200 OK`: メディアの生成に成功
     - `コンテンツ`:
       - `message`: string
-      - `mediaId`: string
+      - `comparisonId`: string
+      - `newMediaId`: string
+      - `newMediaUrls`: string[]
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]
@@ -184,6 +186,7 @@
       - `message`: string
       - `comparisonId`: string
       - `flashcardId`: string
+      - `newMediaId`: string
       - `newMediaUrls`: string[]
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:

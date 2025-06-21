@@ -9,13 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Flashcard, Meaning, Template, MediaCreateRequest } from "@/types";
+import {
+  Flashcard,
+  Meaning,
+  Template,
+  MediaCreateRequest,
+  MediaCreateData,
+} from "@/types";
 import {
   DEFAULT_VALUES,
   BASE_TEMPLATE,
   AVAILABLE_QUESTION_TYPES,
 } from "@/constants";
-import { useMedia, useFlashcards } from "@/hooks";
+import { useMedia } from "@/hooks";
 import { buildQuestionModePrompt } from "@/utils";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { ModelSelectionButton } from "./ModelSelectionButton";
@@ -27,12 +33,12 @@ interface MediaCreateModalProps {
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
   selectedMeaning: Meaning | null;
-  selectedMeanings: Record<string, string>;
   templates: Template[];
   isLoading: boolean;
   error: string | null;
   onTemplatesRetry: () => void;
   onMeaningSelect: (meaningId: string) => void;
+  onMediaCreateSuccess: (flashcardId: string, result: MediaCreateData) => void;
 }
 
 export function MediaCreateModal({
@@ -40,12 +46,12 @@ export function MediaCreateModal({
   onOpenChange,
   flashcard,
   selectedMeaning,
-  selectedMeanings,
   templates,
   isLoading,
   error,
   onTemplatesRetry,
   onMeaningSelect,
+  onMediaCreateSuccess,
 }: MediaCreateModalProps) {
   const {
     isCreating,
@@ -54,8 +60,6 @@ export function MediaCreateModal({
     createMedia,
     resetState,
   } = useMedia();
-
-  const { updateMedia } = useFlashcards();
 
   const [selectedModel, setSelectedModel] = useState("text-to-image");
   const [descriptionTarget, setDescriptionTarget] = useState("");
@@ -126,27 +130,13 @@ export function MediaCreateModal({
   // メディア生成成功時の処理
   useEffect(() => {
     if (createdMedia && flashcard) {
-      // 新しいメディアオブジェクトを作成
-      const newMedia: Flashcard["media"] = {
-        mediaId: createdMedia.mediaId,
-        meaningId:
-          selectedMeanings[flashcard.flashcardId] ||
-          flashcard.meanings[0]?.meaningId ||
-          "",
-        mediaUrls: [], // 生成直後なので空配列、実際のURLはバックエンドから別途取得される想定
-      };
-      updateMedia(flashcard.flashcardId, newMedia);
+      // 親にMediaCreateDataを渡す
+      onMediaCreateSuccess(flashcard.flashcardId, createdMedia);
+      // モーダルを閉じる
       onOpenChange(false);
       resetState();
     }
-  }, [
-    createdMedia,
-    flashcard,
-    selectedMeanings,
-    updateMedia,
-    onOpenChange,
-    resetState,
-  ]);
+  }, [createdMedia, flashcard, onMediaCreateSuccess, onOpenChange, resetState]);
 
   // モーダルが閉じられた時の状態リセット
   useEffect(() => {
@@ -248,21 +238,20 @@ export function MediaCreateModal({
       pos: selectedMeaning.pos,
       word: flashcard.word.word,
       meaning: selectedMeaning.translation,
-      example: selectedMeaning.exampleJpn,
+      exampleJpn: selectedMeaning.exampleJpn,
       explanation: flashcard.word.explanation,
-      coreMeaning: flashcard.word.coreMeaning,
+      coreMeaning: flashcard.word.coreMeaning ?? null,
       generationType: selectedModel,
       templateId: selectedTemplate?.templateId || DEFAULT_VALUES.TEMPLATE_ID,
       userPrompt,
-      otherSettings: otherSettings.length > 0 ? otherSettings : undefined,
+      otherSettings: otherSettings.length > 0 ? otherSettings : null,
       allowGeneratingPerson: false,
       inputMediaUrls:
         selectedModel === "image-to-image" && flashcard.media?.mediaUrls
           ? flashcard.media.mediaUrls
-          : [],
+          : null,
     };
 
-    console.log("Sending media create request:", requestData);
     await createMedia(requestData);
   };
 

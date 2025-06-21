@@ -80,15 +80,15 @@ export type MediaCreateRequest = {
   pos: pos;
   word: string;
   meaning: string;
-  example: string;
+  exampleJpn: string;
   explanation: string;
-  coreMeaning?: string;
+  coreMeaning: string | null;
   generationType: string;
   templateId: string;
   userPrompt: string;
-  otherSettings?: string[];
+  otherSettings: string[] | null;
   allowGeneratingPerson: boolean;
-  inputMediaUrls?: string[];
+  inputMediaUrls: string[] | null;
 };
 
 export type ComparisonUpdateRequest = {
@@ -110,12 +110,15 @@ export type FlashcardData = {
 };
 
 export type MediaCreateData = {
-  mediaId: string;
+  comparisonId: string;
+  newMediaId: string;
+  newMediaUrls: string[];
 };
 
 export type ComparisonData = {
   comparisonId: string;
   flashcardId: string;
+  newMediaId: string;
   newMediaUrls: string[];
 };
 

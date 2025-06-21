@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       "pos",
       "word",
       "meaning",
-      "example",
+      "exampleJpn",
       "explanation",
       "generationType",
       "templateId",
