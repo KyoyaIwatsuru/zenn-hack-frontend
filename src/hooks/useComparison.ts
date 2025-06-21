@@ -1,5 +1,5 @@
 import { useReducer, useCallback } from "react";
-import { ComparisonUpdateRequest } from "@/types";
+import { ComparisonUpdateRequest, ComparisonData, Comparison } from "@/types";
 import { API_ENDPOINTS } from "@/constants";
 import { comparisonReducer, initialComparisonState } from "@/reducers";
 import { httpClient, ErrorHandler } from "@/lib";
@@ -16,7 +16,7 @@ export function useComparison() {
       dispatch({ type: "SET_UPDATING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await httpClient.post(
+      const response = await httpClient.put(
         API_ENDPOINTS.COMPARISON.UPDATE,
         request
       );
@@ -36,6 +36,25 @@ export function useComparison() {
     []
   );
 
+  const getComparisons = useCallback(
+    async (userId: string): Promise<Comparison[]> => {
+      const response = await httpClient.get<ComparisonData>(
+        API_ENDPOINTS.COMPARISON.GET(userId)
+      );
+
+      if (response.success) {
+        return response.data.comparisons;
+      } else {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
+        ErrorHandler.logError(response.error);
+        throw new Error(errorMessage);
+      }
+    },
+    []
+  );
+
   const resetState = useCallback(() => {
     dispatch({ type: "RESET_STATE" });
   }, []);
@@ -45,6 +64,7 @@ export function useComparison() {
     error,
     updateResult,
     updateComparison,
+    getComparisons,
     resetState,
   };
 }

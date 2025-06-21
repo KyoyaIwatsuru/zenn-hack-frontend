@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Flashcard, Meaning, MediaCreateData } from "@/types";
-import { useFlashcards, useTemplates } from "@/hooks";
+import { Flashcard, Meaning, MediaCreateData, Comparison } from "@/types";
+import { useFlashcards, useTemplates, useComparison } from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -42,6 +42,9 @@ export default function UserPage() {
     loadTemplates,
   } = useTemplates();
 
+  // 比較データ関連
+  const { getComparisons } = useComparison();
+
   // UI状態管理
   const [selectedMeanings, setSelectedMeanings] = useState<
     Record<string, string>
@@ -73,6 +76,37 @@ export default function UserPage() {
     Record<string, MediaCreateData>
   >({});
 
+  // 永続化された比較データをmediaCreateResultsに統合
+  const mergeComparisonData = useCallback((comparisons: Comparison[]) => {
+    const converted = comparisons.reduce(
+      (acc, comparison) => {
+        acc[comparison.flashcardId] = {
+          comparisonId: comparison.comparisonId,
+          newMediaId: comparison.newMediaId,
+          newMediaUrls: comparison.newMediaUrls,
+        };
+        return acc;
+      },
+      {} as Record<string, MediaCreateData>
+    );
+
+    // 既存のmediaCreateResultsとマージ（新規データを優先）
+    setMediaCreateResults((prev) => ({ ...converted, ...prev }));
+  }, []);
+
+  // 永続化された比較データを取得
+  const loadPersistedComparisons = useCallback(
+    async (userId: string) => {
+      try {
+        const comparisons = await getComparisons(userId);
+        mergeComparisonData(comparisons);
+      } catch (error) {
+        console.error("Failed to load persisted comparisons:", error);
+      }
+    },
+    [getComparisons, mergeComparisonData]
+  );
+
   // displayUserNameを初期化
   useEffect(() => {
     if (session?.user?.name && !displayUserName) {
@@ -92,8 +126,17 @@ export default function UserPage() {
     if (userId) {
       loadFlashcards(userId);
       loadTemplates();
+      loadPersistedComparisons(userId);
     }
-  }, [status, session, userId, router, loadFlashcards, loadTemplates]);
+  }, [
+    status,
+    session,
+    userId,
+    router,
+    loadFlashcards,
+    loadTemplates,
+    loadPersistedComparisons,
+  ]);
 
   // ログアウト処理
   const handleLogout = async () => {

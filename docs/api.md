@@ -184,10 +184,11 @@
   - `200 OK`: メディア比較の取得に成功
     - `コンテンツ`:
       - `message`: string
-      - `comparisonId`: string
-      - `flashcardId`: string
-      - `newMediaId`: string
-      - `newMediaUrls`: string[]
+      - comparisons: comparison[]
+        - `comparisonId`: string
+        - `flashcardId`: string
+        - `newMediaId`: string
+        - `newMediaUrls`: string[]
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]

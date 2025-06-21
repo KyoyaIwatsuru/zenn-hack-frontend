@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       "meaningId",
       "pos",
       "word",
-      "meaning",
+      "translation",
       "exampleJpn",
       "explanation",
       "generationType",

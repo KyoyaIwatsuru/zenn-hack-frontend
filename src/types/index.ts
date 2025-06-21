@@ -56,6 +56,13 @@ export type Flashcard = {
   checkFlag: boolean;
 };
 
+export type Comparison = {
+  comparisonId: string;
+  flashcardId: string;
+  newMediaId: string;
+  newMediaUrls: string[];
+};
+
 export type Template = {
   templateId: string;
   generationType: GenerationType;
@@ -122,10 +129,7 @@ export type MediaCreateData = {
 };
 
 export type ComparisonData = {
-  comparisonId: string;
-  flashcardId: string;
-  newMediaId: string;
-  newMediaUrls: string[];
+  comparisons: Comparison[];
 };
 
 export type MeaningData = {
