@@ -1,5 +1,6 @@
 import React from "react";
 import { Flashcard, Meaning } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
 import { LoadingSpinner, ErrorMessage } from "@/components/shared";
 import { FlashcardItem } from "./FlashcardItem";
 
@@ -8,6 +9,7 @@ interface FlashcardListProps {
   isLoading: boolean;
   error: string;
   selectedMeanings: Record<string, string>;
+  mediaCreateResults: Record<string, MediaCreateResult>;
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
@@ -22,6 +24,7 @@ export function FlashcardList({
   isLoading,
   error,
   selectedMeanings,
+  mediaCreateResults,
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
@@ -56,6 +59,7 @@ export function FlashcardList({
           key={flashcard.flashcardId}
           flashcard={flashcard}
           selectedMeaning={getSelectedMeaning(flashcard)}
+          mediaCreateResult={mediaCreateResults[flashcard.flashcardId]}
           onCheckFlagToggle={onCheckFlagToggle}
           onMeaningSelect={onMeaningSelect}
           onMeaningAdded={onMeaningAdded}

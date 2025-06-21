@@ -14,9 +14,9 @@ import {
   Meaning,
   Template,
   MediaCreateRequest,
-  MediaCreateData,
   GenerationType,
 } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
 import {
   DEFAULT_VALUES,
   BASE_TEMPLATE,
@@ -39,7 +39,10 @@ interface MediaCreateModalProps {
   error: string | null;
   onTemplatesRetry: () => void;
   onMeaningSelect: (meaningId: string) => void;
-  onMediaCreateSuccess: (flashcardId: string, result: MediaCreateData) => void;
+  onMediaCreateSuccess: (
+    flashcardId: string,
+    result: MediaCreateResult
+  ) => void;
 }
 
 export function MediaCreateModal({
@@ -133,12 +136,27 @@ export function MediaCreateModal({
   useEffect(() => {
     if (createdMedia && flashcard) {
       // 親にMediaCreateDataを渡す
-      onMediaCreateSuccess(flashcard.flashcardId, createdMedia);
-      // モーダルを閉じる
-      onOpenChange(false);
+      onMediaCreateSuccess(flashcard.flashcardId, {
+        ...createdMedia,
+        status: "success" as const,
+      });
       resetState();
     }
-  }, [createdMedia, flashcard, onMediaCreateSuccess, onOpenChange, resetState]);
+  }, [createdMedia, flashcard, onMediaCreateSuccess, resetState]);
+
+  // メディア生成エラー時の処理
+  useEffect(() => {
+    if (mediaError && flashcard) {
+      onMediaCreateSuccess(flashcard.flashcardId, {
+        comparisonId: "",
+        newMediaId: "",
+        newMediaUrls: [],
+        status: "error" as const,
+        error: mediaError,
+      });
+      resetState();
+    }
+  }, [mediaError, flashcard, onMediaCreateSuccess, resetState]);
 
   // モーダルが閉じられた時の状態リセット
   useEffect(() => {
@@ -256,7 +274,25 @@ export function MediaCreateModal({
           : null,
     };
 
-    await createMedia(requestData);
+    // 即座にpending状態を設定してモーダルを閉じる
+    onMediaCreateSuccess(flashcard.flashcardId, {
+      comparisonId: "",
+      newMediaId: "",
+      newMediaUrls: [],
+      status: "pending" as const,
+    });
+
+    // モーダルを閉じる
+    onOpenChange(false);
+    resetState();
+
+    // 非同期でメディア作成を実行
+    try {
+      await createMedia(requestData);
+    } catch (error) {
+      // エラー時はuseEffectで処理される
+      console.error("Media creation failed:", error);
+    }
   };
 
   return (

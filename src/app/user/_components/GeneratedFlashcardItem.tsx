@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Flashcard, Meaning } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
 import { MeaningAddPopover } from "./MeaningAddPopover";
 import {
   CheckMark,
@@ -18,6 +19,7 @@ import { MeaningDeletePopover } from "./MeaningDeletePopover";
 interface GeneratedFlashcardItemProps {
   flashcard: Flashcard;
   selectedMeaning: Meaning;
+  mediaCreateResult?: MediaCreateResult;
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
@@ -29,6 +31,7 @@ interface GeneratedFlashcardItemProps {
 export function GeneratedFlashcardItem({
   flashcard,
   selectedMeaning,
+  mediaCreateResult,
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
@@ -65,6 +68,8 @@ export function GeneratedFlashcardItem({
               translation={selectedMeaning?.translation}
               onClick={() => onMediaClick(flashcard)}
               isInteractive={true}
+              status={mediaCreateResult?.status}
+              error={mediaCreateResult?.error}
             />
           </div>
 

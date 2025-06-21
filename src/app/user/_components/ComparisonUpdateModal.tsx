@@ -6,12 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Flashcard,
-  Meaning,
-  MediaCreateData,
-  ComparisonUpdateRequest,
-} from "@/types";
+import { Flashcard, Meaning, ComparisonUpdateRequest } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
 import { ErrorMessage } from "@/components/shared";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { useComparison } from "@/hooks";
@@ -21,7 +17,7 @@ interface ComparisonUpdateModalProps {
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
   selectedMeaning: Meaning | null;
-  mediaCreateResults: Record<string, MediaCreateData>;
+  mediaCreateResults: Record<string, MediaCreateResult>;
   onMeaningSelect: (meaningId: string) => void;
   onComparisonComplete: (flashcardId: string) => void;
 }

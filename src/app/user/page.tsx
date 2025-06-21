@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Flashcard, Meaning, MediaCreateData, Comparison } from "@/types";
+import { Flashcard, Meaning, Comparison } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
 import { useFlashcards, useTemplates, useComparison } from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
@@ -74,7 +75,7 @@ export default function UserPage() {
 
   // メディア生成結果の状態管理
   const [mediaCreateResults, setMediaCreateResults] = useState<
-    Record<string, MediaCreateData>
+    Record<string, MediaCreateResult>
   >({});
 
   // 永続化された比較データをmediaCreateResultsに統合
@@ -85,10 +86,11 @@ export default function UserPage() {
           comparisonId: comparison.comparisonId,
           newMediaId: comparison.newMediaId,
           newMediaUrls: comparison.newMediaUrls,
+          status: "success" as const,
         };
         return acc;
       },
-      {} as Record<string, MediaCreateData>
+      {} as Record<string, MediaCreateResult>
     );
 
     // 既存のmediaCreateResultsとマージ（新規データを優先）
@@ -234,7 +236,7 @@ export default function UserPage() {
   // メディア生成成功時の処理
   const handleMediaCreateSuccess = (
     flashcardId: string,
-    result: MediaCreateData
+    result: MediaCreateResult
   ) => {
     setMediaCreateResults((prev) => ({
       ...prev,
@@ -307,6 +309,7 @@ export default function UserPage() {
           isLoading={isFlashcardsLoading}
           error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
+          mediaCreateResults={mediaCreateResults}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
               (c) => c.flashcardId === flashcardId
