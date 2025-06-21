@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 } from "@/types";
 import { ErrorMessage } from "@/components/shared";
 import { FlashcardDisplay } from "./FlashcardDisplay";
+import { useComparison } from "@/hooks";
 
 interface ComparisonUpdateModalProps {
   isOpen: boolean;
@@ -22,7 +23,6 @@ interface ComparisonUpdateModalProps {
   selectedMeaning: Meaning | null;
   mediaCreateResults: Record<string, MediaCreateData>;
   onMeaningSelect: (meaningId: string) => void;
-  onComparisonUpdate: (request: ComparisonUpdateRequest) => Promise<void>;
   onComparisonComplete: (flashcardId: string) => void;
 }
 
@@ -33,11 +33,31 @@ export function ComparisonUpdateModal({
   selectedMeaning,
   mediaCreateResults,
   onMeaningSelect,
-  onComparisonUpdate,
   onComparisonComplete,
 }: ComparisonUpdateModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    isUpdating,
+    error: comparisonError,
+    updateResult,
+    updateComparison,
+    resetState,
+  } = useComparison();
+
+  // 更新成功時の処理
+  useEffect(() => {
+    if (updateResult === true && flashcard) {
+      onComparisonComplete(flashcard.flashcardId);
+      onOpenChange(false);
+      resetState();
+    }
+  }, [updateResult, flashcard, onComparisonComplete, onOpenChange, resetState]);
+
+  // モーダルが閉じられた時の状態リセット
+  useEffect(() => {
+    if (!isOpen) {
+      resetState();
+    }
+  }, [isOpen, resetState]);
 
   if (!flashcard || !selectedMeaning) {
     return null;
@@ -67,53 +87,31 @@ export function ComparisonUpdateModal({
   }
 
   const handleSelectCurrent = async () => {
-    setIsSubmitting(true);
-    setError(null);
+    if (!currentMediaResult) return;
 
-    try {
-      const request: ComparisonUpdateRequest = {
-        flashcardId: flashcard.flashcardId,
-        comparisonId: currentMediaResult.comparisonId,
-        oldMediaId: flashcard.media?.mediaId || "",
-        newMediaId: currentMediaResult.newMediaId,
-        isSelectedNew: false, // 現在の画像を選択
-      };
+    const request: ComparisonUpdateRequest = {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: currentMediaResult.comparisonId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: currentMediaResult.newMediaId,
+      isSelectedNew: false, // 現在の画像を選択
+    };
 
-      await onComparisonUpdate(request);
-      onComparisonComplete(flashcard.flashcardId);
-      onOpenChange(false);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "比較更新に失敗しました";
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await updateComparison(request);
   };
 
   const handleSelectNew = async () => {
-    setIsSubmitting(true);
-    setError(null);
+    if (!currentMediaResult) return;
 
-    try {
-      const request: ComparisonUpdateRequest = {
-        flashcardId: flashcard.flashcardId,
-        comparisonId: currentMediaResult.comparisonId,
-        oldMediaId: flashcard.media?.mediaId || "",
-        newMediaId: currentMediaResult.newMediaId,
-        isSelectedNew: true, // 新しい画像を選択
-      };
+    const request: ComparisonUpdateRequest = {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: currentMediaResult.comparisonId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: currentMediaResult.newMediaId,
+      isSelectedNew: true, // 新しい画像を選択
+    };
 
-      await onComparisonUpdate(request);
-      onComparisonComplete(flashcard.flashcardId);
-      onOpenChange(false);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "比較更新に失敗しました";
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await updateComparison(request);
   };
 
   return (
@@ -164,10 +162,10 @@ export function ComparisonUpdateModal({
           </div>
 
           {/* エラー表示 */}
-          {error && (
+          {comparisonError && (
             <ErrorMessage
-              message={error}
-              onRetry={() => setError(null)}
+              message={comparisonError}
+              onRetry={() => resetState()}
               retryText="エラーをクリア"
             />
           )}
@@ -182,18 +180,18 @@ export function ComparisonUpdateModal({
               <Button
                 variant="outline"
                 onClick={handleSelectCurrent}
-                disabled={isSubmitting}
+                disabled={isUpdating}
                 className="border-blue text-blue h-12 text-lg hover:bg-blue-50"
               >
-                {isSubmitting ? "送信中..." : "現在の画像を選択"}
+                {isUpdating ? "更新中..." : "現在の画像を選択"}
               </Button>
               <Button
                 variant="outline"
                 onClick={handleSelectNew}
-                disabled={isSubmitting}
+                disabled={isUpdating}
                 className="border-red text-red h-12 text-lg hover:bg-red-50"
               >
-                {isSubmitting ? "送信中..." : "新しい画像を選択"}
+                {isUpdating ? "更新中..." : "新しい画像を選択"}
               </Button>
             </div>
           </div>

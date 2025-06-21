@@ -3,15 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import {
-  Flashcard,
-  Meaning,
-  ComparisonUpdateRequest,
-  MediaCreateData,
-} from "@/types";
+import { Flashcard, Meaning, MediaCreateData } from "@/types";
 import { useFlashcards, useTemplates } from "@/hooks";
-import { API_ENDPOINTS } from "@/constants";
-import { httpClient, ErrorHandler } from "@/lib";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -186,20 +179,6 @@ export default function UserPage() {
     }
   };
 
-  // 比較更新処理（直接API呼び出し）
-  const handleComparisonUpdate = async (request: ComparisonUpdateRequest) => {
-    const response = await httpClient.post<void>(
-      API_ENDPOINTS.COMPARISON.UPDATE,
-      request
-    );
-
-    if (!response.success) {
-      const errorMessage = ErrorHandler.getUserFriendlyMessage(response.error);
-      ErrorHandler.logError(response.error);
-      throw new Error(errorMessage);
-    }
-  };
-
   // メディア生成成功時の処理
   const handleMediaCreateSuccess = (
     flashcardId: string,
@@ -358,7 +337,6 @@ export default function UserPage() {
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentCompareFlashcard)
         }
-        onComparisonUpdate={handleComparisonUpdate}
         onComparisonComplete={handleComparisonComplete}
       />
 

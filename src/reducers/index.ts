@@ -18,3 +18,10 @@ export {
   type MediaState,
   type MediaAction,
 } from "./mediaReducer";
+
+export {
+  comparisonReducer,
+  initialComparisonState,
+  type ComparisonState,
+  type ComparisonAction,
+} from "./comparisonReducer";
