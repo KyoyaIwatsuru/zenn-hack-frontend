@@ -25,3 +25,10 @@ export {
   type ComparisonState,
   type ComparisonAction,
 } from "./comparisonReducer";
+
+export {
+  userReducer,
+  initialUserState,
+  type UserState,
+  type UserAction,
+} from "./userReducer";

@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Flashcard, Meaning, Comparison } from "@/types";
 import { MediaCreateResult } from "@/types/ui";
-import { useFlashcards, useTemplates, useComparison } from "@/hooks";
+import {
+  useFlashcards,
+  useTemplates,
+  useComparison,
+  useFirebaseAuth,
+} from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -18,11 +23,15 @@ import { UserUpdateModal } from "./_components/UserUpdateModal";
 export default function UserPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const {
+    displayName: firebaseDisplayName,
+    isInitialized: firebaseInitialized,
+  } = useFirebaseAuth();
   const userId = session?.user?.id || null;
   const userEmail = session?.user?.email || null;
-  const [displayUserName, setDisplayUserName] = useState(
-    session?.user?.name || null
-  );
+
+  // Prioritize Firebase Auth displayName over NextAuth session
+  const [displayUserName, setDisplayUserName] = useState<string | null>(null);
 
   // フラッシュカード関連の状態とロジック
   const {
@@ -112,10 +121,45 @@ export default function UserPage() {
 
   // displayUserNameを初期化
   useEffect(() => {
-    if (session?.user?.name && !displayUserName) {
+    if (firebaseInitialized) {
+      if (firebaseDisplayName) {
+        setDisplayUserName(firebaseDisplayName);
+      } else if (session?.user?.name && !displayUserName) {
+        const lastUpdatedUserName = localStorage.getItem("lastUpdatedUserNam");
+        const updateTimestamp = localStorage.getItem("userNameUpdateTimestamp");
+        const isRecentUpdate =
+          updateTimestamp &&
+          Date.now() - parseInt(updateTimestamp) < 24 * 60 * 60 * 1000;
+
+        if (lastUpdatedUserName && isRecentUpdate) {
+          setDisplayUserName(lastUpdatedUserName);
+        } else {
+          setDisplayUserName(session.user.name);
+        }
+      }
+    } else if (
+      session?.user?.name &&
+      !displayUserName &&
+      !firebaseInitialized
+    ) {
       setDisplayUserName(session.user.name);
     }
-  }, [session?.user?.name, displayUserName]);
+  }, [
+    firebaseDisplayName,
+    firebaseInitialized,
+    session?.user?.name,
+    displayUserName,
+  ]);
+
+  useEffect(() => {
+    if (
+      firebaseInitialized &&
+      firebaseDisplayName &&
+      firebaseDisplayName !== displayUserName
+    ) {
+      setDisplayUserName(firebaseDisplayName);
+    }
+  }, [firebaseDisplayName, firebaseInitialized, displayUserName]);
 
   // 認証状態のチェックとリダイレクト
   useEffect(() => {
