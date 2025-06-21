@@ -32,6 +32,7 @@ export default function UserPage() {
     updateCheckFlag,
     updateMemo,
     addMeanings,
+    deleteMeanings,
   } = useFlashcards();
 
   // テンプレート関連の状態とロジック
@@ -154,6 +155,14 @@ export default function UserPage() {
   // 意味追加処理
   const handleMeaningAdded = (flashcardId: string, newMeanings: Meaning[]) => {
     addMeanings(flashcardId, newMeanings);
+  };
+
+  // 意味削除処理
+  const handleMeaningDeleted = (
+    flashcardId: string,
+    deletedMeanings: Meaning[]
+  ) => {
+    deleteMeanings(flashcardId, deletedMeanings);
   };
 
   // メモ編集開始
@@ -308,6 +317,7 @@ export default function UserPage() {
           }}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
+          onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openMediaModal}
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}
@@ -329,6 +339,7 @@ export default function UserPage() {
           }}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
+          onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openCompareModal}
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}

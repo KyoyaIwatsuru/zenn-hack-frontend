@@ -4,6 +4,9 @@ export interface FlashcardState {
   flashcards: Flashcard[];
   isLoading: boolean;
   error: string | null;
+  isLoadingMeanings: boolean;
+  meaningsError: string | null;
+  availableMeanings: Record<string, Meaning[]>; // wordId -> meanings
 }
 
 export type FlashcardAction =
@@ -19,12 +22,21 @@ export type FlashcardAction =
       type: "UPDATE_MEANINGS";
       payload: { flashcardId: string; meanings: Meaning[] };
     }
-  | { type: "UPDATE_MEDIA"; payload: { flashcardId: string; media: Media } };
+  | { type: "UPDATE_MEDIA"; payload: { flashcardId: string; media: Media } }
+  | { type: "SET_MEANINGS_LOADING"; payload: boolean }
+  | { type: "SET_MEANINGS_ERROR"; payload: string | null }
+  | {
+      type: "SET_AVAILABLE_MEANINGS";
+      payload: { wordId: string; meanings: Meaning[] };
+    };
 
 export const initialFlashcardState: FlashcardState = {
   flashcards: [],
   isLoading: false,
   error: null,
+  isLoadingMeanings: false,
+  meaningsError: null,
+  availableMeanings: {},
 };
 
 export function flashcardReducer(
@@ -84,6 +96,27 @@ export function flashcardReducer(
             ? { ...f, media: action.payload.media }
             : f
         ),
+      };
+
+    case "SET_MEANINGS_LOADING":
+      return { ...state, isLoadingMeanings: action.payload };
+
+    case "SET_MEANINGS_ERROR":
+      return {
+        ...state,
+        meaningsError: action.payload,
+        isLoadingMeanings: false,
+      };
+
+    case "SET_AVAILABLE_MEANINGS":
+      return {
+        ...state,
+        availableMeanings: {
+          ...state.availableMeanings,
+          [action.payload.wordId]: action.payload.meanings,
+        },
+        isLoadingMeanings: false,
+        meaningsError: null,
       };
 
     default:

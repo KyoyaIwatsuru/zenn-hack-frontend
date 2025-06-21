@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Flashcard, Meaning } from "@/types";
-import { MeaningUpdatePopover } from "./MeaningUpdatePopover";
+import { MeaningAddPopover } from "./MeaningAddPopover";
 import {
   CheckMark,
   WordHeader,
@@ -12,6 +12,7 @@ import {
   ExampleSection,
   ExplanationSection,
 } from "./shared";
+import { MeaningDeletePopover } from "./MeaningDeletePopover";
 
 interface FlashcardItemProps {
   flashcard: Flashcard;
@@ -19,6 +20,7 @@ interface FlashcardItemProps {
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
+  onMeaningDeleted: (flashcardId: string, deletedMeanings: Meaning[]) => void;
   onMediaClick: (flashcard: Flashcard) => void;
   onMemoEdit: (flashcard: Flashcard) => void;
 }
@@ -29,6 +31,7 @@ export function FlashcardItem({
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
+  onMeaningDeleted,
   onMediaClick,
   onMemoEdit,
 }: FlashcardItemProps) {
@@ -86,14 +89,23 @@ export function FlashcardItem({
 
           {/* 右側：ボタン類 (固定幅) */}
           <div className="flex w-16 flex-shrink-0 flex-col items-center justify-between pb-4">
-            <MeaningUpdatePopover
-              flashcardId={flashcard.flashcardId}
-              wordId={flashcard.word.wordId}
-              currentMeanings={flashcard.meanings}
-              onMeaningAdded={(newMeanings) =>
-                onMeaningAdded(flashcard.flashcardId, newMeanings)
-              }
-            />
+            <div className="flex">
+              <MeaningAddPopover
+                flashcardId={flashcard.flashcardId}
+                wordId={flashcard.word.wordId}
+                currentMeanings={flashcard.meanings}
+                onMeaningAdded={(newMeanings) =>
+                  onMeaningAdded(flashcard.flashcardId, newMeanings)
+                }
+              />
+              <MeaningDeletePopover
+                flashcardId={flashcard.flashcardId}
+                currentMeanings={flashcard.meanings}
+                onMeaningDeleted={(deletedMeanings) =>
+                  onMeaningDeleted(flashcard.flashcardId, deletedMeanings)
+                }
+              />
+            </div>
 
             <Image
               src={

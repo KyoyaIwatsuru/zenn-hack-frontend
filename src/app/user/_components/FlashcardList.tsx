@@ -11,6 +11,7 @@ interface FlashcardListProps {
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
+  onMeaningDeleted: (flashcardId: string, deletedMeanings: Meaning[]) => void;
   onMediaClick: (flashcard: Flashcard) => void;
   onMemoEdit: (flashcard: Flashcard) => void;
   onRetry: () => void;
@@ -24,6 +25,7 @@ export function FlashcardList({
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
+  onMeaningDeleted,
   onMediaClick,
   onMemoEdit,
   onRetry,
@@ -57,6 +59,7 @@ export function FlashcardList({
           onCheckFlagToggle={onCheckFlagToggle}
           onMeaningSelect={onMeaningSelect}
           onMeaningAdded={onMeaningAdded}
+          onMeaningDeleted={onMeaningDeleted}
           onMediaClick={onMediaClick}
           onMemoEdit={onMemoEdit}
         />
