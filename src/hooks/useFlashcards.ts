@@ -6,7 +6,14 @@ import { httpClient, ErrorHandler } from "@/lib";
 
 export function useFlashcards() {
   const [state, dispatch] = useReducer(flashcardReducer, initialFlashcardState);
-  const { flashcards, isLoading, error } = state;
+  const {
+    flashcards,
+    isLoading,
+    error,
+    isLoadingMeanings,
+    meaningsError,
+    availableMeanings,
+  } = state;
 
   const loadFlashcards = useCallback(async (userId: string) => {
     if (!userId) return;
@@ -81,15 +88,114 @@ export function useFlashcards() {
     }
   }, []);
 
+  const getMeanings = useCallback(
+    async (wordId: string): Promise<Meaning[]> => {
+      // キャッシュされた意味があれば返す
+      if (availableMeanings[wordId]) {
+        return availableMeanings[wordId];
+      }
+
+      dispatch({ type: "SET_MEANINGS_LOADING", payload: true });
+      dispatch({ type: "SET_MEANINGS_ERROR", payload: null });
+
+      const response = await httpClient.get<{ meanings: Meaning[] }>(
+        API_ENDPOINTS.MEANING.GET(wordId)
+      );
+
+      if (response.success) {
+        const meanings = response.data.meanings || [];
+        dispatch({
+          type: "SET_AVAILABLE_MEANINGS",
+          payload: { wordId, meanings },
+        });
+        return meanings;
+      } else {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
+        dispatch({ type: "SET_MEANINGS_ERROR", payload: errorMessage });
+        ErrorHandler.logError(response.error);
+        throw new Error(errorMessage);
+      }
+    },
+    [availableMeanings]
+  );
+
   const addMeanings = useCallback(
-    (flashcardId: string, newMeanings: Meaning[]) => {
+    async (flashcardId: string, newMeanings: Meaning[]) => {
       const flashcard = flashcards.find((f) => f.flashcardId === flashcardId);
-      if (flashcard) {
+      if (!flashcard) return;
+
+      // 既存の意味IDリストを取得
+      const existingMeaningIds = flashcard.meanings.map((m) => m.meaningId);
+      // 新しく追加する意味IDリストを取得
+      const newMeaningIds = newMeanings.map((meaning) => meaning.meaningId);
+      // 既存 + 新規をマージして重複除去
+      const allMeaningIds = [
+        ...new Set([...existingMeaningIds, ...newMeaningIds]),
+      ];
+
+      const response = await httpClient.put<void>(
+        API_ENDPOINTS.FLASHCARD.UPDATE_MEANINGS,
+        {
+          flashcardId,
+          usingMeaningIdList: allMeaningIds,
+        }
+      );
+
+      if (response.success) {
         const updatedMeanings = [...flashcard.meanings, ...newMeanings];
         dispatch({
           type: "UPDATE_MEANINGS",
           payload: { flashcardId, meanings: updatedMeanings },
         });
+      } else {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        ErrorHandler.logError(response.error);
+        throw new Error(errorMessage);
+      }
+    },
+    [flashcards]
+  );
+
+  const deleteMeanings = useCallback(
+    async (flashcardId: string, meaningsToDelete: Meaning[]) => {
+      const flashcard = flashcards.find((f) => f.flashcardId === flashcardId);
+      if (!flashcard) return;
+
+      // 削除する意味IDのセットを作成
+      const deleteIds = new Set(meaningsToDelete.map((m) => m.meaningId));
+      // 残す意味IDリストを作成
+      const remainingMeaningIds = flashcard.meanings
+        .filter((meaning) => !deleteIds.has(meaning.meaningId))
+        .map((meaning) => meaning.meaningId);
+
+      const response = await httpClient.put<void>(
+        API_ENDPOINTS.FLASHCARD.UPDATE_MEANINGS,
+        {
+          flashcardId,
+          usingMeaningIdList: remainingMeaningIds,
+        }
+      );
+
+      if (response.success) {
+        const updatedMeanings = flashcard.meanings.filter(
+          (meaning) => !deleteIds.has(meaning.meaningId)
+        );
+        dispatch({
+          type: "UPDATE_MEANINGS",
+          payload: { flashcardId, meanings: updatedMeanings },
+        });
+      } else {
+        const errorMessage = ErrorHandler.getUserFriendlyMessage(
+          response.error
+        );
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        ErrorHandler.logError(response.error);
+        throw new Error(errorMessage);
       }
     },
     [flashcards]
@@ -106,10 +212,15 @@ export function useFlashcards() {
     flashcards,
     isLoading,
     error,
+    isLoadingMeanings,
+    meaningsError,
+    availableMeanings,
     loadFlashcards,
     updateCheckFlag,
     updateMemo,
+    getMeanings,
     addMeanings,
+    deleteMeanings,
     updateMedia,
   };
 }

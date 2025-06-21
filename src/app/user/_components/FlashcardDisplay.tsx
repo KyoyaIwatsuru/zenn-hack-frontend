@@ -38,7 +38,7 @@ export function FlashcardDisplay({
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-3 space-y-4">
             <div className="flex items-start gap-3">
-              <CheckMark isChecked={true} />
+              <CheckMark isChecked={flashcard.checkFlag} />
               <WordHeader
                 word={flashcard.word.word}
                 pronunciation={selectedMeaning?.pronunciation}

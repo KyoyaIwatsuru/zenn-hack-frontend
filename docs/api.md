@@ -147,16 +147,25 @@
   - `flashcardId`: string (必須)
   - `oldMediaId`: string (必須)
   - `meaningId`: string (必須)
+  - `pos`: string (必須)
+  - `word`: string (必須)
+  - `translation`: string (必須)
+  - `exampleJpn`: string (必須)
+  - `explanation`: string (必須)
+  - `coreMeaning`: string
   - `generationType`: string (必須)
   - `templateId`: string (必須)
   - `userPrompt`: string (必須)
+  - `otherSettings`: string[]
   - `allowGeneratingPerson`: boolean (必須)
   - `inputMediaUrls`: string[]
 - **レスポンス**:
   - `200 OK`: メディアの生成に成功
     - `コンテンツ`:
       - `message`: string
+      - `comparisonId`: string
       - `newMediaId`: string
+      - `newMediaUrls`: string[]
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]
@@ -175,9 +184,11 @@
   - `200 OK`: メディア比較の取得に成功
     - `コンテンツ`:
       - `message`: string
-      - `comparisonId`: string
-      - `flashcardId`: string
-      - `newMediaUrls`: string[]
+      - comparisons: comparison[]
+        - `comparisonId`: string
+        - `flashcardId`: string
+        - `newMediaId`: string
+        - `newMediaUrls`: string[]
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]
@@ -240,12 +251,12 @@
 - **レスポンス**:
   - `200 OK`: テンプレートの取得に成功
     - `コンテンツ`:
-      - `template`: template[]
+      - `message`: string
+      - `templates`: template[]
         - `templateId`: string
-        - `name`: string
-        - `description`: string
         - `generationType`: string
-        - `promptText`: string
+        - `target`: string
+        - `preText`: string
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]

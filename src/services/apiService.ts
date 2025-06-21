@@ -87,14 +87,18 @@ export const apiService = {
   createMedia: async (data: MediaCreateRequest): Promise<MediaCreateData> => {
     const response = await backendClient.post<MediaCreateData>(
       "/media/create",
-      data
+      data,
+      {
+        timeout: 60000, // AI画像生成のため60秒
+        retries: 1, // リトライ回数を減らす
+      }
     );
     return handleApiResponse(response);
   },
 
   // 比較取得
   getComparison: async (userId: string): Promise<ComparisonData> => {
-    const response = await backendClient.get<ComparisonData>(
+    const response = await backendClient.post<ComparisonData>(
       `/comparison/${userId}`
     );
     return handleApiResponse(response);
@@ -104,7 +108,7 @@ export const apiService = {
   updateCompare: async (
     data: ComparisonUpdateRequest
   ): Promise<BaseApiResponse> => {
-    const response = await backendClient.post<BaseApiResponse>(
+    const response = await backendClient.put<BaseApiResponse>(
       "/comparison/update",
       data
     );

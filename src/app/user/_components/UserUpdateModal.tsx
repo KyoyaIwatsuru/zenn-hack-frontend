@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Check, AlertCircle, Loader2 } from "lucide-react";
 import { ModalLayout } from "@/components/layout";
-import { validators } from "@/constants/validation";
+import { useUserProfile } from "@/hooks";
 
 interface UserUpdateModalProps {
   isOpen: boolean;
@@ -24,20 +24,24 @@ export function UserUpdateModal({
   onProfileUpdated,
 }: UserUpdateModalProps) {
   const [userName, setUserName] = useState(currentUserName);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [isOptimisticUpdate, setIsOptimisticUpdate] = useState(false);
+
+  // useUserProfile hookを使用
+  const {
+    isUpdating,
+    error,
+    updateSuccess,
+    updateProfile,
+    validateUserName,
+    resetState,
+  } = useUserProfile();
 
   // プロップスの変更を反映
   useEffect(() => {
     setUserName(currentUserName);
     setHasChanges(false);
-    setError("");
-    setSuccess(false);
-    setIsOptimisticUpdate(false);
-  }, [currentUserName, isOpen]);
+    resetState();
+  }, [currentUserName, isOpen, resetState]);
 
   // 変更検知
   useEffect(() => {
@@ -48,110 +52,60 @@ export function UserUpdateModal({
 
   const handleSave = async () => {
     const trimmedUserName = userName.trim();
-    const validationResult = validators.userName(trimmedUserName);
+    const validationError = validateUserName(trimmedUserName);
 
-    if (!validationResult.valid) {
-      setError(validationResult.error);
+    if (validationError) {
       return;
     }
 
-    setIsLoading(true);
-    setError("");
-    setSuccess(false);
+    const success = await updateProfile(
+      userId,
+      trimmedUserName,
+      currentEmail,
+      onProfileUpdated
+    );
 
-    // 段階1: 楽観的更新 - UI即座反映
-    const originalName = currentUserName;
-    setIsOptimisticUpdate(true);
-    onProfileUpdated(trimmedUserName);
-
-    try {
-      // 段階2: Firebase updateProfile
-      const { firebaseAuth } = await import("@/lib/auth");
-      const { updateProfile } = await import("firebase/auth");
-
-      if (firebaseAuth.currentUser) {
-        await updateProfile(firebaseAuth.currentUser, {
-          displayName: trimmedUserName,
-        });
-      }
-
-      // 段階3: FastAPI updateUser
-      const { apiService } = await import("@/services/apiService");
-      await apiService.updateUser({
-        userId: userId,
-        userName: trimmedUserName,
-        email: currentEmail,
-      });
-
-      // 段階4: 成功フィードバック
-      setIsOptimisticUpdate(false);
-      setSuccess(true);
-
+    if (success) {
       // 1.5秒後にモーダルを閉じる
       setTimeout(() => {
         onOpenChange(false);
       }, 1500);
-    } catch (err) {
-      // エラー時ロールバック
-      setIsOptimisticUpdate(false);
-      onProfileUpdated(originalName);
-
-      // 詳細なエラーメッセージ
-      let errorMessage = "プロフィールの更新に失敗しました。";
-      if (err instanceof Error) {
-        if (err.message.includes("Firebase")) {
-          errorMessage =
-            "Firebase認証の更新に失敗しました。再試行してください。";
-        } else if (err.message.includes("Network")) {
-          errorMessage =
-            "ネットワークエラーが発生しました。接続を確認して再試行してください。";
-        } else {
-          errorMessage = err.message;
-        }
-      }
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    if (success) {
+    if (updateSuccess) {
       // 成功後はそのまま閉じる
       onOpenChange(false);
       return;
     }
 
-    if (hasChanges && !isLoading) {
+    if (hasChanges && !isUpdating) {
       // 変更がある場合は確認
       if (confirm("変更を破棄してよろしいですか？")) {
         setUserName(currentUserName);
-        setError("");
-        setSuccess(false);
         setHasChanges(false);
-        setIsOptimisticUpdate(false);
+        resetState();
         onOpenChange(false);
       }
     } else {
       setUserName(currentUserName);
-      setError("");
-      setSuccess(false);
       setHasChanges(false);
-      setIsOptimisticUpdate(false);
+      resetState();
       onOpenChange(false);
     }
   };
 
   const titleContent = (
     <div className="flex items-center gap-2">
-      {isLoading ? (
+      {isUpdating ? (
         <Loader2 className="h-5 w-5 animate-spin" />
-      ) : success ? (
+      ) : updateSuccess ? (
         <Check className="h-5 w-5 text-green-600" />
       ) : (
         <User className="h-5 w-5" />
       )}
-      {success ? "プロフィールを更新しました" : "プロフィール編集"}
+      {updateSuccess ? "プロフィールを更新しました" : "プロフィール編集"}
     </div>
   );
 
@@ -173,14 +127,14 @@ export function UserUpdateModal({
               placeholder="ユーザー名を入力"
               maxLength={50}
               className={`focus:border-main border-gray-200 pr-10 transition-all duration-200 ${
-                isOptimisticUpdate ? "border-blue-300 bg-blue-50" : ""
-              } ${success ? "border-green-300 bg-green-50" : ""}`}
-              disabled={isLoading || success}
+                isUpdating ? "border-blue-300 bg-blue-50" : ""
+              } ${updateSuccess ? "border-green-300 bg-green-50" : ""}`}
+              disabled={isUpdating || updateSuccess}
             />
-            {isOptimisticUpdate && (
+            {isUpdating && (
               <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform animate-spin text-blue-500" />
             )}
-            {success && (
+            {updateSuccess && (
               <Check className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-green-500" />
             )}
           </div>
@@ -219,7 +173,7 @@ export function UserUpdateModal({
           </div>
         </div>
 
-        {success && (
+        {updateSuccess && (
           <Alert className="animate-in fade-in-0 border-green-200 bg-green-50 duration-500">
             <Check className="h-4 w-4 text-green-600" />
             <AlertDescription className="font-medium text-green-700">
@@ -242,29 +196,29 @@ export function UserUpdateModal({
             variant="outline"
             size="sm"
             onClick={handleCancel}
-            disabled={isLoading}
+            disabled={isUpdating}
             className={`text-custom border-gray-200 transition-all duration-200 hover:bg-gray-50 ${
-              success ? "opacity-50" : ""
+              updateSuccess ? "opacity-50" : ""
             }`}
           >
-            {success ? "閉じる" : "キャンセル"}
+            {updateSuccess ? "閉じる" : "キャンセル"}
           </Button>
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={isLoading || !hasChanges || success}
+            disabled={isUpdating || !hasChanges || updateSuccess}
             className={`transition-all duration-200 ${
-              success
+              updateSuccess
                 ? "bg-green-600 text-white hover:bg-green-600"
                 : "bg-main hover:bg-main/90 text-white"
             }`}
           >
-            {isLoading ? (
+            {isUpdating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 更新中...
               </>
-            ) : success ? (
+            ) : updateSuccess ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
                 更新完了

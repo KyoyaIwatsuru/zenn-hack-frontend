@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Flashcard, Meaning } from "@/types";
-import { useFlashcards } from "@/hooks";
+import { Flashcard, Meaning, Comparison } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
+import {
+  useFlashcards,
+  useTemplates,
+  useComparison,
+  useFirebaseAuth,
+} from "@/hooks";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -17,23 +23,38 @@ import { UserUpdateModal } from "./_components/UserUpdateModal";
 export default function UserPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const {
+    displayName: firebaseDisplayName,
+    isInitialized: firebaseInitialized,
+  } = useFirebaseAuth();
   const userId = session?.user?.id || null;
   const userEmail = session?.user?.email || null;
-  const [displayUserName, setDisplayUserName] = useState(
-    session?.user?.name || null
-  );
+
+  // Prioritize Firebase Auth displayName over NextAuth session
+  const [displayUserName, setDisplayUserName] = useState<string | null>(null);
 
   // フラッシュカード関連の状態とロジック
   const {
     flashcards,
-    isLoading,
-    error,
+    isLoading: isFlashcardsLoading,
+    error: flashcardsError,
     loadFlashcards,
     updateCheckFlag,
     updateMemo,
     addMeanings,
-    updateMedia,
+    deleteMeanings,
   } = useFlashcards();
+
+  // テンプレート関連の状態とロジック
+  const {
+    templates,
+    isLoading: isTemplatesLoading,
+    error: templatesError,
+    loadTemplates,
+  } = useTemplates();
+
+  // 比較データ関連
+  const { getComparisons } = useComparison();
 
   // UI状態管理
   const [selectedMeanings, setSelectedMeanings] = useState<
@@ -61,12 +82,84 @@ export default function UserPage() {
   // タブ状態
   const [currentTab, setCurrentTab] = useState("all");
 
+  // メディア生成結果の状態管理
+  const [mediaCreateResults, setMediaCreateResults] = useState<
+    Record<string, MediaCreateResult>
+  >({});
+
+  // 永続化された比較データをmediaCreateResultsに統合
+  const mergeComparisonData = useCallback((comparisons: Comparison[]) => {
+    const converted = comparisons.reduce(
+      (acc, comparison) => {
+        acc[comparison.flashcardId] = {
+          comparisonId: comparison.comparisonId,
+          newMediaId: comparison.newMediaId,
+          newMediaUrls: comparison.newMediaUrls,
+          status: "success" as const,
+        };
+        return acc;
+      },
+      {} as Record<string, MediaCreateResult>
+    );
+
+    // 既存のmediaCreateResultsとマージ（新規データを優先）
+    setMediaCreateResults((prev) => ({ ...converted, ...prev }));
+  }, []);
+
+  // 永続化された比較データを取得
+  const loadPersistedComparisons = useCallback(
+    async (userId: string) => {
+      try {
+        const comparisons = await getComparisons(userId);
+        mergeComparisonData(comparisons);
+      } catch (error) {
+        console.error("Failed to load persisted comparisons:", error);
+      }
+    },
+    [getComparisons, mergeComparisonData]
+  );
+
   // displayUserNameを初期化
   useEffect(() => {
-    if (session?.user?.name && !displayUserName) {
+    if (firebaseInitialized) {
+      if (firebaseDisplayName) {
+        setDisplayUserName(firebaseDisplayName);
+      } else if (session?.user?.name && !displayUserName) {
+        const lastUpdatedUserName = localStorage.getItem("lastUpdatedUserNam");
+        const updateTimestamp = localStorage.getItem("userNameUpdateTimestamp");
+        const isRecentUpdate =
+          updateTimestamp &&
+          Date.now() - parseInt(updateTimestamp) < 24 * 60 * 60 * 1000;
+
+        if (lastUpdatedUserName && isRecentUpdate) {
+          setDisplayUserName(lastUpdatedUserName);
+        } else {
+          setDisplayUserName(session.user.name);
+        }
+      }
+    } else if (
+      session?.user?.name &&
+      !displayUserName &&
+      !firebaseInitialized
+    ) {
       setDisplayUserName(session.user.name);
     }
-  }, [session?.user?.name, displayUserName]);
+  }, [
+    firebaseDisplayName,
+    firebaseInitialized,
+    session?.user?.name,
+    displayUserName,
+  ]);
+
+  useEffect(() => {
+    if (
+      firebaseInitialized &&
+      firebaseDisplayName &&
+      firebaseDisplayName !== displayUserName
+    ) {
+      setDisplayUserName(firebaseDisplayName);
+    }
+  }, [firebaseDisplayName, firebaseInitialized, displayUserName]);
 
   // 認証状態のチェックとリダイレクト
   useEffect(() => {
@@ -79,8 +172,18 @@ export default function UserPage() {
 
     if (userId) {
       loadFlashcards(userId);
+      loadTemplates();
+      loadPersistedComparisons(userId);
     }
-  }, [status, session, userId, router, loadFlashcards]);
+  }, [
+    status,
+    session,
+    userId,
+    router,
+    loadFlashcards,
+    loadTemplates,
+    loadPersistedComparisons,
+  ]);
 
   // ログアウト処理
   const handleLogout = async () => {
@@ -98,6 +201,14 @@ export default function UserPage() {
   // 意味追加処理
   const handleMeaningAdded = (flashcardId: string, newMeanings: Meaning[]) => {
     addMeanings(flashcardId, newMeanings);
+  };
+
+  // 意味削除処理
+  const handleMeaningDeleted = (
+    flashcardId: string,
+    deletedMeanings: Meaning[]
+  ) => {
+    deleteMeanings(flashcardId, deletedMeanings);
   };
 
   // メモ編集開始
@@ -143,11 +254,6 @@ export default function UserPage() {
     setCurrentTab(tab);
   };
 
-  // メディア生成後の処理
-  const handleMediaGenerated = (flashcardId: string, media: unknown) => {
-    updateMedia(flashcardId, media as Flashcard["media"]);
-  };
-
   // プロフィールモーダルを開く
   const openProfileModal = () => {
     setProfileModalOpen(true);
@@ -171,9 +277,30 @@ export default function UserPage() {
     }
   };
 
-  // 比較提出処理
-  const handleComparisonSubmitted = () => {
-    console.log("比較結果が送信されました");
+  // メディア生成成功時の処理
+  const handleMediaCreateSuccess = (
+    flashcardId: string,
+    result: MediaCreateResult
+  ) => {
+    setMediaCreateResults((prev) => ({
+      ...prev,
+      [flashcardId]: result,
+    }));
+  };
+
+  // 比較完了処理
+  const handleComparisonComplete = (flashcardId: string) => {
+    // MediaCreateData を削除
+    setMediaCreateResults((prev) => {
+      const newResults = { ...prev };
+      delete newResults[flashcardId];
+      return newResults;
+    });
+
+    // フラッシュカード再読み込み
+    if (userId) {
+      loadFlashcards(userId);
+    }
   };
 
   // 選択された意味を取得する関数
@@ -223,9 +350,10 @@ export default function UserPage() {
       {currentTab === "all" ? (
         <FlashcardList
           flashcards={flashcards}
-          isLoading={isLoading}
-          error={error || ""}
+          isLoading={isFlashcardsLoading}
+          error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
+          mediaCreateResults={mediaCreateResults}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
               (c) => c.flashcardId === flashcardId
@@ -236,6 +364,7 @@ export default function UserPage() {
           }}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
+          onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openMediaModal}
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}
@@ -243,9 +372,10 @@ export default function UserPage() {
       ) : (
         <GeneratedFlashcardList
           flashcards={flashcards}
-          isLoading={isLoading}
-          error={error || ""}
+          isLoading={isFlashcardsLoading}
+          error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
+          mediaCreateResults={mediaCreateResults}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
               (c) => c.flashcardId === flashcardId
@@ -256,6 +386,7 @@ export default function UserPage() {
           }}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
+          onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openCompareModal}
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}
@@ -283,10 +414,14 @@ export default function UserPage() {
             ? getSelectedMeaning(currentMediaFlashcard)
             : null
         }
+        templates={templates}
+        isLoading={isTemplatesLoading}
+        error={templatesError}
+        onTemplatesRetry={() => loadTemplates()}
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentMediaFlashcard)
         }
-        onMediaGenerated={handleMediaGenerated}
+        onMediaCreateSuccess={handleMediaCreateSuccess}
       />
 
       {/* 比較モーダル */}
@@ -299,10 +434,11 @@ export default function UserPage() {
             ? getSelectedMeaning(currentCompareFlashcard)
             : null
         }
+        mediaCreateResults={mediaCreateResults}
         onMeaningSelect={(meaningId) =>
           selectMeaningInModal(meaningId, currentCompareFlashcard)
         }
-        onComparisonSubmitted={handleComparisonSubmitted}
+        onComparisonComplete={handleComparisonComplete}
       />
 
       {/* プロフィール更新モーダル */}

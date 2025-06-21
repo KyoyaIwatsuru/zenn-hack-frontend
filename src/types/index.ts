@@ -12,6 +12,12 @@ export type pos =
   | "conjunction"
   | "idiom";
 
+export type GenerationType =
+  | "text-to-image"
+  | "image-to-image"
+  | "text-to-video"
+  | "image-to-video";
+
 export type User = {
   userId: string;
   userName: string;
@@ -50,12 +56,18 @@ export type Flashcard = {
   checkFlag: boolean;
 };
 
+export type Comparison = {
+  comparisonId: string;
+  flashcardId: string;
+  newMediaId: string;
+  newMediaUrls: string[];
+};
+
 export type Template = {
   templateId: string;
-  name: string;
-  description: string;
-  generationType: string;
-  promptText: string;
+  generationType: GenerationType;
+  target: string;
+  preText: string;
 };
 
 // API Request/Response types
@@ -78,11 +90,18 @@ export type MediaCreateRequest = {
   flashcardId: string;
   oldMediaId: string;
   meaningId: string;
-  generationType: string;
+  pos: pos;
+  word: string;
+  translation: string;
+  exampleJpn: string;
+  explanation: string;
+  coreMeaning: string | null;
+  generationType: GenerationType;
   templateId: string;
   userPrompt: string;
+  otherSettings: string[] | null;
   allowGeneratingPerson: boolean;
-  inputMediaUrls?: string[];
+  inputMediaUrls: string[] | null;
 };
 
 export type ComparisonUpdateRequest = {
@@ -104,13 +123,13 @@ export type FlashcardData = {
 };
 
 export type MediaCreateData = {
+  comparisonId: string;
   newMediaId: string;
+  newMediaUrls: string[];
 };
 
 export type ComparisonData = {
-  comparisonId: string;
-  flashcardId: string;
-  newMediaUrls: string[];
+  comparisons: Comparison[];
 };
 
 export type MeaningData = {
@@ -118,5 +137,5 @@ export type MeaningData = {
 };
 
 export type TemplateData = {
-  template: Template[];
+  templates: Template[];
 };

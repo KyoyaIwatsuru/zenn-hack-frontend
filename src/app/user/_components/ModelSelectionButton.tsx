@@ -2,32 +2,43 @@ import React from "react";
 import Image from "next/image";
 
 interface ModelSelectionButtonProps {
-  modelType: "text2image" | "image2image" | "text2video";
+  modelType:
+    | "text-to-image"
+    | "image-to-image"
+    | "text-to-video"
+    | "image-to-video";
   isSelected: boolean;
   onClick: () => void;
 }
 
 const modelConfig = {
-  text2image: {
-    selectedIcon: "/text2image.svg",
-    notSelectedIcon: "/text2image_notselected.svg",
+  "text-to-image": {
+    selectedIcon: "/text-to-image.svg",
+    notSelectedIcon: "/text-to-image_not-selected.svg",
     tooltip: "text-to-image",
-    label: "text2image",
+    label: "text-to-image",
     tooltipBg: "bg-main",
   },
-  image2image: {
-    selectedIcon: "/image2image.svg",
-    notSelectedIcon: "/image2image_notselected.svg",
+  "image-to-image": {
+    selectedIcon: "/image-to-image.svg",
+    notSelectedIcon: "/image-to-image_not-selected.svg",
     tooltip: "image-to-image",
-    label: "image2image",
+    label: "image-to-image",
     tooltipBg: "bg-blue",
   },
-  text2video: {
-    selectedIcon: "/text2video.svg",
-    notSelectedIcon: "/text2video_notselected.svg",
+  "text-to-video": {
+    selectedIcon: "/text-to-video.svg",
+    notSelectedIcon: "/text-to-video_not-selected.svg",
     tooltip: "text-to-video",
-    label: "text2video",
+    label: "text-to-video",
     tooltipBg: "bg-red",
+  },
+  "image-to-video": {
+    selectedIcon: "/image-to-video.svg",
+    notSelectedIcon: "/image-to-video_not-selected.svg",
+    tooltip: "image-to-video",
+    label: "image-to-video",
+    tooltipBg: "bg-purple",
   },
 };
 

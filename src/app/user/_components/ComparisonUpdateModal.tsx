@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -6,18 +6,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Flashcard, Meaning } from "@/types";
-import { DEFAULT_VALUES, API_ENDPOINTS } from "@/constants";
-import { httpClient, ErrorHandler } from "@/lib";
+import { Flashcard, Meaning, ComparisonUpdateRequest } from "@/types";
+import { MediaCreateResult } from "@/types/ui";
+import { ErrorMessage } from "@/components/shared";
 import { FlashcardDisplay } from "./FlashcardDisplay";
+import { useComparison } from "@/hooks";
 
 interface ComparisonUpdateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   flashcard: Flashcard | null;
   selectedMeaning: Meaning | null;
+  mediaCreateResults: Record<string, MediaCreateResult>;
   onMeaningSelect: (meaningId: string) => void;
-  onComparisonSubmitted: () => void;
+  onComparisonComplete: (flashcardId: string) => void;
 }
 
 export function ComparisonUpdateModal({
@@ -25,69 +27,87 @@ export function ComparisonUpdateModal({
   onOpenChange,
   flashcard,
   selectedMeaning,
+  mediaCreateResults,
   onMeaningSelect,
-  onComparisonSubmitted,
+  onComparisonComplete,
 }: ComparisonUpdateModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    isUpdating,
+    error: comparisonError,
+    updateResult,
+    updateComparison,
+    resetState,
+  } = useComparison();
+
+  // 更新成功時の処理
+  useEffect(() => {
+    if (updateResult === true && flashcard) {
+      onComparisonComplete(flashcard.flashcardId);
+      onOpenChange(false);
+      resetState();
+    }
+  }, [updateResult, flashcard, onComparisonComplete, onOpenChange, resetState]);
+
+  // モーダルが閉じられた時の状態リセット
+  useEffect(() => {
+    if (!isOpen) {
+      resetState();
+    }
+  }, [isOpen, resetState]);
 
   if (!flashcard || !selectedMeaning) {
     return null;
   }
 
-  const handleSelectBefore = async () => {
-    setIsSubmitting(true);
+  // 現在のフラッシュカードに対応するメディア生成結果を取得
+  const currentMediaResult = mediaCreateResults[flashcard.flashcardId];
 
-    const response = await httpClient.post<void>(
-      API_ENDPOINTS.COMPARISON.UPDATE,
-      {
-        flashcardId: flashcard.flashcardId,
-        comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
-        oldMediaId: flashcard.media?.mediaId || "",
-        newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
-        isSelectedNew: false,
-      }
+  if (!currentMediaResult) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="bg-whole max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-custom">
+              生成データが見つかりません
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="mb-4 text-gray-500">
+              このフラッシュカードの生成データが見つかりません。
+            </p>
+            <Button onClick={() => onOpenChange(false)}>閉じる</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
+  }
 
-    if (response.success) {
-      onComparisonSubmitted();
-      onOpenChange(false);
-    } else if (response.error) {
-      ErrorHandler.logError(response.error);
-      console.error(
-        "比較結果送信エラー:",
-        ErrorHandler.getUserFriendlyMessage(response.error)
-      );
-    }
+  const handleSelectCurrent = async () => {
+    if (!currentMediaResult) return;
 
-    setIsSubmitting(false);
+    const request: ComparisonUpdateRequest = {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: currentMediaResult.comparisonId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: currentMediaResult.newMediaId,
+      isSelectedNew: false, // 現在の画像を選択
+    };
+
+    await updateComparison(request);
   };
 
-  const handleSelectAfter = async () => {
-    setIsSubmitting(true);
+  const handleSelectNew = async () => {
+    if (!currentMediaResult) return;
 
-    const response = await httpClient.post<void>(
-      API_ENDPOINTS.COMPARISON.UPDATE,
-      {
-        flashcardId: flashcard.flashcardId,
-        comparisonId: `${DEFAULT_VALUES.COMPARISON_ID_PREFIX}${Date.now()}`,
-        oldMediaId: flashcard.media?.mediaId || "",
-        newMediaId: `${DEFAULT_VALUES.MEDIA_ID_PREFIX}${Date.now()}`,
-        isSelectedNew: true,
-      }
-    );
+    const request: ComparisonUpdateRequest = {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: currentMediaResult.comparisonId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: currentMediaResult.newMediaId,
+      isSelectedNew: true, // 新しい画像を選択
+    };
 
-    if (response.success) {
-      onComparisonSubmitted();
-      onOpenChange(false);
-    } else if (response.error) {
-      ErrorHandler.logError(response.error);
-      console.error(
-        "比較結果送信エラー:",
-        ErrorHandler.getUserFriendlyMessage(response.error)
-      );
-    }
-
-    setIsSubmitting(false);
+    await updateComparison(request);
   };
 
   return (
@@ -108,8 +128,11 @@ export function ComparisonUpdateModal({
         </DialogHeader>
 
         <div className="space-y-8">
-          {/* 古い画像のフラッシュカード */}
+          {/* 現在の画像のフラッシュカード */}
           <div>
+            <h3 className="text-custom mb-3 text-lg font-semibold">
+              現在の画像
+            </h3>
             <FlashcardDisplay
               flashcard={flashcard}
               selectedMeaning={selectedMeaning}
@@ -118,41 +141,53 @@ export function ComparisonUpdateModal({
             />
           </div>
 
-          {/* 新しい画像のフラッシュカード */}
+          {/* 新しく生成された画像のフラッシュカード */}
           <div>
+            <h3 className="text-custom mb-3 text-lg font-semibold">
+              生成された新しい画像
+            </h3>
             <FlashcardDisplay
               flashcard={flashcard}
               selectedMeaning={selectedMeaning}
               onMeaningSelect={onMeaningSelect}
               borderColor="border-red"
               customMedia={{
-                mediaUrls: [], // TODO: 新しく生成された画像のURLをここに設定
+                mediaUrls: currentMediaResult.newMediaUrls,
               }}
             />
           </div>
 
-          {/* issue12に取り組んだ後には、下記はいらない */}
+          {/* エラー表示 */}
+          {comparisonError && (
+            <ErrorMessage
+              message={comparisonError}
+              onRetry={() => resetState()}
+              retryText="エラーをクリア"
+            />
+          )}
+
+          {/* 選択ボタン */}
           <div className="border-t pt-8">
-            <p className="text-custom mb-6 text-center">
+            <p className="text-custom mb-6 text-center text-lg">
               どちらの画像を使用しますか？
             </p>
 
             <div className="grid grid-cols-2 gap-8">
               <Button
                 variant="outline"
-                onClick={handleSelectBefore}
-                disabled={isSubmitting}
-                className="border-blue text-blue hover:bg-blue-50"
+                onClick={handleSelectCurrent}
+                disabled={isUpdating}
+                className="border-blue text-blue h-12 text-lg hover:bg-blue-50"
               >
-                {isSubmitting ? "送信中..." : "Before画像を選択"}
+                {isUpdating ? "更新中..." : "現在の画像を選択"}
               </Button>
               <Button
                 variant="outline"
-                onClick={handleSelectAfter}
-                disabled={isSubmitting}
-                className="border-red text-red hover:bg-red-50"
+                onClick={handleSelectNew}
+                disabled={isUpdating}
+                className="border-red text-red h-12 text-lg hover:bg-red-50"
               >
-                {isSubmitting ? "送信中..." : "After画像を選択"}
+                {isUpdating ? "更新中..." : "新しい画像を選択"}
               </Button>
             </div>
           </div>

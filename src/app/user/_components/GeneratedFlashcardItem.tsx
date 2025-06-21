@@ -1,9 +1,11 @@
 // 生成済み単語一覧での単語カードコンポーネント（画像比較用）
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Flashcard, Meaning } from "@/types";
-import { MeaningUpdatePopover } from "./MeaningUpdatePopover";
+import { MediaCreateResult } from "@/types/ui";
+import { MeaningAddPopover } from "./MeaningAddPopover";
 import {
   CheckMark,
   WordHeader,
@@ -12,13 +14,16 @@ import {
   ExampleSection,
   ExplanationSection,
 } from "./shared";
+import { MeaningDeletePopover } from "./MeaningDeletePopover";
 
 interface GeneratedFlashcardItemProps {
   flashcard: Flashcard;
   selectedMeaning: Meaning;
+  mediaCreateResult?: MediaCreateResult;
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
+  onMeaningDeleted: (flashcardId: string, deletedMeanings: Meaning[]) => void;
   onMediaClick: (flashcard: Flashcard) => void;
   onMemoEdit: (flashcard: Flashcard) => void;
 }
@@ -26,9 +31,11 @@ interface GeneratedFlashcardItemProps {
 export function GeneratedFlashcardItem({
   flashcard,
   selectedMeaning,
+  mediaCreateResult,
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
+  onMeaningDeleted,
   onMediaClick,
   onMemoEdit,
 }: GeneratedFlashcardItemProps) {
@@ -44,10 +51,15 @@ export function GeneratedFlashcardItem({
                 onClick={() => onCheckFlagToggle(flashcard.flashcardId)}
                 isInteractive={true}
               />
-              <WordHeader
-                word={flashcard.word.word}
-                pronunciation={selectedMeaning?.pronunciation}
-              />
+              <div className="space-y-2">
+                <WordHeader
+                  word={flashcard.word.word}
+                  pronunciation={selectedMeaning?.pronunciation}
+                />
+                <Badge variant="secondary" className="text-xs">
+                  比較待ち
+                </Badge>
+              </div>
             </div>
 
             <MediaDisplay
@@ -56,6 +68,8 @@ export function GeneratedFlashcardItem({
               translation={selectedMeaning?.translation}
               onClick={() => onMediaClick(flashcard)}
               isInteractive={true}
+              status={mediaCreateResult?.status}
+              error={mediaCreateResult?.error}
             />
           </div>
 
@@ -86,14 +100,23 @@ export function GeneratedFlashcardItem({
 
           {/* 右側：ボタン類 (固定幅) */}
           <div className="flex w-16 flex-shrink-0 flex-col items-center justify-between pb-4">
-            <MeaningUpdatePopover
-              flashcardId={flashcard.flashcardId}
-              wordId={flashcard.word.wordId}
-              currentMeanings={flashcard.meanings}
-              onMeaningAdded={(newMeanings) =>
-                onMeaningAdded(flashcard.flashcardId, newMeanings)
-              }
-            />
+            <div className="flex">
+              <MeaningAddPopover
+                flashcardId={flashcard.flashcardId}
+                wordId={flashcard.word.wordId}
+                currentMeanings={flashcard.meanings}
+                onMeaningAdded={(newMeanings) =>
+                  onMeaningAdded(flashcard.flashcardId, newMeanings)
+                }
+              />
+              <MeaningDeletePopover
+                flashcardId={flashcard.flashcardId}
+                currentMeanings={flashcard.meanings}
+                onMeaningDeleted={(deletedMeanings) =>
+                  onMeaningDeleted(flashcard.flashcardId, deletedMeanings)
+                }
+              />
+            </div>
 
             <Image
               src={

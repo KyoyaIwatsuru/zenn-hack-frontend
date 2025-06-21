@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiService } from "@/services/apiService";
 import { ComparisonUpdateRequest } from "@/types";
 
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     const body: ComparisonUpdateRequest = await request.json();
 
