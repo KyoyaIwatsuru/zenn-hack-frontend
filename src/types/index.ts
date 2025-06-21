@@ -79,7 +79,7 @@ export type MediaCreateRequest = {
   meaningId: string;
   pos: pos;
   word: string;
-  meaning: string;
+  translation: string;
   exampleJpn: string;
   explanation: string;
   coreMeaning: string | null;

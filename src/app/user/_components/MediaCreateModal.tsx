@@ -237,15 +237,15 @@ export function MediaCreateModal({
       meaningId: selectedMeaning.meaningId,
       pos: selectedMeaning.pos,
       word: flashcard.word.word,
-      meaning: selectedMeaning.translation,
+      translation: selectedMeaning.translation,
       exampleJpn: selectedMeaning.exampleJpn,
       explanation: flashcard.word.explanation,
-      coreMeaning: flashcard.word.coreMeaning ?? null,
+      coreMeaning: flashcard.word.coreMeaning || null,
       generationType: selectedModel,
       templateId: selectedTemplate?.templateId || DEFAULT_VALUES.TEMPLATE_ID,
       userPrompt,
       otherSettings: otherSettings.length > 0 ? otherSettings : null,
-      allowGeneratingPerson: false,
+      allowGeneratingPerson: true,
       inputMediaUrls:
         selectedModel === "image-to-image" && flashcard.media?.mediaUrls
           ? flashcard.media.mediaUrls

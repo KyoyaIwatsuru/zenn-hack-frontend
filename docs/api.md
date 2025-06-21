@@ -149,7 +149,7 @@
   - `meaningId`: string (必須)
   - `pos`: string (必須)
   - `word`: string (必須)
-  - `meaning`: string (必須)
+  - `translation`: string (必須)
   - `exampleJpn`: string (必須)
   - `explanation`: string (必須)
   - `coreMeaning`: string

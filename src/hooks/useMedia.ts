@@ -12,9 +12,14 @@ export function useMedia() {
     dispatch({ type: "SET_CREATING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
+    // AI画像生成は時間がかかるため、長いタイムアウトを設定
     const response = await httpClient.post<MediaCreateData>(
       API_ENDPOINTS.MEDIA.CREATE,
-      request
+      request,
+      {
+        timeout: 60000, // 60秒
+        retries: 1, // リトライ回数を減らす
+      }
     );
 
     if (response.success) {
