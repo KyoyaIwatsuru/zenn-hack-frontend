@@ -2,7 +2,11 @@ import React from "react";
 import Image from "next/image";
 
 interface ModelSelectionButtonProps {
-  modelType: "text-to-image" | "image-to-image" | "text-to-video";
+  modelType:
+    | "text-to-image"
+    | "image-to-image"
+    | "text-to-video"
+    | "image-to-video";
   isSelected: boolean;
   onClick: () => void;
 }
@@ -28,6 +32,13 @@ const modelConfig = {
     tooltip: "text-to-video",
     label: "text-to-video",
     tooltipBg: "bg-red",
+  },
+  "image-to-video": {
+    selectedIcon: "/image-to-video.svg",
+    notSelectedIcon: "/image-to-video_not-selected.svg",
+    tooltip: "image-to-video",
+    label: "image-to-video",
+    tooltipBg: "bg-purple",
   },
 };
 

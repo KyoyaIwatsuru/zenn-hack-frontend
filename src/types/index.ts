@@ -12,6 +12,12 @@ export type pos =
   | "conjunction"
   | "idiom";
 
+export type GenerationType =
+  | "text-to-image"
+  | "image-to-image"
+  | "text-to-video"
+  | "image-to-video";
+
 export type User = {
   userId: string;
   userName: string;
@@ -52,7 +58,7 @@ export type Flashcard = {
 
 export type Template = {
   templateId: string;
-  generationType: string;
+  generationType: GenerationType;
   target: string;
   preText: string;
 };
@@ -83,7 +89,7 @@ export type MediaCreateRequest = {
   exampleJpn: string;
   explanation: string;
   coreMeaning: string | null;
-  generationType: string;
+  generationType: GenerationType;
   templateId: string;
   userPrompt: string;
   otherSettings: string[] | null;

@@ -15,6 +15,7 @@ import {
   Template,
   MediaCreateRequest,
   MediaCreateData,
+  GenerationType,
 } from "@/types";
 import {
   DEFAULT_VALUES,
@@ -61,7 +62,8 @@ export function MediaCreateModal({
     resetState,
   } = useMedia();
 
-  const [selectedModel, setSelectedModel] = useState("text-to-image");
+  const [selectedModel, setSelectedModel] =
+    useState<GenerationType>("text-to-image");
   const [descriptionTarget, setDescriptionTarget] = useState("");
   const [editFormat, setEditFormat] = useState("question");
   const [promptConditions, setPromptConditions] = useState<PromptCondition[]>([
@@ -247,7 +249,9 @@ export function MediaCreateModal({
       otherSettings: otherSettings.length > 0 ? otherSettings : null,
       allowGeneratingPerson: true,
       inputMediaUrls:
-        selectedModel === "image-to-image" && flashcard.media?.mediaUrls
+        (selectedModel === "image-to-image" ||
+          selectedModel === "image-to-video") &&
+        flashcard.media?.mediaUrls
           ? flashcard.media.mediaUrls
           : null,
     };
@@ -301,6 +305,11 @@ export function MediaCreateModal({
                       modelType="text-to-video"
                       isSelected={selectedModel === "text-to-video"}
                       onClick={() => setSelectedModel("text-to-video")}
+                    />
+                    <ModelSelectionButton
+                      modelType="image-to-video"
+                      isSelected={selectedModel === "image-to-video"}
+                      onClick={() => setSelectedModel("image-to-video")}
                     />
                   </div>
                 </div>
