@@ -199,7 +199,7 @@
 ## メディア比較結果 API
 
 - **URL**: `/comparison/update`
-- **メソッド**: `POST`
+- **メソッド**: `PUT`
 - **説明**: メディアを比較します。
 - **リクエストボディ**:
   - `flashcardId`: string (必須)
