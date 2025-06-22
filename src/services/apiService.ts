@@ -98,7 +98,7 @@ export const apiService = {
 
   // 比較取得
   getComparison: async (userId: string): Promise<ComparisonData> => {
-    const response = await backendClient.post<ComparisonData>(
+    const response = await backendClient.get<ComparisonData>(
       `/comparison/${userId}`
     );
     return handleApiResponse(response);
