@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface ModelSelectionButtonProps {
   modelType:
@@ -51,21 +52,20 @@ export function ModelSelectionButton({
   const iconSrc = isSelected ? config.selectedIcon : config.notSelectedIcon;
 
   return (
-    <div className="group relative cursor-pointer" onClick={onClick}>
+    <SimpleTooltip
+      content={config.tooltip}
+      position="bottom"
+      backgroundColor={config.tooltipBg}
+      className="cursor-pointer"
+    >
       <Image
         src={iconSrc}
         alt={config.label}
         width={56}
         height={56}
         className="h-18 w-18"
+        onClick={onClick}
       />
-
-      {/* ツールチップ */}
-      <div
-        className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 transform ${config.tooltipBg} pointer-events-none rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
-      >
-        {config.tooltip}
-      </div>
-    </div>
+    </SimpleTooltip>
   );
 }

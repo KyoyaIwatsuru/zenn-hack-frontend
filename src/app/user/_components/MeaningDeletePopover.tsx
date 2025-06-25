@@ -10,6 +10,7 @@ import {
 import { Meaning } from "@/types";
 import { posTranslations } from "@/constants";
 import { useFlashcards } from "@/hooks";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface MeaningDeletePopoverProps {
   flashcardId: string;
@@ -60,7 +61,11 @@ export function MeaningDeletePopover({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <div className="group relative">
+        <SimpleTooltip
+          content="意味を削除する"
+          position="top"
+          backgroundColor="bg-blue"
+        >
           <Button
             variant="ghost"
             size="lg"
@@ -68,12 +73,7 @@ export function MeaningDeletePopover({
           >
             <CircleMinus className="size-6" />
           </Button>
-
-          {/* ツールチップ */}
-          <div className="bg-blue pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            意味を削除する
-          </div>
-        </div>
+        </SimpleTooltip>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">
