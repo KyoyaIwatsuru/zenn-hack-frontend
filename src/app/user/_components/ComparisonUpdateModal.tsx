@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +11,56 @@ import { MediaCreateResult } from "@/types/ui";
 import { ErrorMessage } from "@/components/shared";
 import { FlashcardItem } from "./FlashcardItem";
 import { useComparison } from "@/hooks";
+
+// 確認ダイアログコンポーネント
+function ConfirmationDialog({
+  isOpen,
+  onOpenChange,
+  isCurrentImage,
+  onConfirm,
+  isUpdating,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  isCurrentImage: boolean;
+  onConfirm: () => void;
+  isUpdating: boolean;
+}) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-whole max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-custom">画像選択の確認</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-custom mb-6 text-center">
+            {isCurrentImage ? "現在の画像" : "新しい画像"}を選択しますか？
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isUpdating}
+            >
+              いいえ
+            </Button>
+            <Button
+              onClick={onConfirm}
+              disabled={isUpdating}
+              className={
+                isCurrentImage
+                  ? "bg-blue hover-blue text-white"
+                  : "bg-red hover-red text-white"
+              }
+            >
+              {isUpdating ? "更新中..." : "はい"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface ComparisonUpdateModalProps {
   isOpen: boolean;
@@ -39,6 +89,10 @@ export function ComparisonUpdateModal({
     resetState,
   } = useComparison();
 
+  // 確認ダイアログの状態
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isCurrentImageSelected, setIsCurrentImageSelected] = useState(false);
+
   // 更新成功時の処理
   useEffect(() => {
     if (updateResult === true && flashcard) {
@@ -52,8 +106,36 @@ export function ComparisonUpdateModal({
   useEffect(() => {
     if (!isOpen) {
       resetState();
+      setIsConfirmationOpen(false);
     }
   }, [isOpen, resetState]);
+
+  // フラッシュカードクリック時の処理
+  const handleCurrentImageClick = () => {
+    setIsCurrentImageSelected(true);
+    setIsConfirmationOpen(true);
+  };
+
+  const handleNewImageClick = () => {
+    setIsCurrentImageSelected(false);
+    setIsConfirmationOpen(true);
+  };
+
+  // 確認ダイアログでの実際の選択処理
+  const handleConfirmSelection = async () => {
+    if (!currentMediaResult || !flashcard) return;
+
+    const request: ComparisonUpdateRequest = {
+      flashcardId: flashcard.flashcardId,
+      comparisonId: currentMediaResult.comparisonId,
+      oldMediaId: flashcard.media?.mediaId || "",
+      newMediaId: currentMediaResult.newMediaId,
+      isSelectedNew: !isCurrentImageSelected,
+    };
+
+    await updateComparison(request);
+    setIsConfirmationOpen(false);
+  };
 
   if (!flashcard || !selectedMeaning) {
     return null;
@@ -82,34 +164,6 @@ export function ComparisonUpdateModal({
     );
   }
 
-  const handleSelectCurrent = async () => {
-    if (!currentMediaResult) return;
-
-    const request: ComparisonUpdateRequest = {
-      flashcardId: flashcard.flashcardId,
-      comparisonId: currentMediaResult.comparisonId,
-      oldMediaId: flashcard.media?.mediaId || "",
-      newMediaId: currentMediaResult.newMediaId,
-      isSelectedNew: false, // 現在の画像を選択
-    };
-
-    await updateComparison(request);
-  };
-
-  const handleSelectNew = async () => {
-    if (!currentMediaResult) return;
-
-    const request: ComparisonUpdateRequest = {
-      flashcardId: flashcard.flashcardId,
-      comparisonId: currentMediaResult.comparisonId,
-      oldMediaId: flashcard.media?.mediaId || "",
-      newMediaId: currentMediaResult.newMediaId,
-      isSelectedNew: true, // 新しい画像を選択
-    };
-
-    await updateComparison(request);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
@@ -133,24 +187,30 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               現在の画像
             </h3>
-            <FlashcardItem
-              flashcard={flashcard}
-              selectedMeaning={selectedMeaning}
-              onCheckFlagToggle={() => {}} // 機能無効化のため空関数
-              onMeaningSelect={(flashcardId, meaningId) =>
-                onMeaningSelect(meaningId)
-              }
-              onMeaningAdded={() => {}} // 機能無効化のため空関数
-              onMeaningDeleted={() => {}} // 機能無効化のため空関数
-              onMediaClick={() => {}} // 機能無効化のため空関数
-              onMemoEdit={() => {}} // 機能無効化のため空関数
-              showMeaningActions={false}
-              showMemo={false}
-              enableMeaningSelect={false}
-              enableMediaClick={false}
-              enableMemoEdit={false}
-              borderColor="border-blue"
-            />
+            <div
+              onClick={handleCurrentImageClick}
+              className="cursor-pointer transition-transform hover:scale-105"
+            >
+              <FlashcardItem
+                flashcard={flashcard}
+                selectedMeaning={selectedMeaning}
+                onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+                onMeaningSelect={(flashcardId, meaningId) =>
+                  onMeaningSelect(meaningId)
+                }
+                onMeaningAdded={() => {}} // 機能無効化のため空関数
+                onMeaningDeleted={() => {}} // 機能無効化のため空関数
+                onMediaClick={() => {}} // 機能無効化のため空関数
+                onMemoEdit={() => {}} // 機能無効化のため空関数
+                showCheckbox={false}
+                showMeaningActions={false}
+                showMemo={false}
+                enableMeaningSelect={false}
+                enableMediaClick={false}
+                enableMemoEdit={false}
+                borderColor="border-blue"
+              />
+            </div>
           </div>
 
           {/* 新しく生成された画像のフラッシュカード */}
@@ -158,29 +218,35 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               生成された新しい画像
             </h3>
-            <FlashcardItem
-              flashcard={{
-                ...flashcard,
-                media: {
-                  mediaId: currentMediaResult.newMediaId,
-                  mediaUrls: currentMediaResult.newMediaUrls,
-                  meaningId: selectedMeaning.meaningId,
-                },
-              }}
-              selectedMeaning={selectedMeaning}
-              onCheckFlagToggle={() => {}} // 機能無効化のため空関数
-              onMeaningSelect={() => {}} // 機能無効化のため空関数
-              onMeaningAdded={() => {}} // 機能無効化のため空関数
-              onMeaningDeleted={() => {}} // 機能無効化のため空関数
-              onMediaClick={() => {}} // 機能無効化のため空関数
-              onMemoEdit={() => {}} // 機能無効化のため空関数
-              showMeaningActions={false}
-              showMemo={false}
-              enableMediaClick={false}
-              enableMeaningSelect={false}
-              enableMemoEdit={false}
-              borderColor="border-red"
-            />
+            <div
+              onClick={handleNewImageClick}
+              className="cursor-pointer transition-transform hover:scale-105"
+            >
+              <FlashcardItem
+                flashcard={{
+                  ...flashcard,
+                  media: {
+                    mediaId: currentMediaResult.newMediaId,
+                    mediaUrls: currentMediaResult.newMediaUrls,
+                    meaningId: selectedMeaning.meaningId,
+                  },
+                }}
+                selectedMeaning={selectedMeaning}
+                onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+                onMeaningSelect={() => {}} // 機能無効化のため空関数
+                onMeaningAdded={() => {}} // 機能無効化のため空関数
+                onMeaningDeleted={() => {}} // 機能無効化のため空関数
+                onMediaClick={() => {}} // 機能無効化のため空関数
+                onMemoEdit={() => {}} // 機能無効化のため空関数
+                showCheckbox={false}
+                showMeaningActions={false}
+                showMemo={false}
+                enableMediaClick={false}
+                enableMeaningSelect={false}
+                enableMemoEdit={false}
+                borderColor="border-red"
+              />
+            </div>
           </div>
 
           {/* エラー表示 */}
@@ -191,33 +257,16 @@ export function ComparisonUpdateModal({
               retryText="エラーをクリア"
             />
           )}
-
-          {/* 選択ボタン */}
-          <div className="border-t pt-8">
-            <p className="text-custom mb-6 text-center text-lg">
-              どちらの画像を使用しますか？
-            </p>
-
-            <div className="grid grid-cols-2 gap-8">
-              <Button
-                variant="outline"
-                onClick={handleSelectCurrent}
-                disabled={isUpdating}
-                className="border-blue text-blue h-12 text-lg hover:bg-blue-50"
-              >
-                {isUpdating ? "更新中..." : "現在の画像を選択"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleSelectNew}
-                disabled={isUpdating}
-                className="border-red text-red h-12 text-lg hover:bg-red-50"
-              >
-                {isUpdating ? "更新中..." : "新しい画像を選択"}
-              </Button>
-            </div>
-          </div>
         </div>
+
+        {/* 確認ダイアログ */}
+        <ConfirmationDialog
+          isOpen={isConfirmationOpen}
+          onOpenChange={setIsConfirmationOpen}
+          isCurrentImage={isCurrentImageSelected}
+          onConfirm={handleConfirmSelection}
+          isUpdating={isUpdating}
+        />
       </DialogContent>
     </Dialog>
   );

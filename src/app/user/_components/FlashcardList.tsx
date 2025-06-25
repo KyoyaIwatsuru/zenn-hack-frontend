@@ -66,6 +66,7 @@ export function FlashcardList({
           onMeaningDeleted={onMeaningDeleted}
           onMediaClick={onMediaClick}
           onMemoEdit={onMemoEdit}
+          mediaMode="generate"
         />
       ))}
     </div>

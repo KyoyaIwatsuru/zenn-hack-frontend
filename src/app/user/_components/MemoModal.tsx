@@ -48,7 +48,7 @@ export function MemoModal({
           <Button
             size="sm"
             onClick={onSave}
-            className="bg-main hover:bg-main/90 text-white"
+            className="bg-main hover-green text-white"
           >
             保存
           </Button>

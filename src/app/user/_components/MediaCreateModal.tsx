@@ -321,6 +321,7 @@ export function MediaCreateModal({
               onMeaningDeleted={() => {}} // 機能無効化のため空関数
               onMediaClick={() => {}} // 機能無効化のため空関数
               onMemoEdit={() => {}} // 機能無効化のため空関数
+              showCheckbox={false}
               showMeaningActions={false}
               showMemo={false}
               enableMediaClick={false}

@@ -91,6 +91,7 @@ export function GeneratedFlashcardList({
           showMeaningActions={false}
           showMemo={false}
           enableMeaningSelect={false}
+          mediaMode="compare"
         />
       ))}
     </div>

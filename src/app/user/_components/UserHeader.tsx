@@ -2,6 +2,8 @@ import React from "react";
 import { FileText, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogOut } from "lucide-react";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface UserHeaderProps {
   displayUserName: string | null;
@@ -65,13 +67,19 @@ export function UserHeader({
 
         {/* 右側：ログアウトボタン（右寄せ） */}
         <div className="justify-self-end">
-          <Button
-            variant="ghost"
-            onClick={onLogout}
-            className="text-white hover:bg-white/10"
+          <SimpleTooltip
+            content="Logout"
+            position="bottom"
+            backgroundColor="bg-main"
           >
-            ログアウト
-          </Button>
+            <Button
+              variant="ghost"
+              onClick={onLogout}
+              className="text-white hover:bg-white/10 hover:text-white"
+            >
+              <LogOut />
+            </Button>
+          </SimpleTooltip>
         </div>
       </div>
     </div>

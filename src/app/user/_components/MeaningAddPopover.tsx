@@ -10,6 +10,7 @@ import {
 import { Meaning } from "@/types";
 import { posTranslations } from "@/constants";
 import { useFlashcards } from "@/hooks";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface MeaningAddPopoverProps {
   flashcardId: string;
@@ -89,20 +90,19 @@ export function MeaningAddPopover({
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <div className="group relative">
+        <SimpleTooltip
+          content="意味を追加する"
+          position="top"
+          backgroundColor="bg-red"
+        >
           <Button
             variant="ghost"
             size="lg"
-            className="text-main hover:text-main hover:bg-sub/20 !px-2 font-normal"
+            className="text-red hover:text-red !px-2 font-normal hover:bg-red-50"
           >
             <CirclePlus className="size-6" />
           </Button>
-
-          {/* ツールチップ */}
-          <div className="bg-main pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            意味を追加する
-          </div>
-        </div>
+        </SimpleTooltip>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">

@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { CircleAlert, LoaderCircle, CircleCheck } from "lucide-react";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface MediaDisplayProps {
   mediaUrls?: string[];
@@ -10,6 +11,7 @@ interface MediaDisplayProps {
   isInteractive?: boolean;
   status?: "pending" | "success" | "error";
   error?: string;
+  mode?: "generate" | "compare"; // モードを追加: generate(生成モード), compare(比較モード)
 }
 
 export function MediaDisplay({
@@ -20,15 +22,36 @@ export function MediaDisplay({
   isInteractive = false,
   status,
   error,
+  mode = "generate", // デフォルトは生成モード
 }: MediaDisplayProps) {
-  const imageClasses = isInteractive
+  // モードに応じてクリック可能かどうかを判定
+  const isClickable =
+    isInteractive && (mode === "compare" || !status || status === "error");
+
+  const imageClasses = isClickable
     ? "hover:opacity-80 cursor-pointer transition-opacity"
     : "";
 
-  return (
+  // ステータスに応じたオーバーレイメッセージ
+  const getStatusMessage = () => {
+    switch (status) {
+      case "success":
+        return "画像生成が完了しました。選択にいきましょう";
+      case "pending":
+        return "画像生成途中です。しばらくお待ちください";
+      case "error":
+        return error || "画像生成が失敗しました。もう一度生成してみましょう";
+      default:
+        return null;
+    }
+  };
+
+  const statusMessage = getStatusMessage();
+
+  const content = (
     <div
-      className={`relative mx-auto aspect-square w-full max-w-40 overflow-hidden rounded-lg ${imageClasses}`}
-      onClick={isInteractive ? onClick : undefined}
+      className={`relative mx-auto aspect-square w-full max-w-40 overflow-hidden rounded-lg ${imageClasses} group`}
+      onClick={isClickable ? onClick : undefined}
     >
       {mediaUrls?.[0] ? (
         <Image
@@ -46,32 +69,62 @@ export function MediaDisplay({
         </div>
       )}
 
+      {/* ステータスに応じたオーバーレイメッセージ（生成モードのみ） */}
+      {statusMessage && mode === "generate" && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <div className="bg-primary max-w-32 rounded px-2 py-1 text-center text-xs text-black">
+            {statusMessage}
+          </div>
+        </div>
+      )}
+
       {/* Status badges */}
       {status === "success" && (
-        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-green-500">
+        <div className="bg-red absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full">
           <CircleCheck className="h-4 w-4 text-white" />
         </div>
       )}
 
       {status === "pending" && (
-        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500">
+        <div className="bg-blue absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full">
           <LoaderCircle className="h-4 w-4 animate-spin text-white" />
         </div>
       )}
 
       {status === "error" && (
-        <div className="group absolute top-2 right-2">
-          <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-red-500">
-            <CircleAlert className="h-4 w-4 text-white" />
-          </div>
-          {/* Error tooltip */}
-          {error && (
-            <div className="pointer-events-none absolute top-8 right-0 z-10 max-w-48 rounded bg-red-600 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              {error}
-            </div>
-          )}
+        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500">
+          <CircleAlert className="h-4 w-4 text-white" />
         </div>
       )}
     </div>
   );
+
+  // モードとステータスに応じてSimpleTooltipを表示
+  if (isInteractive) {
+    if (mode === "compare") {
+      // 比較モードの場合、常にツールチップを表示
+      return (
+        <SimpleTooltip
+          content="画像を比較する"
+          position="bottom"
+          backgroundColor="bg-main"
+        >
+          {content}
+        </SimpleTooltip>
+      );
+    } else if (mode === "generate" && !status) {
+      // 生成モードでステータスがない場合のみツールチップを表示
+      return (
+        <SimpleTooltip
+          content="画像を生成する"
+          position="bottom"
+          backgroundColor="bg-main"
+        >
+          {content}
+        </SimpleTooltip>
+      );
+    }
+  }
+
+  return content;
 }
