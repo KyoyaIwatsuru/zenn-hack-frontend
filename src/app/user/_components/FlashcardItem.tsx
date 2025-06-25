@@ -166,8 +166,7 @@ export function FlashcardItem({
               {showMemo && (
                 <Image
                   src={
-                    flashcard.word.explanation &&
-                    flashcard.word.explanation.trim() !== ""
+                    flashcard.memo && flashcard.memo.trim() !== ""
                       ? "/note_noted.svg"
                       : "/note_new.svg"
                   }
