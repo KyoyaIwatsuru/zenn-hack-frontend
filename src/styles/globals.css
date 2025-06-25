@@ -87,6 +87,7 @@
   --color-text-sub: #6b6a8e;
   --color-red: #c87a78;
   --color-blue: #78a3c8;
+  --color-purple: #b178C8;
 }
 
 .dark {
@@ -184,6 +185,10 @@
 
   .bg-blue {
     background-color: var(--color-blue);
+  }
+
+  .bg-purple {
+    background-color: var(--color-purple);
   }
 
   .border-main {
