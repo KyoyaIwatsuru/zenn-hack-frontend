@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Flashcard, Meaning } from "@/types";
 import { MediaCreateResult } from "@/types/ui";
 import { LoadingSpinner, ErrorMessage } from "@/components/shared";
-import { GeneratedFlashcardItem } from "./GeneratedFlashcardItem";
+import { FlashcardItem } from "./FlashcardItem";
 
 interface GeneratedFlashcardListProps {
   flashcards: Flashcard[];
@@ -77,7 +77,7 @@ export function GeneratedFlashcardList({
   return (
     <div className="flex flex-col items-center space-y-4">
       {generatedFlashcards.map((flashcard) => (
-        <GeneratedFlashcardItem
+        <FlashcardItem
           key={flashcard.flashcardId}
           flashcard={flashcard}
           selectedMeaning={getSelectedMeaning(flashcard)}
@@ -88,6 +88,9 @@ export function GeneratedFlashcardList({
           onMeaningDeleted={onMeaningDeleted}
           onMediaClick={onMediaClick}
           onMemoEdit={onMemoEdit}
+          showMeaningActions={false}
+          showMemo={false}
+          enableMeaningSelect={false}
         />
       ))}
     </div>
