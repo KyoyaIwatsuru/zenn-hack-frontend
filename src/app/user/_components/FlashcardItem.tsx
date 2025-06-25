@@ -40,6 +40,8 @@ interface FlashcardItemProps {
   enableMemoEdit?: boolean; // メモ編集機能
   // スタイル制御のオプション
   borderColor?: string; // ボーダー色（指定された場合border-4が適用される）
+  // メディア表示モード
+  mediaMode?: "generate" | "compare"; // MediaDisplayのモード
 }
 
 export function FlashcardItem({
@@ -68,6 +70,8 @@ export function FlashcardItem({
   enableMemoEdit = true,
   // スタイル制御のオプション
   borderColor,
+  // メディア表示モード
+  mediaMode = "generate", // デフォルトは生成モード
 }: FlashcardItemProps) {
   return (
     <Card
@@ -102,6 +106,7 @@ export function FlashcardItem({
                 isInteractive={enableMediaClick}
                 status={mediaCreateResult?.status}
                 error={mediaCreateResult?.error}
+                mode={mediaMode}
               />
             )}
           </div>
