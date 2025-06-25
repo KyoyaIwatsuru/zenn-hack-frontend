@@ -64,13 +64,13 @@ export function MeaningDeletePopover({
           <Button
             variant="ghost"
             size="lg"
-            className="!px-2 font-normal text-red-500 hover:bg-red-50 hover:text-red-500"
+            className="text-blue hover:text-blue !px-2 font-normal hover:bg-blue-50"
           >
             <CircleMinus className="size-6" />
           </Button>
 
           {/* ツールチップ */}
-          <div className="pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded bg-red-500 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <div className="bg-blue pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             意味を削除する
           </div>
         </div>

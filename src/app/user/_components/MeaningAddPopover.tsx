@@ -93,13 +93,13 @@ export function MeaningAddPopover({
           <Button
             variant="ghost"
             size="lg"
-            className="text-main hover:text-main hover:bg-sub/20 !px-2 font-normal"
+            className="text-red hover:text-red !px-2 font-normal hover:bg-red-50"
           >
             <CirclePlus className="size-6" />
           </Button>
 
           {/* ツールチップ */}
-          <div className="bg-main pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <div className="bg-red pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             意味を追加する
           </div>
         </div>
