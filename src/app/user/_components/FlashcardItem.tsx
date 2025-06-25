@@ -1,4 +1,3 @@
-// 単語帳一覧（単語学習・画像選択）での単語カードコンポーネント
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -39,6 +38,8 @@ interface FlashcardItemProps {
   enableCheckToggle?: boolean; // チェックマーク機能
   enableMeaningSelect?: boolean; // 意味選択機能（例文変更）
   enableMemoEdit?: boolean; // メモ編集機能
+  // スタイル制御のオプション
+  borderColor?: string; // ボーダー色（指定された場合border-4が適用される）
 }
 
 export function FlashcardItem({
@@ -65,9 +66,13 @@ export function FlashcardItem({
   enableCheckToggle = true,
   enableMeaningSelect = true,
   enableMemoEdit = true,
+  // スタイル制御のオプション
+  borderColor,
 }: FlashcardItemProps) {
   return (
-    <Card className="bg-primary w-full max-w-5xl border-0 shadow-sm">
+    <Card
+      className={`bg-primary w-full max-w-5xl shadow-sm ${borderColor ? `border-4 ${borderColor}` : "border-0"}`}
+    >
       <CardContent className="px-6">
         <div className="flex gap-6">
           {/* 左側：チェックボックス + 単語情報 + 画像 (固定幅) */}
