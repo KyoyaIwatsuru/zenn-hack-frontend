@@ -9,7 +9,7 @@ import {
 import { Flashcard, Meaning, ComparisonUpdateRequest } from "@/types";
 import { MediaCreateResult } from "@/types/ui";
 import { ErrorMessage } from "@/components/shared";
-import { FlashcardDisplay } from "./FlashcardDisplay";
+import { FlashcardItem } from "./FlashcardItem";
 import { useComparison } from "@/hooks";
 
 interface ComparisonUpdateModalProps {
@@ -133,10 +133,22 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               現在の画像
             </h3>
-            <FlashcardDisplay
+            <FlashcardItem
               flashcard={flashcard}
               selectedMeaning={selectedMeaning}
-              onMeaningSelect={onMeaningSelect}
+              onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+              onMeaningSelect={(flashcardId, meaningId) =>
+                onMeaningSelect(meaningId)
+              }
+              onMeaningAdded={() => {}} // 機能無効化のため空関数
+              onMeaningDeleted={() => {}} // 機能無効化のため空関数
+              onMediaClick={() => {}} // 機能無効化のため空関数
+              onMemoEdit={() => {}} // 機能無効化のため空関数
+              showMeaningActions={false}
+              showMemo={false}
+              enableMeaningSelect={false}
+              enableMediaClick={false}
+              enableMemoEdit={false}
               borderColor="border-blue"
             />
           </div>
@@ -146,14 +158,28 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               生成された新しい画像
             </h3>
-            <FlashcardDisplay
-              flashcard={flashcard}
-              selectedMeaning={selectedMeaning}
-              onMeaningSelect={onMeaningSelect}
-              borderColor="border-red"
-              customMedia={{
-                mediaUrls: currentMediaResult.newMediaUrls,
+            <FlashcardItem
+              flashcard={{
+                ...flashcard,
+                media: {
+                  mediaId: currentMediaResult.newMediaId,
+                  mediaUrls: currentMediaResult.newMediaUrls,
+                  meaningId: selectedMeaning.meaningId,
+                },
               }}
+              selectedMeaning={selectedMeaning}
+              onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+              onMeaningSelect={() => {}} // 機能無効化のため空関数
+              onMeaningAdded={() => {}} // 機能無効化のため空関数
+              onMeaningDeleted={() => {}} // 機能無効化のため空関数
+              onMediaClick={() => {}} // 機能無効化のため空関数
+              onMemoEdit={() => {}} // 機能無効化のため空関数
+              showMeaningActions={false}
+              showMemo={false}
+              enableMediaClick={false}
+              enableMeaningSelect={false}
+              enableMemoEdit={false}
+              borderColor="border-red"
             />
           </div>
 

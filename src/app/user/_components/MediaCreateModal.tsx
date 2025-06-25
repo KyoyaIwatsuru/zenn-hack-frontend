@@ -24,7 +24,7 @@ import {
 } from "@/constants";
 import { useMedia } from "@/hooks";
 import { buildQuestionModePrompt } from "@/utils";
-import { FlashcardDisplay } from "./FlashcardDisplay";
+import { FlashcardItem } from "./FlashcardItem";
 import { ModelSelectionButton } from "./ModelSelectionButton";
 import { QuestionMode, PromptMode, PromptCondition } from "./shared";
 import { LoadingSpinner, ErrorMessage } from "@/components/shared";
@@ -310,10 +310,21 @@ export function MediaCreateModal({
         {/*Title is not used in the UI, but required for accessibility: */}
         <div className="flex h-full flex-col">
           <div className="flex-shrink-0">
-            <FlashcardDisplay
+            <FlashcardItem
               flashcard={flashcard}
               selectedMeaning={selectedMeaning}
-              onMeaningSelect={onMeaningSelect}
+              onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+              onMeaningSelect={(flashcardId, meaningId) =>
+                onMeaningSelect(meaningId)
+              }
+              onMeaningAdded={() => {}} // 機能無効化のため空関数
+              onMeaningDeleted={() => {}} // 機能無効化のため空関数
+              onMediaClick={() => {}} // 機能無効化のため空関数
+              onMemoEdit={() => {}} // 機能無効化のため空関数
+              showMeaningActions={false}
+              showMemo={false}
+              enableMediaClick={false}
+              enableMemoEdit={false}
             />
           </div>
 
