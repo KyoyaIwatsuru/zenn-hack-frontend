@@ -42,6 +42,25 @@
         - `msg`: string
         - `type`: string
 
+## フラッシュカード追加 API
+
+- **URL**: `user/add/usingFlashcard`
+- **メソッド**: `POST`
+- **説明**: ユーザーのフラッシュカードを追加します。
+- **リクエストボディ**:
+  - `userId`: string (必須)
+  - `flashcardId`: string (必須)
+- **レスポンス**:
+  - `200 OK`: フラッシュカードの追加に成功
+    - `コンテンツ`:
+      - `message`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
 ## フラッシュカード取得 API
 
 - **URL**: `/flashcard/{userId}`
@@ -275,6 +294,7 @@
   - `200 OK`: 単語情報の取得に成功
     - `コンテンツ`:
       - `message`: string
+      - `flashcardId`: string
       - `word`: Word
         - `wordId`: string
         - `word`: string
@@ -291,40 +311,6 @@
         - `mediaId`: string
         - `meaningId`: string
         - `mediaUrls`: string[]
-  - `422 Validation Error`: 型が不正
-    - `コンテンツ`:
-      - `detail`: detail[]
-        - `loc`: string[]
-        - `msg`: string
-        - `type`: string
-
-## フラッシュカード追加 API
-
-- **URL**: `/flashcard/add`
-- **メソッド**: `POST`
-- **説明**: ユーザーのフラッシュカードに新しい単語を追加します。
-- **リクエストボディ**:
-  - `userId`: string (必須)
-  - `word`: Word
-    - `wordId`: string (必須)
-    - `word`: string (必須)
-    - `coreMeaning`: string (必須)
-    - `explanation`: string (必須)
-  - `meanings`: Meaning[]
-    - `meaningId`: string (必須)
-    - `pos`: string (必須)
-    - `translation`: string (必須)
-    - `pronunciation`: string (必須)
-    - `exampleEng`: string (必須)
-    - `exampleJpn`: string (必須)
-  - `media`: Media
-    - `mediaId`: string (必須)
-    - `meaningId`: string (必須)
-    - `mediaUrls`: string[] (必須)
-- **レスポンス**:
-  - `200 OK`: フラッシュカードの追加に成功
-    - `コンテンツ`:
-      - `message`: string
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]
