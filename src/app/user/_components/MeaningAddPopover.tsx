@@ -10,7 +10,6 @@ import {
 import { Meaning } from "@/types";
 import { posTranslations } from "@/constants";
 import { useFlashcards } from "@/hooks";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface MeaningAddPopoverProps {
   flashcardId: string;
@@ -90,11 +89,7 @@ export function MeaningAddPopover({
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <SimpleTooltip
-          content="意味を追加する"
-          position="top"
-          backgroundColor="bg-red"
-        >
+        <div className="group relative">
           <Button
             variant="ghost"
             size="lg"
@@ -102,7 +97,12 @@ export function MeaningAddPopover({
           >
             <CirclePlus className="size-6" />
           </Button>
-        </SimpleTooltip>
+
+          {/* ツールチップ */}
+          <div className="bg-red pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            意味を追加する
+          </div>
+        </div>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">
@@ -142,7 +142,7 @@ export function MeaningAddPopover({
                           key={meaning.meaningId}
                           className={`cursor-pointer rounded-lg border p-3 transition-colors ${
                             isSelected
-                              ? "border-main bg-sub/20"
+                              ? "border-red bg-red-sub"
                               : "border-gray-200 hover:border-gray-300"
                           }`}
                           onClick={() =>
@@ -159,7 +159,7 @@ export function MeaningAddPopover({
                               </span>
                             </div>
                             {isSelected && (
-                              <Check className="text-main h-4 w-4" />
+                              <Check className="text-red h-4 w-4" />
                             )}
                           </div>
 
@@ -196,7 +196,7 @@ export function MeaningAddPopover({
                       disabled={
                         selectedMeanings.size === 0 || isLoadingMeanings
                       }
-                      className="bg-main hover:bg-main/90 text-white"
+                      className="bg-red hover-red text-white"
                     >
                       {isLoadingMeanings
                         ? "追加中..."

@@ -10,7 +10,6 @@ import {
 import { Meaning } from "@/types";
 import { posTranslations } from "@/constants";
 import { useFlashcards } from "@/hooks";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 
 interface MeaningDeletePopoverProps {
   flashcardId: string;
@@ -61,11 +60,7 @@ export function MeaningDeletePopover({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <SimpleTooltip
-          content="意味を削除する"
-          position="top"
-          backgroundColor="bg-blue"
-        >
+        <div className="group relative">
           <Button
             variant="ghost"
             size="lg"
@@ -73,7 +68,12 @@ export function MeaningDeletePopover({
           >
             <CircleMinus className="size-6" />
           </Button>
-        </SimpleTooltip>
+
+          {/* ツールチップ */}
+          <div className="bg-blue pointer-events-none absolute top-[-32px] left-1/2 -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            意味を削除する
+          </div>
+        </div>
       </PopoverTrigger>
 
       <PopoverContent className="w-96" align="start">
@@ -96,7 +96,7 @@ export function MeaningDeletePopover({
                       key={meaning.meaningId}
                       className={`cursor-pointer rounded-lg border p-3 transition-colors ${
                         isSelected
-                          ? "border-red-500 bg-red-50"
+                          ? "border-blue bg-blue-sub"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                       onClick={() => toggleMeaningSelection(meaning.meaningId)}
@@ -110,9 +110,7 @@ export function MeaningDeletePopover({
                             {meaning.translation}
                           </span>
                         </div>
-                        {isSelected && (
-                          <Check className="h-4 w-4 text-red-500" />
-                        )}
+                        {isSelected && <Check className="text-blue h-4 w-4" />}
                       </div>
 
                       <div className="mt-2 space-y-1">
@@ -145,7 +143,7 @@ export function MeaningDeletePopover({
                     size="sm"
                     onClick={handleDeleteMeanings}
                     disabled={selectedMeanings.size === 0 || isLoadingMeanings}
-                    className="bg-red-500 text-white hover:bg-red-600"
+                    className="bg-blue hover-blue text-white"
                   >
                     {isLoadingMeanings
                       ? "削除中..."
