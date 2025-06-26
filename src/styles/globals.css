@@ -86,8 +86,10 @@
   --color-text-main: #302c53;
   --color-text-sub: #6b6a8e;
   --color-red: #c87a78;
+  --color-red-sub: #faedec;
   --color-dark-red: #a66462;
   --color-blue: #78a3c8;
+  --color-blue-sub: #e6f3f9;
   --color-dark-blue: #6184a1;
   --color-purple: #b178C8;
 }
@@ -185,8 +187,16 @@
     background-color: var(--color-red);
   }
 
+  .bg-red-sub {
+    background-color: var(--color-red-sub);
+  }
+
   .bg-blue {
     background-color: var(--color-blue);
+  }
+
+  .bg-blue-sub {
+    background-color: var(--color-blue-sub);
   }
 
   .bg-purple {
