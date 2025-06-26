@@ -44,7 +44,7 @@
 
 ## フラッシュカード追加 API
 
-- **URL**: `user/add/usingFlashcard`
+- **URL**: `/user/add/usingFlashcard`
 - **メソッド**: `POST`
 - **説明**: ユーザーのフラッシュカードを追加します。
 - **リクエストボディ**:
