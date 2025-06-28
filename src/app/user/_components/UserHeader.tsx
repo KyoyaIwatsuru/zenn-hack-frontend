@@ -11,6 +11,8 @@ interface UserHeaderProps {
   onLogout: () => void;
   currentTab: string;
   onTabChange: (tab: string) => void;
+  // 暗記モード用のコントロールパネル
+  memorizationControlPanel?: React.ReactNode;
 }
 
 export function UserHeader({
@@ -19,9 +21,10 @@ export function UserHeader({
   onLogout,
   currentTab,
   onTabChange,
+  memorizationControlPanel,
 }: UserHeaderProps) {
   return (
-    <div className="bg-main p-4 text-white">
+    <div className="bg-main sticky top-0 z-50 p-4 text-white">
       <div className="grid grid-cols-3 items-center">
         {/* 左側：フラッシュカードとユーザー情報（左寄せ） */}
         <div className="flex items-center gap-2 justify-self-start">
@@ -46,7 +49,7 @@ export function UserHeader({
         </div>
 
         {/* 中央：タブ（中央配置） */}
-        <div className="justify-self-center">
+        <div className="relative justify-self-center">
           <Tabs value={currentTab} onValueChange={onTabChange}>
             <TabsList className="bg-white/10 text-white">
               <TabsTrigger
@@ -61,8 +64,21 @@ export function UserHeader({
               >
                 画像選択
               </TabsTrigger>
+              <TabsTrigger
+                value="memorization"
+                className="data-[state=active]:text-main data-[state=active]:bg-white"
+              >
+                暗記モード
+              </TabsTrigger>
             </TabsList>
           </Tabs>
+
+          {/* 暗記モード時のコントロールパネル - タブの右側に絶対位置で配置 */}
+          {currentTab === "memorization" && memorizationControlPanel && (
+            <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2">
+              {memorizationControlPanel}
+            </div>
+          )}
         </div>
 
         {/* 右側：ログアウトボタン（右寄せ） */}

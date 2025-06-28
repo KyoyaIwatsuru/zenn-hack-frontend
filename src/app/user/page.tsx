@@ -15,10 +15,15 @@ import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
 import { GeneratedFlashcardList } from "./_components/GeneratedFlashcardList";
+import { MemorizationFlashcardList } from "./_components/MemorizationFlashcardList";
 import { MemoModal } from "./_components/MemoModal";
 import { MediaCreateModal } from "./_components/MediaCreateModal";
 import { ComparisonUpdateModal } from "./_components/ComparisonUpdateModal";
 import { UserUpdateModal } from "./_components/UserUpdateModal";
+import {
+  VisibilityControlPanel,
+  VisibilitySettings,
+} from "./_components/VisibilityControlPanel";
 
 export default function UserPage() {
   const router = useRouter();
@@ -81,6 +86,31 @@ export default function UserPage() {
 
   // タブ状態
   const [currentTab, setCurrentTab] = useState("all");
+
+  // 暗記モード用の表示設定管理
+  const [memorizationVisibilitySettings, setMemorizationVisibilitySettings] =
+    useState<VisibilitySettings>({
+      word: true,
+      image: true,
+      meanings: true,
+      examples: true,
+      explanation: true,
+    });
+
+  // 暗記モード用の適用中フラグ管理
+  const [isApplyingMemorizationSettings, setIsApplyingMemorizationSettings] =
+    useState(false);
+  const [appliedCardsCount, setAppliedCardsCount] = useState(0);
+
+  // 暗記モード用の設定変更処理
+  const handleMemorizationVisibilityChange = useCallback(
+    (newSettings: VisibilitySettings) => {
+      setMemorizationVisibilitySettings(newSettings);
+      setIsApplyingMemorizationSettings(true);
+      setAppliedCardsCount(0);
+    },
+    []
+  );
 
   // メディア生成結果の状態管理
   const [mediaCreateResults, setMediaCreateResults] = useState<
@@ -343,6 +373,15 @@ export default function UserPage() {
           onLogout={handleLogout}
           currentTab={currentTab}
           onTabChange={handleTabChange}
+          memorizationControlPanel={
+            <VisibilityControlPanel
+              visibilitySettings={memorizationVisibilitySettings}
+              onVisibilityChange={handleMemorizationVisibilityChange}
+              isApplying={isApplyingMemorizationSettings}
+              appliedCardsCount={appliedCardsCount}
+              totalCardsCount={flashcards.length}
+            />
+          }
         />
       }
     >
@@ -369,7 +408,7 @@ export default function UserPage() {
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}
         />
-      ) : (
+      ) : currentTab === "generated" ? (
         <GeneratedFlashcardList
           flashcards={flashcards}
           isLoading={isFlashcardsLoading}
@@ -390,6 +429,28 @@ export default function UserPage() {
           onMediaClick={openCompareModal}
           onMemoEdit={startEditMemo}
           onRetry={() => userId && loadFlashcards(userId)}
+        />
+      ) : (
+        <MemorizationFlashcardList
+          flashcards={flashcards}
+          isLoading={isFlashcardsLoading}
+          error={flashcardsError || ""}
+          selectedMeanings={selectedMeanings}
+          globalVisibilitySettings={memorizationVisibilitySettings}
+          isApplyingSettings={isApplyingMemorizationSettings}
+          appliedCardsCount={appliedCardsCount}
+          onCheckFlagToggle={(flashcardId) => {
+            const flashcard = flashcards.find(
+              (c) => c.flashcardId === flashcardId
+            );
+            if (flashcard) {
+              updateCheckFlag(flashcardId, !flashcard.checkFlag);
+            }
+          }}
+          onMemoEdit={startEditMemo}
+          onRetry={() => userId && loadFlashcards(userId)}
+          onSettingsApplied={() => setIsApplyingMemorizationSettings(false)}
+          onAppliedCardsCountChange={setAppliedCardsCount}
         />
       )}
 
