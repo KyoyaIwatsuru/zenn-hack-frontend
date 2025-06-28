@@ -117,6 +117,11 @@ export default function UserPage() {
     Record<string, MediaCreateResult>
   >({});
 
+  // 完了したフラッシュカードの数を計算
+  const completedFlashcardCount = Object.values(mediaCreateResults).filter(
+    (result) => result.status === "success"
+  ).length;
+
   // 永続化された比較データをmediaCreateResultsに統合
   const mergeComparisonData = useCallback((comparisons: Comparison[]) => {
     const converted = comparisons.reduce(
@@ -373,6 +378,7 @@ export default function UserPage() {
           onLogout={handleLogout}
           currentTab={currentTab}
           onTabChange={handleTabChange}
+          completedFlashcardCount={completedFlashcardCount}
           memorizationControlPanel={
             <VisibilityControlPanel
               visibilitySettings={memorizationVisibilitySettings}
