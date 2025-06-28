@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Flashcard, Meaning } from "@/types";
@@ -13,6 +13,7 @@ import {
   ExplanationSection,
 } from "./shared";
 import { MeaningDeletePopover } from "./MeaningDeletePopover";
+import { VisibilitySettings } from "./VisibilityControlPanel";
 
 interface FlashcardItemProps {
   flashcard: Flashcard;
@@ -42,6 +43,10 @@ interface FlashcardItemProps {
   borderColor?: string; // ボーダー色（指定された場合border-4が適用される）
   // メディア表示モード
   mediaMode?: "generate" | "compare"; // MediaDisplayのモード
+  // 暗記モード用のオプション
+  memorizationMode?: boolean; // 暗記モードかどうか
+  globalVisibilitySettings?: VisibilitySettings; // グローバル表示設定
+  onVisibilityUpdate?: () => void; // 表示設定更新完了通知
 }
 
 export function FlashcardItem({
@@ -72,7 +77,77 @@ export function FlashcardItem({
   borderColor,
   // メディア表示モード
   mediaMode = "generate", // デフォルトは生成モード
+  // 暗記モード用のオプション
+  memorizationMode = false,
+  globalVisibilitySettings,
+  onVisibilityUpdate,
 }: FlashcardItemProps) {
+  // 暗記モード用の個別表示状態管理
+  const [localVisibilityState, setLocalVisibilityState] = useState({
+    word: true,
+    image: true,
+    meanings: true,
+    examples: true,
+    explanation: true,
+  });
+
+  // グローバル設定が変更された場合にローカル状態を更新
+  React.useEffect(() => {
+    if (memorizationMode && globalVisibilitySettings) {
+      setLocalVisibilityState(globalVisibilitySettings);
+      // 設定更新完了を通知（親コンポーネントで処理状況を管理するため）
+      setTimeout(() => {
+        onVisibilityUpdate?.();
+      }, 100); // 少し遅延を入れてスムーズな更新を演出
+    }
+  }, [memorizationMode, globalVisibilitySettings, onVisibilityUpdate]);
+
+  // 要素の表示/非表示を切り替える関数（暗記モードの個別クリック用）
+  const toggleVisibility = (element: keyof typeof localVisibilityState) => {
+    if (memorizationMode) {
+      setLocalVisibilityState((prev) => ({
+        ...prev,
+        [element]: !prev[element],
+      }));
+    }
+  };
+
+  // 実際の表示状態を決定（暗記モードの場合はlocalVisibilityState、通常モードの場合はprops）
+  const getVisibility = (element: keyof typeof localVisibilityState) => {
+    if (memorizationMode) {
+      return localVisibilityState[element];
+    }
+    // 通常モードの場合はpropsの値を使用
+    switch (element) {
+      case "word":
+        return showWordHeader;
+      case "image":
+        return showMedia;
+      case "meanings":
+        return showMeanings;
+      case "examples":
+        return showExamples;
+      case "explanation":
+        return showExplanation;
+      default:
+        return true;
+    }
+  };
+
+  // プレースホルダーコンポーネント
+  const Placeholder = ({
+    children,
+    height = "h-8",
+  }: {
+    children: string;
+    height?: string;
+  }) => (
+    <div
+      className={`flex ${height} animate-pulse items-center justify-center rounded bg-gray-200`}
+    >
+      <span className="text-sm text-gray-400">{children}</span>
+    </div>
+  );
   return (
     <Card
       className={`bg-primary w-full max-w-5xl shadow-sm ${borderColor ? `border-4 ${borderColor}` : "border-0"}`}
@@ -89,66 +164,173 @@ export function FlashcardItem({
                   isInteractive={enableCheckToggle}
                 />
               )}
-              {showWordHeader && (
-                <WordHeader
-                  word={flashcard.word.word}
-                  pronunciation={selectedMeaning?.pronunciation}
-                />
+
+              {/* 単語ヘッダー：暗記モードの場合はクリック可能 */}
+              {memorizationMode ? (
+                <div
+                  className="cursor-pointer transition-opacity duration-200"
+                  onClick={() => toggleVisibility("word")}
+                  style={{
+                    opacity: getVisibility("word") ? 1 : 0.3,
+                  }}
+                >
+                  {getVisibility("word") ? (
+                    <WordHeader
+                      word={flashcard.word.word}
+                      pronunciation={selectedMeaning?.pronunciation}
+                    />
+                  ) : (
+                    <Placeholder height="h-8">単語</Placeholder>
+                  )}
+                </div>
+              ) : (
+                showWordHeader && (
+                  <WordHeader
+                    word={flashcard.word.word}
+                    pronunciation={selectedMeaning?.pronunciation}
+                  />
+                )
               )}
             </div>
 
-            {showMedia && (
-              <MediaDisplay
-                mediaUrls={flashcard.media?.mediaUrls}
-                word={flashcard.word.word}
-                translation={selectedMeaning?.translation}
-                onClick={() => onMediaClick(flashcard)}
-                isInteractive={enableMediaClick}
-                status={mediaCreateResult?.status}
-                error={mediaCreateResult?.error}
-                mode={mediaMode}
-              />
+            {/* 画像：暗記モードの場合はクリック可能 */}
+            {memorizationMode ? (
+              <div
+                className="cursor-pointer transition-opacity duration-200"
+                onClick={() => toggleVisibility("image")}
+                style={{
+                  opacity: getVisibility("image") ? 1 : 0.3,
+                }}
+              >
+                {getVisibility("image") ? (
+                  <MediaDisplay
+                    mediaUrls={flashcard.media?.mediaUrls}
+                    word={flashcard.word.word}
+                    translation={selectedMeaning?.translation}
+                    onClick={() => {}} // 暗記モードでは画像クリック機能はOFF
+                    isInteractive={false}
+                    mode={mediaMode}
+                  />
+                ) : (
+                  <div className="flex h-40 w-40 animate-pulse items-center justify-center rounded-lg bg-gray-200">
+                    <span className="text-sm text-gray-400">画像</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              showMedia && (
+                <MediaDisplay
+                  mediaUrls={flashcard.media?.mediaUrls}
+                  word={flashcard.word.word}
+                  translation={selectedMeaning?.translation}
+                  onClick={() => onMediaClick(flashcard)}
+                  isInteractive={enableMediaClick}
+                  status={mediaCreateResult?.status}
+                  error={mediaCreateResult?.error}
+                  mode={mediaMode}
+                />
+              )
             )}
           </div>
 
           {/* 中央：意味・例文・説明 (可変幅) */}
           <div className="flex-1 space-y-4">
-            {/* 意味セクション - 3列表示 */}
-            {showMeanings && (
-              <div className="space-y-4">
-                <MeaningList
-                  meanings={flashcard.meanings}
-                  selectedMeaningId={selectedMeaning.meaningId}
-                  onMeaningSelect={
-                    enableMeaningSelect
-                      ? (meaningId) =>
-                          onMeaningSelect(flashcard.flashcardId, meaningId)
-                      : () => {}
-                  }
-                />
+            {/* 意味セクション */}
+            {memorizationMode ? (
+              <div
+                className="cursor-pointer transition-opacity duration-200"
+                onClick={() => toggleVisibility("meanings")}
+                style={{
+                  opacity: getVisibility("meanings") ? 1 : 0.3,
+                }}
+              >
+                {getVisibility("meanings") ? (
+                  <MeaningList
+                    meanings={flashcard.meanings}
+                    selectedMeaningId={selectedMeaning.meaningId}
+                    onMeaningSelect={() => {}} // 暗記モードでは意味選択機能はOFF
+                  />
+                ) : (
+                  <Placeholder height="h-20">意味</Placeholder>
+                )}
               </div>
+            ) : (
+              showMeanings && (
+                <div className="space-y-4">
+                  <MeaningList
+                    meanings={flashcard.meanings}
+                    selectedMeaningId={selectedMeaning.meaningId}
+                    onMeaningSelect={
+                      enableMeaningSelect
+                        ? (meaningId) =>
+                            onMeaningSelect(flashcard.flashcardId, meaningId)
+                        : () => {}
+                    }
+                  />
+                </div>
+              )
             )}
 
             {/* 例文セクション */}
-            {showExamples && (
-              <ExampleSection
-                exampleEng={selectedMeaning?.exampleEng}
-                exampleJpn={selectedMeaning?.exampleJpn}
-              />
+            {memorizationMode ? (
+              <div
+                className="cursor-pointer transition-opacity duration-200"
+                onClick={() => toggleVisibility("examples")}
+                style={{
+                  opacity: getVisibility("examples") ? 1 : 0.3,
+                }}
+              >
+                {getVisibility("examples") ? (
+                  <ExampleSection
+                    exampleEng={selectedMeaning?.exampleEng}
+                    exampleJpn={selectedMeaning?.exampleJpn}
+                  />
+                ) : (
+                  <Placeholder height="h-16">例文</Placeholder>
+                )}
+              </div>
+            ) : (
+              showExamples && (
+                <ExampleSection
+                  exampleEng={selectedMeaning?.exampleEng}
+                  exampleJpn={selectedMeaning?.exampleJpn}
+                />
+              )
             )}
 
-            {showExplanation && (
-              <ExplanationSection
-                explanation={flashcard.word.explanation}
-                showEditButton={false}
-              />
+            {/* 説明セクション */}
+            {memorizationMode ? (
+              <div
+                className="cursor-pointer transition-opacity duration-200"
+                onClick={() => toggleVisibility("explanation")}
+                style={{
+                  opacity: getVisibility("explanation") ? 1 : 0.3,
+                }}
+              >
+                {getVisibility("explanation") ? (
+                  <ExplanationSection
+                    explanation={flashcard.word.explanation}
+                    showEditButton={false}
+                  />
+                ) : (
+                  <Placeholder height="h-12">説明</Placeholder>
+                )}
+              </div>
+            ) : (
+              showExplanation && (
+                <ExplanationSection
+                  explanation={flashcard.word.explanation}
+                  showEditButton={false}
+                />
+              )
             )}
           </div>
 
           {/* 右側：ボタン類 (固定幅) */}
           {(showMeaningActions || showMemo) && (
             <div className="flex w-16 flex-shrink-0 flex-col items-center justify-between pb-4">
-              {showMeaningActions && (
+              {/* 意味追加・削除ボタン：暗記モードでは非表示 */}
+              {!memorizationMode && showMeaningActions && (
                 <div className="flex">
                   <MeaningAddPopover
                     flashcardId={flashcard.flashcardId}
@@ -167,6 +349,9 @@ export function FlashcardItem({
                   />
                 </div>
               )}
+
+              {/* 暗記モードの場合、意味追加・削除ボタンがない分のスペースを空にする */}
+              {memorizationMode && showMeaningActions && <div />}
 
               {showMemo && (
                 <Image
