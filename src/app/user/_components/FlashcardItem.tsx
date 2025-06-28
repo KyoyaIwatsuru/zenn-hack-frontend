@@ -249,6 +249,7 @@ export function FlashcardItem({
                     meanings={flashcard.meanings}
                     selectedMeaningId={selectedMeaning.meaningId}
                     onMeaningSelect={() => {}} // 暗記モードでは意味選択機能はOFF
+                    flashcardMediaMeaningId={flashcard.media?.meaningId}
                   />
                 ) : (
                   <Placeholder height="h-20">意味</Placeholder>
@@ -266,6 +267,7 @@ export function FlashcardItem({
                             onMeaningSelect(flashcard.flashcardId, meaningId)
                         : () => {}
                     }
+                    flashcardMediaMeaningId={flashcard.media?.meaningId}
                   />
                 </div>
               )
