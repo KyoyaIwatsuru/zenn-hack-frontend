@@ -13,6 +13,8 @@ interface UserHeaderProps {
   onTabChange: (tab: string) => void;
   // 暗記モード用のコントロールパネル
   memorizationControlPanel?: React.ReactNode;
+  // 比較タブのバッジ用
+  completedFlashcardCount?: number;
 }
 
 export function UserHeader({
@@ -22,6 +24,7 @@ export function UserHeader({
   currentTab,
   onTabChange,
   memorizationControlPanel,
+  completedFlashcardCount = 0,
 }: UserHeaderProps) {
   return (
     <div className="bg-main sticky top-0 z-50 p-4 text-white">
@@ -54,7 +57,7 @@ export function UserHeader({
             <TabsList className="bg-white/10 text-white">
               <TabsTrigger
                 value="all"
-                className="data-[state=active]:text-main data-[state=active]:bg-white"
+                className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
                 <div className="flex items-center gap-2">
                   <Paintbrush className="h-4 w-4" />
@@ -63,16 +66,23 @@ export function UserHeader({
               </TabsTrigger>
               <TabsTrigger
                 value="generated"
-                className="data-[state=active]:text-main data-[state=active]:bg-white"
+                className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
-                <div className="flex items-center gap-2">
+                <div className="relative flex items-center gap-2">
                   <FileCheck className="h-4 w-4" />
                   <span>比較</span>
+                  {completedFlashcardCount > 0 && (
+                    <div className="bg-red-vivid absolute -top-3 -right-6 flex h-5 w-5 items-center justify-center rounded-full text-xs text-white">
+                      {completedFlashcardCount > 99
+                        ? "99+"
+                        : completedFlashcardCount}
+                    </div>
+                  )}
                 </div>
               </TabsTrigger>
               <TabsTrigger
                 value="memorization"
-                className="data-[state=active]:text-main data-[state=active]:bg-white"
+                className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />

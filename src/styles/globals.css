@@ -88,10 +88,11 @@
   --color-red: #c87a78;
   --color-red-sub: #faedec;
   --color-dark-red: #a66462;
+  --color-red-vivid: #f67667;
   --color-blue: #78a3c8;
   --color-blue-sub: #e6f3f9;
   --color-dark-blue: #6184a1;
-  --color-purple: #b178C8;
+  --color-purple: #b178c8;
 }
 
 .dark {
@@ -189,6 +190,10 @@
 
   .bg-red-sub {
     background-color: var(--color-red-sub);
+  }
+
+  .bg-red-vivid {
+    background-color: var(--color-red-vivid);
   }
 
   .bg-blue {
