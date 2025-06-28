@@ -247,7 +247,7 @@ export function FlashcardItem({
                 {getVisibility("meanings") ? (
                   <MeaningList
                     meanings={flashcard.meanings}
-                    selectedMeaningId={selectedMeaning.meaningId}
+                    selectedMeaningId={null}
                     onMeaningSelect={() => {}} // 暗記モードでは意味選択機能はOFF
                     flashcardMediaMeaningId={flashcard.media?.meaningId}
                   />

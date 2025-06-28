@@ -5,7 +5,7 @@ import { posTranslations } from "@/constants";
 
 interface MeaningListProps {
   meanings: Meaning[];
-  selectedMeaningId: string;
+  selectedMeaningId: string | null;
   onMeaningSelect: (meaningId: string) => void;
   flashcardMediaMeaningId?: string | null;
 }
@@ -22,7 +22,8 @@ export function MeaningList({
         const isSelected = selectedMeaningId === meaning.meaningId;
         const isMediaMeaning = flashcardMediaMeaningId === meaning.meaningId;
 
-        let itemClasses = "flex cursor-pointer items-center gap-2 rounded p-2 transition-colors";
+        let itemClasses =
+          "flex cursor-pointer items-center gap-2 rounded p-2 transition-colors";
         let textClasses = "text-custom text-sm font-medium";
 
         if (isMediaMeaning) {
@@ -44,9 +45,7 @@ export function MeaningList({
             <Badge className="bg-sub text-custom flex-shrink-0 border-0 px-2 py-1 text-sm">
               {posTranslations[meaning.pos] || meaning.pos}
             </Badge>
-            <span className={textClasses}>
-              {meaning.translation}
-            </span>
+            <span className={textClasses}>{meaning.translation}</span>
           </div>
         );
       })}
