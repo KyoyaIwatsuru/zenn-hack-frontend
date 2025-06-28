@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, User } from "lucide-react";
+import { FileText, User, Paintbrush, FileCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut } from "lucide-react";
@@ -56,19 +56,28 @@ export function UserHeader({
                 value="all"
                 className="data-[state=active]:text-main data-[state=active]:bg-white"
               >
-                単語学習
+                <div className="flex items-center gap-2">
+                  <Paintbrush className="h-4 w-4" />
+                  <span>作成</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger
                 value="generated"
                 className="data-[state=active]:text-main data-[state=active]:bg-white"
               >
-                画像選択
+                <div className="flex items-center gap-2">
+                  <FileCheck className="h-4 w-4" />
+                  <span>比較</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger
                 value="memorization"
                 className="data-[state=active]:text-main data-[state=active]:bg-white"
               >
-                暗記モード
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  <span>学習</span>
+                </div>
               </TabsTrigger>
             </TabsList>
           </Tabs>
