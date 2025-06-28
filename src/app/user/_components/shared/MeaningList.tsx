@@ -20,19 +20,18 @@ export function MeaningList({
     <div className="grid grid-cols-3 gap-x-4 gap-y-3">
       {meanings.map((meaning) => {
         const isSelected = selectedMeaningId === meaning.meaningId;
-        const isMediaMeaning =
-          flashcardMediaMeaningId === meaning.meaningId && !isSelected;
+        const isMediaMeaning = flashcardMediaMeaningId === meaning.meaningId;
 
         let itemClasses =
           "flex cursor-pointer items-center gap-2 rounded p-2 transition-colors";
         let textClasses = "text-custom text-sm font-medium";
 
-        if (isSelected) {
-          itemClasses += " bg-blue-100 border border-blue-400";
-          textClasses += " font-bold";
-        } else if (isMediaMeaning) {
+        if (isMediaMeaning) {
           itemClasses += " bg-green-100 border border-green-400";
           textClasses += " font-semibold";
+        } else if (isSelected) {
+          itemClasses += " bg-gray-200 shadow-inner";
+          textClasses += " font-bold";
         } else {
           itemClasses += " hover:bg-gray-50";
         }
