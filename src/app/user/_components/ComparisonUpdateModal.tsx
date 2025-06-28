@@ -167,9 +167,9 @@ export function ComparisonUpdateModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-whole !h-[95vh] !max-h-[95vh] !w-[70vw] !max-w-[95vw] overflow-y-auto p-6"
+        className="bg-whole !h-[95vh] !max-h-[95vh] !w-[90vw] !max-w-[1000px] overflow-y-auto p-6"
         style={{
-          maxWidth: "95vw",
+          maxWidth: "1000px",
           width: "95vw",
           maxHeight: "95vh",
           height: "95vh",
@@ -187,29 +187,31 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               現在の画像
             </h3>
-            <div
-              onClick={handleCurrentImageClick}
-              className="cursor-pointer transition-transform hover:scale-105"
-            >
-              <FlashcardItem
-                flashcard={flashcard}
-                selectedMeaning={selectedMeaning}
-                onCheckFlagToggle={() => {}} // 機能無効化のため空関数
-                onMeaningSelect={(flashcardId, meaningId) =>
-                  onMeaningSelect(meaningId)
-                }
-                onMeaningAdded={() => {}} // 機能無効化のため空関数
-                onMeaningDeleted={() => {}} // 機能無効化のため空関数
-                onMediaClick={() => {}} // 機能無効化のため空関数
-                onMemoEdit={() => {}} // 機能無効化のため空関数
-                showCheckbox={false}
-                showMeaningActions={false}
-                showMemo={false}
-                enableMeaningSelect={false}
-                enableMediaClick={false}
-                enableMemoEdit={false}
-                borderColor="border-blue"
-              />
+            <div className="flex justify-center">
+              <div
+                onClick={handleCurrentImageClick}
+                className="cursor-pointer transition-transform hover:scale-105"
+              >
+                <FlashcardItem
+                  flashcard={flashcard}
+                  selectedMeaning={selectedMeaning}
+                  onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+                  onMeaningSelect={(flashcardId, meaningId) =>
+                    onMeaningSelect(meaningId)
+                  }
+                  onMeaningAdded={() => {}} // 機能無効化のため空関数
+                  onMeaningDeleted={() => {}} // 機能無効化のため空関数
+                  onMediaClick={() => {}} // 機能無効化のため空関数
+                  onMemoEdit={() => {}} // 機能無効化のため空関数
+                  showCheckbox={false}
+                  showMeaningActions={false}
+                  showMemo={false}
+                  enableMeaningSelect={false}
+                  enableMediaClick={false}
+                  enableMemoEdit={false}
+                  borderColor="border-blue"
+                />
+              </div>
             </div>
           </div>
 
@@ -218,34 +220,36 @@ export function ComparisonUpdateModal({
             <h3 className="text-custom mb-3 text-lg font-semibold">
               生成された新しい画像
             </h3>
-            <div
-              onClick={handleNewImageClick}
-              className="cursor-pointer transition-transform hover:scale-105"
-            >
-              <FlashcardItem
-                flashcard={{
-                  ...flashcard,
-                  media: {
-                    mediaId: currentMediaResult.newMediaId,
-                    mediaUrls: currentMediaResult.newMediaUrls,
-                    meaningId: selectedMeaning.meaningId,
-                  },
-                }}
-                selectedMeaning={selectedMeaning}
-                onCheckFlagToggle={() => {}} // 機能無効化のため空関数
-                onMeaningSelect={() => {}} // 機能無効化のため空関数
-                onMeaningAdded={() => {}} // 機能無効化のため空関数
-                onMeaningDeleted={() => {}} // 機能無効化のため空関数
-                onMediaClick={() => {}} // 機能無効化のため空関数
-                onMemoEdit={() => {}} // 機能無効化のため空関数
-                showCheckbox={false}
-                showMeaningActions={false}
-                showMemo={false}
-                enableMediaClick={false}
-                enableMeaningSelect={false}
-                enableMemoEdit={false}
-                borderColor="border-red"
-              />
+            <div className="flex justify-center">
+              <div
+                onClick={handleNewImageClick}
+                className="cursor-pointer transition-transform hover:scale-105"
+              >
+                <FlashcardItem
+                  flashcard={{
+                    ...flashcard,
+                    media: {
+                      mediaId: currentMediaResult.newMediaId,
+                      mediaUrls: currentMediaResult.newMediaUrls,
+                      meaningId: selectedMeaning.meaningId,
+                    },
+                  }}
+                  selectedMeaning={selectedMeaning}
+                  onCheckFlagToggle={() => {}} // 機能無効化のため空関数
+                  onMeaningSelect={() => {}} // 機能無効化のため空関数
+                  onMeaningAdded={() => {}} // 機能無効化のため空関数
+                  onMeaningDeleted={() => {}} // 機能無効化のため空関数
+                  onMediaClick={() => {}} // 機能無効化のため空関数
+                  onMemoEdit={() => {}} // 機能無効化のため空関数
+                  showCheckbox={false}
+                  showMeaningActions={false}
+                  showMemo={false}
+                  enableMediaClick={false}
+                  enableMeaningSelect={false}
+                  enableMemoEdit={false}
+                  borderColor="border-red"
+                />
+              </div>
             </div>
           </div>
 

@@ -298,10 +298,10 @@ export function MediaCreateModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-whole !h-[95vh] !max-h-[95vh] !w-[70vw] !max-w-[95vw] overflow-y-auto p-6"
+        className="bg-whole !h-[95vh] !max-h-[95vh] !w-[90vw] !max-w-[1000px] overflow-y-auto p-6"
         style={{
-          maxWidth: "95vw",
-          width: "95vw",
+          maxWidth: "1000px",
+          width: "90vw",
           maxHeight: "95vh",
           height: "95vh",
         }}
@@ -309,7 +309,7 @@ export function MediaCreateModal({
         <DialogTitle className="sr-only">画像編集</DialogTitle>
         {/*Title is not used in the UI, but required for accessibility: */}
         <div className="flex h-full flex-col">
-          <div className="flex-shrink-0">
+          <div className="flex flex-shrink-0 justify-center">
             <FlashcardItem
               flashcard={flashcard}
               selectedMeaning={selectedMeaning}
