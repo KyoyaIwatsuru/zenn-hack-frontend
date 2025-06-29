@@ -400,8 +400,7 @@ export function MediaCreateModal({
                     />
                   </div>
                 </div>
-
-                {availableTargets.length > 1 && availableTargets[0] != "" && (
+                {availableTargets.length > 0 && availableTargets[0] && (
                   <div>
                     <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
                       描写対象
