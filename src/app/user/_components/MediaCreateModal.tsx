@@ -170,6 +170,18 @@ export function MediaCreateModal({
     }
   }, [isOpen, resetState]);
 
+  // モーダルが開かれた時の処理
+  useEffect(() => {
+    if (isOpen && flashcard?.media?.mediaUrls[0]?.endsWith(".mp4")) {
+      if (
+        selectedModel !== "text-to-image" &&
+        selectedModel !== "text-to-video"
+      ) {
+        setSelectedModel("text-to-image");
+      }
+    }
+  }, [isOpen, flashcard, selectedModel]);
+
   if (!flashcard || !selectedMeaning) {
     return null;
   }
