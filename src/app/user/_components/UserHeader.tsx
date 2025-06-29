@@ -1,9 +1,10 @@
 import React from "react";
-import { FileText, User, Paintbrush, FileCheck, BookOpen } from "lucide-react";
+import { User, Paintbrush, FileCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut } from "lucide-react";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import Image from "next/image";
 
 interface UserHeaderProps {
   displayUserName: string | null;
@@ -27,12 +28,19 @@ export function UserHeader({
   completedFlashcardCount = 0,
 }: UserHeaderProps) {
   return (
-    <div className="bg-main sticky top-0 z-50 p-4 text-white">
+    <div className="bg-main sticky top-0 z-50 text-white">
       <div className="grid grid-cols-3 items-center">
         {/* 左側：フラッシュカードとユーザー情報（左寄せ） */}
         <div className="flex items-center gap-2 justify-self-start">
-          <FileText className="h-6 w-6" />
-          <span className="font-medium">フラッシュカード</span>
+          {/* <FileText className="h-6 w-6" />
+          <span className="font-medium">Ai単 ~eitan~</span> */}
+          <Image
+            src="/title.svg"
+            alt="Ai単 ~eitan~"
+            width={100}
+            height={12}
+            className="mb-1 ml-2"
+          />
           {displayUserName && (
             <div className="ml-4 flex items-center gap-2">
               <span className="text-sm opacity-90">
@@ -110,7 +118,7 @@ export function UserHeader({
             <Button
               variant="ghost"
               onClick={onLogout}
-              className="text-white hover:bg-white/10 hover:text-white"
+              className="mr-2 text-white hover:bg-white/10 hover:text-white"
             >
               <LogOut />
             </Button>
