@@ -32,3 +32,10 @@ export {
   type UserState,
   type UserAction,
 } from "./userReducer";
+
+export {
+  addFlashcardReducer,
+  initialAddFlashcardState,
+  type AddFlashcardState,
+  type AddFlashcardAction,
+} from "./addFlashcardReducer";

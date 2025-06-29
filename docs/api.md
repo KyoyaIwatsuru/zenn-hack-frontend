@@ -157,6 +157,24 @@
         - `msg`: string
         - `type`: string
 
+## デフォルトフラッシュカード作成 API
+- **URL**: `/flashcard/create`
+- **メソッド**: `POST`
+- **説明**: フラッシュカードに意味を更新します。
+- **リクエストボディ**:
+  - `word`: string (必須)
+- **レスポンス**:
+  - `200 OK`: デフォルトフラッシュカードの作成に成功
+    - `コンテンツ`:
+      - `message`: string
+      - `flashcardId`: string
+  - `422 Validation Error`: 型が不正
+    - `コンテンツ`:
+      - `detail`: detail[]
+        - `loc`: string[]
+        - `msg`: string
+        - `type`: string
+
 ## メディア生成 API
 
 - **URL**: `/media/create`
@@ -203,7 +221,7 @@
   - `200 OK`: メディア比較の取得に成功
     - `コンテンツ`:
       - `message`: string
-      - comparisons: comparison[]
+      - `comparisons`: comparison[]
         - `comparisonId`: string
         - `flashcardId`: string
         - `newMediaId`: string
