@@ -30,11 +30,12 @@ function ConfirmationDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-whole max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-custom">画像選択の確認</DialogTitle>
+          <DialogTitle className="text-custom">Mediaの比較</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <p className="text-custom mb-6 text-center">
-            {isCurrentImage ? "現在の画像" : "新しい画像"}を選択しますか？
+            {isCurrentImage ? "現在のFlashCard" : "新しいFlashCard"}
+            を選択しますか？
           </p>
           <div className="flex justify-center gap-4">
             <Button
@@ -150,12 +151,12 @@ export function ComparisonUpdateModal({
         <DialogContent className="bg-whole max-w-md">
           <DialogHeader>
             <DialogTitle className="text-custom">
-              生成データが見つかりません
+              作成データが見つかりません
             </DialogTitle>
           </DialogHeader>
           <div className="py-4 text-center">
             <p className="mb-4 text-gray-500">
-              このフラッシュカードの生成データが見つかりません。
+              このフラッシュカードの作成データが見つかりません。
             </p>
             <Button onClick={() => onOpenChange(false)}>閉じる</Button>
           </div>
@@ -177,7 +178,7 @@ export function ComparisonUpdateModal({
       >
         <DialogHeader>
           <DialogTitle className="text-custom mb-4 text-xl">
-            画像選択（使用したいカードを選択してください）
+            Mediaの比較（使用したいFlashCardを選択してください）
           </DialogTitle>
         </DialogHeader>
 
@@ -185,7 +186,7 @@ export function ComparisonUpdateModal({
           {/* 現在の画像のフラッシュカード */}
           <div>
             <h3 className="text-custom mb-3 text-lg font-semibold">
-              現在の画像
+              現在のFlashCard
             </h3>
             <div className="flex justify-center">
               <div
@@ -218,7 +219,7 @@ export function ComparisonUpdateModal({
           {/* 新しく生成された画像のフラッシュカード */}
           <div>
             <h3 className="text-custom mb-3 text-lg font-semibold">
-              生成された新しい画像
+              新しいFlashCard
             </h3>
             <div className="flex justify-center">
               <div

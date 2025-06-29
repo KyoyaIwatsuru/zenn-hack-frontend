@@ -66,9 +66,9 @@ export function GeneratedFlashcardList({
   if (generatedFlashcards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-2 text-gray-500">生成済みの画像はありません</div>
+        <div className="mb-2 text-gray-500">作成済みのMediaはありません</div>
         <div className="text-sm text-gray-400">
-          単語一覧から画像を生成してから、こちらで比較を行ってください
+          単語一覧からMediaを作成してから、こちらで比較を行ってください
         </div>
       </div>
     );

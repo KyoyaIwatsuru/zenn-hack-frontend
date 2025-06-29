@@ -39,11 +39,11 @@ export function MediaDisplay({
   const getStatusMessage = () => {
     switch (status) {
       case "success":
-        return "画像生成が完了しました。選択にいきましょう";
+        return "Media作成が完了しました。選択にいきましょう";
       case "pending":
-        return "画像生成途中です。しばらくお待ちください";
+        return "Media作成途中です。しばらくお待ちください";
       case "error":
-        return error || "画像生成が失敗しました。もう一度生成してみましょう";
+        return error || "Media作成が失敗しました。もう一度作成してみましょう";
       default:
         return null;
     }
@@ -83,7 +83,7 @@ export function MediaDisplay({
         )
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
-          <div className="text-xs text-gray-500">画像</div>
+          <div className="text-xs text-gray-500">Media</div>
         </div>
       )}
 
@@ -138,7 +138,7 @@ export function MediaDisplay({
       // 比較モードの場合、常にツールチップを表示
       return (
         <SimpleTooltip
-          content="画像を比較する"
+          content="Mediaを比較する"
           position="bottom"
           backgroundColor="bg-main"
         >
@@ -150,7 +150,7 @@ export function MediaDisplay({
       return (
         <>
           <SimpleTooltip
-            content="画像を生成する"
+            content="Mediaを作成する"
             position="bottom"
             backgroundColor="bg-main"
           >

@@ -323,7 +323,7 @@ export function MediaCreateModal({
           height: "95vh",
         }}
       >
-        <DialogTitle className="sr-only">画像編集</DialogTitle>
+        <DialogTitle className="sr-only">Media編集</DialogTitle>
         {/*Title is not used in the UI, but required for accessibility: */}
         <div className="flex h-full flex-col">
           <div className="flex flex-shrink-0 justify-center">
@@ -347,7 +347,9 @@ export function MediaCreateModal({
           </div>
 
           <div className="bg-secondary -mx-6 mt-8 -mb-6 flex-1 rounded-t-3xl p-12 pt-8">
-            <h3 className="text-custom mb-6 text-xl font-semibold">画像生成</h3>
+            <h3 className="text-custom mb-6 text-xl font-semibold">
+              Media作成
+            </h3>
 
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-9">
@@ -370,7 +372,7 @@ export function MediaCreateModal({
                           <div className="space-y-1 text-xs">
                             <div>
                               <strong>Text to Image:</strong>{" "}
-                              テキストから画像を生成します
+                              テキストから画像を作成します
                             </div>
                             <div>
                               <strong>Image to Image:</strong>{" "}
@@ -378,11 +380,11 @@ export function MediaCreateModal({
                             </div>
                             <div>
                               <strong>Text to Video:</strong>{" "}
-                              テキストから動画を生成します
+                              テキストから動画を作成します
                             </div>
                             <div>
                               <strong>Image to Video:</strong>{" "}
-                              既存の画像から動画を生成します
+                              既存の画像から動画を作成します
                             </div>
                           </div>
                         </div>
@@ -440,11 +442,11 @@ export function MediaCreateModal({
                             <div className="space-y-1 text-xs">
                               <div>
                                 <strong>例文:</strong>{" "}
-                                現在選択中の意味に該当する例文に関する画像が生成されます。
+                                現在選択中の意味に該当する例文に関するMediaが作成されます。
                               </div>
                               <div>
                                 <strong>コアミーニング:</strong>{" "}
-                                この単語のコアミーニングに関する抽象的な画像が生成されます。
+                                この単語のコアミーニングに関する抽象的なMediaが作成されます。
                               </div>
                             </div>
                           </div>
@@ -503,7 +505,7 @@ export function MediaCreateModal({
                             </div>
                             <div>
                               <strong>質問:</strong>{" "}
-                              あらかじめ用意された質問に回答する形で理想の画像を指定できます。自分で指定を追加することも可能です。
+                              あらかじめ用意された質問に回答する形で理想のMediaを指定できます。自分で指定を追加することも可能です。
                             </div>
                           </div>
                         </div>
@@ -560,10 +562,10 @@ export function MediaCreateModal({
                 <span className="flex items-center gap-2">
                   <Bot className="h-8 w-8" />
                   {isCreating
-                    ? "生成中..."
+                    ? "作成中..."
                     : isLoading
                       ? "テンプレート読み込み中..."
-                      : "画像を生成"}
+                      : "Mediaを作成"}
                 </span>
               </Button>
             </div>

@@ -213,7 +213,7 @@ export function FlashcardItem({
                   />
                 ) : (
                   <div className="flex h-40 w-40 animate-pulse items-center justify-center rounded-lg bg-gray-200">
-                    <span className="text-sm text-gray-400">画像</span>
+                    <span className="text-sm text-gray-400">Media</span>
                   </div>
                 )}
               </div>
