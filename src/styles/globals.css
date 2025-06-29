@@ -288,4 +288,57 @@
     /* Firefox dark mode */
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   }
+
+  /* Responsive layout: horizontal scroll for screens smaller than 1024px */
+  @media (max-width: 1023px) {
+    html,
+    body {
+      min-width: 1024px;
+      overflow-x: auto;
+    }
+
+    /* Ensure main content containers maintain minimum width */
+    .main-content,
+    [data-main-content],
+    main {
+      min-width: 1024px;
+    }
+
+    /* Custom scrollbar for better UX on mobile */
+    body::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Dark mode scrollbar */
+    .dark body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .dark body::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Firefox scrollbar */
+    body {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+    }
+
+    .dark body {
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+  }
 }
