@@ -151,12 +151,12 @@ export function ComparisonUpdateModal({
         <DialogContent className="bg-whole max-w-md">
           <DialogHeader>
             <DialogTitle className="text-custom">
-              生成データが見つかりません
+              作成データが見つかりません
             </DialogTitle>
           </DialogHeader>
           <div className="py-4 text-center">
             <p className="mb-4 text-gray-500">
-              このフラッシュカードの生成データが見つかりません。
+              このフラッシュカードの作成データが見つかりません。
             </p>
             <Button onClick={() => onOpenChange(false)}>閉じる</Button>
           </div>

@@ -372,7 +372,7 @@ export function MediaCreateModal({
                           <div className="space-y-1 text-xs">
                             <div>
                               <strong>Text to Image:</strong>{" "}
-                              テキストから画像を生成します
+                              テキストから画像を作成します
                             </div>
                             <div>
                               <strong>Image to Image:</strong>{" "}
@@ -380,11 +380,11 @@ export function MediaCreateModal({
                             </div>
                             <div>
                               <strong>Text to Video:</strong>{" "}
-                              テキストから動画を生成します
+                              テキストから動画を作成します
                             </div>
                             <div>
                               <strong>Image to Video:</strong>{" "}
-                              既存の画像から動画を生成します
+                              既存の画像から動画を作成します
                             </div>
                           </div>
                         </div>
@@ -562,7 +562,7 @@ export function MediaCreateModal({
                 <span className="flex items-center gap-2">
                   <Bot className="h-8 w-8" />
                   {isCreating
-                    ? "生成中..."
+                    ? "作成中..."
                     : isLoading
                       ? "テンプレート読み込み中..."
                       : "Mediaを作成"}
