@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import { MediaCreateRequest, MediaCreateData } from "@/types";
-import { API_ENDPOINTS } from "@/constants";
+import { API_ENDPOINTS, MEDIA_API_CONFIG } from "@/constants";
 import { mediaReducer, initialMediaState } from "@/reducers";
 import { httpClient, ErrorHandler } from "@/lib";
 
@@ -17,8 +17,8 @@ export function useMedia() {
       API_ENDPOINTS.MEDIA.CREATE,
       request,
       {
-        timeout: 60000, // 60秒
-        retries: 1, // リトライ回数を減らす
+        timeout: MEDIA_API_CONFIG.TIMEOUT, // 120秒
+        retries: MEDIA_API_CONFIG.RETRIES, // リトライ回数を減らす
       }
     );
 
