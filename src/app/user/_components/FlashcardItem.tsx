@@ -283,10 +283,21 @@ export function FlashcardItem({
                 }}
               >
                 {getVisibility("examples") ? (
-                  <ExampleSection
-                    exampleEng={selectedMeaning?.exampleEng}
-                    exampleJpn={selectedMeaning?.exampleJpn}
-                  />
+                  (() => {
+                    // flashcard.media?.meaningIdがnullでない場合は、そのMeaningの例文を使用
+                    const targetMeaning = flashcard.media?.meaningId
+                      ? flashcard.meanings.find(
+                          (m) => m.meaningId === flashcard.media?.meaningId
+                        )
+                      : selectedMeaning;
+
+                    return (
+                      <ExampleSection
+                        exampleEng={targetMeaning?.exampleEng}
+                        exampleJpn={targetMeaning?.exampleJpn}
+                      />
+                    );
+                  })()
                 ) : (
                   <Placeholder height="h-16">例文</Placeholder>
                 )}
