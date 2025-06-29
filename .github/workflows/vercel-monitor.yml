@@ -70,9 +70,11 @@ jobs:
               jq -r '.events[] | select(.type == "stderr" or .type == "error") | .payload.text' | \
               head -20 | sed 's/$/\\n/' | tr -d '\n')
             
-            echo "error_logs<<EOF" >> $GITHUB_OUTPUT
-            echo "$ERROR_LOGS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            {
+              echo "error_logs<<EOF"
+              echo "$ERROR_LOGS"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
           else
             echo "error_detected=false" >> $GITHUB_OUTPUT
           fi
