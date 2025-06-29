@@ -52,10 +52,10 @@ export function QuestionMode({
     <div className="space-y-4">
       <div className="mb-4">
         <h4 className="mb-2 text-sm font-medium text-gray-700">
-          質問に答えることで画像生成のためのプロンプトが自動作成されます
+          質問に答えることでMedia作成のためのプロンプトが自動作成されます。
         </h4>
         <p className="text-xs text-gray-500">
-          各項目は任意です。より詳細に指定することで、理想的な画像に近づきます。
+          各項目は任意です。より詳細に指定することで、理想的なMediaに近づきます。
         </p>
       </div>
       {promptConditions.map((condition) => (

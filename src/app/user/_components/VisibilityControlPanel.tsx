@@ -23,7 +23,7 @@ interface VisibilityControlPanelProps {
 // 個別制御ボタンの定義
 const VISIBILITY_CONTROLS = [
   { key: "word" as keyof VisibilitySettings, label: "英単語" },
-  { key: "image" as keyof VisibilitySettings, label: "画像" },
+  { key: "image" as keyof VisibilitySettings, label: "Media" },
   { key: "meanings" as keyof VisibilitySettings, label: "意味" },
   { key: "examples" as keyof VisibilitySettings, label: "例文" },
   { key: "explanation" as keyof VisibilitySettings, label: "説明" },
