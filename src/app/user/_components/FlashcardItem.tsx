@@ -247,8 +247,9 @@ export function FlashcardItem({
                 {getVisibility("meanings") ? (
                   <MeaningList
                     meanings={flashcard.meanings}
-                    selectedMeaningId={selectedMeaning.meaningId}
+                    selectedMeaningId={null}
                     onMeaningSelect={() => {}} // 暗記モードでは意味選択機能はOFF
+                    flashcardMediaMeaningId={flashcard.media?.meaningId}
                   />
                 ) : (
                   <Placeholder height="h-20">意味</Placeholder>
@@ -266,6 +267,7 @@ export function FlashcardItem({
                             onMeaningSelect(flashcard.flashcardId, meaningId)
                         : () => {}
                     }
+                    flashcardMediaMeaningId={flashcard.media?.meaningId}
                   />
                 </div>
               )
@@ -281,10 +283,21 @@ export function FlashcardItem({
                 }}
               >
                 {getVisibility("examples") ? (
-                  <ExampleSection
-                    exampleEng={selectedMeaning?.exampleEng}
-                    exampleJpn={selectedMeaning?.exampleJpn}
-                  />
+                  (() => {
+                    // flashcard.media?.meaningIdがnullでない場合は、そのMeaningの例文を使用
+                    const targetMeaning = flashcard.media?.meaningId
+                      ? flashcard.meanings.find(
+                          (m) => m.meaningId === flashcard.media?.meaningId
+                        )
+                      : selectedMeaning;
+
+                    return (
+                      <ExampleSection
+                        exampleEng={targetMeaning?.exampleEng}
+                        exampleJpn={targetMeaning?.exampleJpn}
+                      />
+                    );
+                  })()
                 ) : (
                   <Placeholder height="h-16">例文</Placeholder>
                 )}
