@@ -418,7 +418,8 @@ export function MediaCreateModal({
                     )}
                   </div>
                 </div>
-                {availableTargets.length > 0 && availableTargets[0] && (
+
+                {availableTargets.length > 1 && availableTargets[0] != "" && (
                   <div>
                     <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
                       描写対象
@@ -478,65 +479,6 @@ export function MediaCreateModal({
                     )}
                   </div>
                 )}
-                <div>
-                  <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
-                    描写対象
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="text-gray-400 transition-colors hover:text-gray-600">
-                          <Info className="h-4 w-4" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-80 p-4"
-                        side="top"
-                        align="start"
-                      >
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-medium">
-                            描写対象の説明
-                          </h4>
-                          <div className="space-y-1 text-xs">
-                            <div>
-                              <strong>例文:</strong>{" "}
-                              現在選択中の意味に該当する例文に関する画像が生成されます。
-                            </div>
-                            <div>
-                              <strong>コアミーニング:</strong>{" "}
-                              この単語のコアミーニングに関する抽象的な画像が生成されます。
-                            </div>
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </label>
-                  {isLoading ? (
-                    <LoadingSpinner
-                      message="テンプレート読み込み中..."
-                      size="small"
-                    />
-                  ) : error ? (
-                    <ErrorMessage
-                      message={error}
-                      onRetry={onTemplatesRetry}
-                      retryText="テンプレート再読み込み"
-                    />
-                  ) : (
-                    <Select onValueChange={setDescriptionTarget}>
-                      <SelectTrigger className="bg-primary">
-                        <SelectValue placeholder="描写対象を選択" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableTargets.map((target) => (
-                          <SelectItem key={target} value={target}>
-                            {target}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-
                 <div>
                   <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
                     編集形式
