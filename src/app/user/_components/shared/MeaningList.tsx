@@ -27,7 +27,7 @@ export function MeaningList({
         let textClasses = "text-custom text-sm font-medium";
 
         if (isMediaMeaning) {
-          itemClasses += " bg-green-100 border border-green-400";
+          itemClasses += " bg-whole border border-main";
           textClasses += " font-semibold";
         } else if (isSelected) {
           itemClasses += " bg-gray-200 shadow-inner";
