@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="bg-primary flex min-h-screen items-center justify-center p-4">
+    <div className="bg-primary flex min-h-screen min-w-[1024px] items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
