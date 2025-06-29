@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { CircleAlert, LoaderCircle, CircleCheck } from "lucide-react";
+import { CircleAlert, LoaderCircle, CircleCheck, ZoomIn } from "lucide-react";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import { MediaModal } from "./MediaModal";
 
 interface MediaDisplayProps {
   mediaUrls?: string[];
@@ -24,6 +25,8 @@ export function MediaDisplay({
   error,
   mode = "generate", // デフォルトは生成モード
 }: MediaDisplayProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // モードに応じてクリック可能かどうかを判定
   const isClickable =
     isInteractive && (mode === "compare" || !status || status === "error");
@@ -111,6 +114,21 @@ export function MediaDisplay({
           <CircleAlert className="h-4 w-4 text-white" />
         </div>
       )}
+
+      {/* ZoomIn badge for states other than success, pending, error */}
+      {(!status ||
+        (status !== "success" && status !== "pending" && status !== "error")) &&
+        mediaUrls?.[0] && (
+          <div
+            className="absolute top-2 right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-gray-700"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsModalOpen(true);
+            }}
+          >
+            <ZoomIn className="h-4 w-4 text-white" />
+          </div>
+        )}
     </div>
   );
 
@@ -130,16 +148,36 @@ export function MediaDisplay({
     } else if (mode === "generate" && !status) {
       // 生成モードでステータスがない場合のみツールチップを表示
       return (
-        <SimpleTooltip
-          content="画像を生成する"
-          position="bottom"
-          backgroundColor="bg-main"
-        >
-          {content}
-        </SimpleTooltip>
+        <>
+          <SimpleTooltip
+            content="画像を生成する"
+            position="bottom"
+            backgroundColor="bg-main"
+          >
+            {content}
+          </SimpleTooltip>
+          {isModalOpen && (
+            <MediaModal
+              mediaUrl={mediaUrls?.[0]}
+              word={word}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
+        </>
       );
     }
   }
 
-  return content;
+  return (
+    <>
+      {content}
+      {isModalOpen && (
+        <MediaModal
+          mediaUrl={mediaUrls?.[0]}
+          word={word}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+    </>
+  );
 }
