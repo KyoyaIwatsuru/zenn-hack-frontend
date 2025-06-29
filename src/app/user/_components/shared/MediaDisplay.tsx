@@ -58,7 +58,7 @@ export function MediaDisplay({
           <video
             src={mediaUrls[0]}
             title={`${word} - ${translation}`}
-            className="rounded-lg object-cover w-full h-full"
+            className="h-full w-full rounded-lg object-cover"
             autoPlay
             loop
             muted
