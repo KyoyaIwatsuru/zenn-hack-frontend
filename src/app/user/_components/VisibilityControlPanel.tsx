@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, X } from "lucide-react";
+import { Eye, EyeClosed, X } from "lucide-react";
 import { LoadingSpinner } from "@/components/shared";
 
 export interface VisibilitySettings {
@@ -99,7 +99,7 @@ export function VisibilityControlPanel({
       {/* 展開されたパネル - メインボタンの下部 */}
       {isExpanded && (
         <div className="absolute top-full left-0 z-50 mt-2">
-          <Card className="bg-white shadow-lg">
+          <Card className="bg-primary shadow-lg">
             <CardContent className="space-y-4 p-4">
               {/* 個別制御ボタン */}
               <div className="space-y-2">
@@ -114,7 +114,7 @@ export function VisibilityControlPanel({
                     {pendingSettings.word ? (
                       <Eye className="h-3 w-3" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <EyeClosed className="h-3 w-3" />
                     )}
                   </Button>
                   <span className="text-xs text-gray-700">英単語</span>
@@ -131,7 +131,7 @@ export function VisibilityControlPanel({
                     {pendingSettings.image ? (
                       <Eye className="h-3 w-3" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <EyeClosed className="h-3 w-3" />
                     )}
                   </Button>
                   <span className="text-xs text-gray-700">画像</span>
@@ -148,7 +148,7 @@ export function VisibilityControlPanel({
                     {pendingSettings.meanings ? (
                       <Eye className="h-3 w-3" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <EyeClosed className="h-3 w-3" />
                     )}
                   </Button>
                   <span className="text-xs text-gray-700">意味</span>
@@ -165,7 +165,7 @@ export function VisibilityControlPanel({
                     {pendingSettings.examples ? (
                       <Eye className="h-3 w-3" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <EyeClosed className="h-3 w-3" />
                     )}
                   </Button>
                   <span className="text-xs text-gray-700">例文</span>
@@ -182,7 +182,7 @@ export function VisibilityControlPanel({
                     {pendingSettings.explanation ? (
                       <Eye className="h-3 w-3" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <EyeClosed className="h-3 w-3" />
                     )}
                   </Button>
                   <span className="text-xs text-gray-700">説明</span>
