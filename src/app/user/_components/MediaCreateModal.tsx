@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -164,6 +169,18 @@ export function MediaCreateModal({
       resetState();
     }
   }, [isOpen, resetState]);
+
+  // モーダルが開かれた時の処理
+  useEffect(() => {
+    if (isOpen && flashcard?.media?.mediaUrls[0]?.endsWith(".mp4")) {
+      if (
+        selectedModel !== "text-to-image" &&
+        selectedModel !== "text-to-video"
+      ) {
+        setSelectedModel("text-to-image");
+      }
+    }
+  }, [isOpen, flashcard, selectedModel]);
 
   if (!flashcard || !selectedMeaning) {
     return null;
@@ -335,8 +352,42 @@ export function MediaCreateModal({
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-9">
                 <div>
-                  <label className="text-custom mb-2 block text-sm font-medium">
-                    モデル <span className="text-custom">ⓘ</span>
+                  <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
+                    モデル
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="text-custom transition-colors hover:text-gray-600">
+                          <Info className="h-4 w-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-80 p-4"
+                        side="top"
+                        align="start"
+                      >
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">モデルの説明</h4>
+                          <div className="space-y-1 text-xs">
+                            <div>
+                              <strong>Text to Image:</strong>{" "}
+                              テキストから画像を生成します
+                            </div>
+                            <div>
+                              <strong>Image to Image:</strong>{" "}
+                              既存の画像を別の画像に変換します
+                            </div>
+                            <div>
+                              <strong>Text to Video:</strong>{" "}
+                              テキストから動画を生成します
+                            </div>
+                            <div>
+                              <strong>Image to Video:</strong>{" "}
+                              既存の画像から動画を生成します
+                            </div>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </label>
                   <div className="flex gap-3">
                     <ModelSelectionButton
@@ -344,58 +395,120 @@ export function MediaCreateModal({
                       isSelected={selectedModel === "text-to-image"}
                       onClick={() => setSelectedModel("text-to-image")}
                     />
-                    <ModelSelectionButton
-                      modelType="image-to-image"
-                      isSelected={selectedModel === "image-to-image"}
-                      onClick={() => setSelectedModel("image-to-image")}
-                    />
+                    {flashcard.media.mediaUrls[0]?.endsWith(".mp4") ===
+                      false && (
+                      <ModelSelectionButton
+                        modelType="image-to-image"
+                        isSelected={selectedModel === "image-to-image"}
+                        onClick={() => setSelectedModel("image-to-image")}
+                      />
+                    )}
                     <ModelSelectionButton
                       modelType="text-to-video"
                       isSelected={selectedModel === "text-to-video"}
                       onClick={() => setSelectedModel("text-to-video")}
                     />
-                    <ModelSelectionButton
-                      modelType="image-to-video"
-                      isSelected={selectedModel === "image-to-video"}
-                      onClick={() => setSelectedModel("image-to-video")}
-                    />
+                    {flashcard.media.mediaUrls[0]?.endsWith(".mp4") ===
+                      false && (
+                      <ModelSelectionButton
+                        modelType="image-to-video"
+                        isSelected={selectedModel === "image-to-video"}
+                        onClick={() => setSelectedModel("image-to-video")}
+                      />
+                    )}
                   </div>
                 </div>
-
+                {availableTargets.length > 0 && availableTargets[0] && (
+                  <div>
+                    <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
+                      描写対象
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="text-gray-400 transition-colors hover:text-gray-600">
+                            <Info className="h-4 w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-80 p-4"
+                          side="top"
+                          align="start"
+                        >
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-medium">
+                              描写対象の説明
+                            </h4>
+                            <div className="space-y-1 text-xs">
+                              <div>
+                                <strong>例文:</strong>{" "}
+                                現在選択中の意味に該当する例文に関する画像が生成されます。
+                              </div>
+                              <div>
+                                <strong>コアミーニング:</strong>{" "}
+                                この単語のコアミーニングに関する抽象的な画像が生成されます。
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </label>
+                    {isLoading ? (
+                      <LoadingSpinner
+                        message="テンプレート読み込み中..."
+                        size="small"
+                      />
+                    ) : error ? (
+                      <ErrorMessage
+                        message={error}
+                        onRetry={onTemplatesRetry}
+                        retryText="テンプレート再読み込み"
+                      />
+                    ) : (
+                      <Select onValueChange={setDescriptionTarget}>
+                        <SelectTrigger className="bg-primary">
+                          <SelectValue placeholder="描写対象を選択" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableTargets.map((target) => (
+                            <SelectItem key={target} value={target}>
+                              {target}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                )}
                 <div>
-                  <label className="text-custom mb-2 block text-sm font-medium">
-                    描写対象 <span className="text-gray-400">ⓘ</span>
-                  </label>
-                  {isLoading ? (
-                    <LoadingSpinner
-                      message="テンプレート読み込み中..."
-                      size="small"
-                    />
-                  ) : error ? (
-                    <ErrorMessage
-                      message={error}
-                      onRetry={onTemplatesRetry}
-                      retryText="テンプレート再読み込み"
-                    />
-                  ) : (
-                    <Select onValueChange={setDescriptionTarget}>
-                      <SelectTrigger className="bg-primary">
-                        <SelectValue placeholder="描写対象を選択" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableTargets.map((target) => (
-                          <SelectItem key={target} value={target}>
-                            {target}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-custom mb-2 block text-sm font-medium">
-                    編集形式 <span className="text-gray-400">ⓘ</span>
+                  <label className="text-custom mb-2 flex items-center gap-2 text-sm font-medium">
+                    編集形式
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="text-gray-400 transition-colors hover:text-gray-600">
+                          <Info className="h-4 w-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-80 p-4"
+                        side="top"
+                        align="start"
+                      >
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">
+                            編集形式の説明
+                          </h4>
+                          <div className="space-y-1 text-xs">
+                            <div>
+                              <strong>プロンプト:</strong>{" "}
+                              テンプレート文全体を表示するので、自由にプロンプトを修正できます。
+                            </div>
+                            <div>
+                              <strong>質問:</strong>{" "}
+                              あらかじめ用意された質問に回答する形で理想の画像を指定できます。自分で指定を追加することも可能です。
+                            </div>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </label>
                   <Select onValueChange={setEditFormat}>
                     <SelectTrigger className="bg-primary">

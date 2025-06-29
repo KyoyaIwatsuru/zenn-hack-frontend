@@ -42,7 +42,7 @@ export type Meaning = {
 
 export type Media = {
   mediaId: string;
-  meaningId: string;
+  meaningId: string | null;
   mediaUrls: string[];
 };
 
@@ -89,7 +89,7 @@ export type UsingMeaningListUpdateRequest = {
 export type MediaCreateRequest = {
   flashcardId: string;
   oldMediaId: string;
-  meaningId: string;
+  meaningId: string | null;
   pos: pos;
   word: string;
   translation: string;
