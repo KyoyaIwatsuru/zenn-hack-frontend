@@ -8,12 +8,15 @@ import {
   UsingMeaningListUpdateRequest,
   MediaCreateRequest,
   ComparisonUpdateRequest,
+  FlashcardCreateRequest,
+  UsingFlashcardAddRequest,
   BaseApiResponse,
   FlashcardData,
   MediaCreateData,
   ComparisonData,
   MeaningData,
   TemplateData,
+  WordSearchResponse,
 } from "@/types";
 
 // APIレスポンス処理のヘルパー関数
@@ -49,6 +52,17 @@ export const apiService = {
   getFlashcards: async (userId: string): Promise<FlashcardData> => {
     const response = await backendClient.get<FlashcardData>(
       `/flashcard/${userId}`
+    );
+    return handleApiResponse(response);
+  },
+
+  // デフォルトフラッシュカード作成
+  createFlashcard: async (
+    data: FlashcardCreateRequest
+  ): Promise<BaseApiResponse> => {
+    const response = await backendClient.post<BaseApiResponse>(
+      "/flashcard/create",
+      data
     );
     return handleApiResponse(response);
   },
@@ -125,6 +139,25 @@ export const apiService = {
   // テンプレート取得
   getTemplates: async (): Promise<TemplateData> => {
     const response = await backendClient.get<TemplateData>("/template");
+    return handleApiResponse(response);
+  },
+
+  // 単語情報取得
+  getWordInfo: async (word: string): Promise<WordSearchResponse> => {
+    const response = await backendClient.get<WordSearchResponse>(
+      `/word/${word}`
+    );
+    return handleApiResponse(response);
+  },
+
+  // フラッシュカード追加
+  addUsingFlashcard: async (
+    data: UsingFlashcardAddRequest
+  ): Promise<BaseApiResponse> => {
+    const response = await backendClient.put<BaseApiResponse>(
+      "/user/add/usingFlashcard",
+      data
+    );
     return handleApiResponse(response);
   },
 };

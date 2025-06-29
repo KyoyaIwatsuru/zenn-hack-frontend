@@ -112,6 +112,10 @@ export type ComparisonUpdateRequest = {
   isSelectedNew: boolean;
 };
 
+export type FlashcardCreateRequest = {
+  word: string;
+};
+
 // Base API Response types
 export type BaseApiResponse = {
   message: string;
@@ -138,4 +142,17 @@ export type MeaningData = {
 
 export type TemplateData = {
   templates: Template[];
+};
+
+export type WordSearchResponse = {
+  message: string;
+  flashcardId: string;
+  word: Word;
+  meanings: Meaning[];
+  media: Media;
+};
+
+export type UsingFlashcardAddRequest = {
+  userId: string;
+  flashcardId: string;
 };
