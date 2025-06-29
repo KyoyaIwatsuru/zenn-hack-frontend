@@ -54,15 +54,30 @@ export function MediaDisplay({
       onClick={isClickable ? onClick : undefined}
     >
       {mediaUrls?.[0] ? (
-        <Image
-          src={mediaUrls[0]}
-          alt={`${word} - ${translation}`}
-          fill
-          className="rounded-lg object-cover"
-          onError={() => {
-            console.error("Failed to load image:", mediaUrls[0]);
-          }}
-        />
+        mediaUrls[0].endsWith(".mp4") ? (
+          <video
+            src={mediaUrls[0]}
+            title={`${word} - ${translation}`}
+            className="rounded-lg object-cover w-full h-full"
+            autoPlay
+            loop
+            muted
+            playsInline
+            onError={() => {
+              console.error("Failed to load video:", mediaUrls[0]);
+            }}
+          />
+        ) : (
+          <Image
+            src={mediaUrls[0]}
+            alt={`${word} - ${translation}`}
+            fill
+            className="rounded-lg object-cover"
+            onError={() => {
+              console.error("Failed to load image:", mediaUrls[0]);
+            }}
+          />
+        )
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-300">
           <div className="text-xs text-gray-500">画像</div>
