@@ -95,63 +95,29 @@ jobs:
           COMMIT_SHA="${{ steps.monitor.outputs.commit_sha }}"
           COMMIT_MESSAGE="${{ steps.monitor.outputs.commit_message }}"
           ERROR_LOGS="${{ steps.monitor.outputs.error_logs }}"
-
-          # エラーログを最初の1000文字に制限
-          ERROR_LOGS_TRUNCATED=$(echo "$ERROR_LOGS" | cut -c1-1000)
-
-          # Discordに送信するJSONペイロードを作成
-          DISCORD_PAYLOAD=$(cat <<EOF
-          {
-            "embeds": [
-              {
-                "title": "🚨 Vercel デプロイメントエラー",
-                "description": "デプロイメントでエラーが発生しました",
-                "color": 15158332,
-                "fields": [
-                  {
-                    "name": "📍 状態",
-                    "value": "$DEPLOYMENT_STATE",
-                    "inline": true
-                  },
-                  {
-                    "name": "🔗 デプロイメントID",
-                    "value": "[$DEPLOYMENT_ID](https://vercel.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/$DEPLOYMENT_ID)",
-                    "inline": true
-                  },
-                  {
-                    "name": "🌐 URL",
-                    "value": "https://$DEPLOYMENT_URL",
-                    "inline": false
-                  },
-                  {
-                    "name": "💬 コミットメッセージ",
-                    "value": "$COMMIT_MESSAGE",
-                    "inline": false
-                  },
-                  {
-                    "name": "🔍 コミットSHA",
-                    "value": "[$COMMIT_SHA](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA)",
-                    "inline": true
-                  },
-                  {
-                    "name": "📝 エラーログ",
-                    "value": "\`\`\`\n$ERROR_LOGS_TRUNCATED\n\`\`\`",
-                    "inline": false
-                  }
-                ],
-                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)",
-                "footer": {
-                  "text": "Vercel Deployment Monitor"
-                }
-              }
-            ]
-          }
-          EOF
-          )
-
-          # DiscordのWebhookに送信
+          
+          # 特殊文字をエスケープ
+          COMMIT_MESSAGE_ESCAPED=$(echo "$COMMIT_MESSAGE" | sed 's/"/\\"/g' | sed "s/'/\\'/g")
+          ERROR_LOGS_TRUNCATED=$(echo "$ERROR_LOGS" | cut -c1-1000 | sed 's/"/\\"/g')
+          
           curl -H "Content-Type: application/json" \
-            -d "$DISCORD_PAYLOAD" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"🚨 Vercel デプロイメントエラー\",
+                \"description\": \"デプロイメントでエラーが発生しました\",
+                \"color\": 15158332,
+                \"fields\": [
+                  {\"name\": \"📍 状態\", \"value\": \"$DEPLOYMENT_STATE\", \"inline\": true},
+                  {\"name\": \"🔗 デプロイメントID\", \"value\": \"[$DEPLOYMENT_ID](https://vercel.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/$DEPLOYMENT_ID)\", \"inline\": true},
+                  {\"name\": \"🌐 URL\", \"value\": \"https://$DEPLOYMENT_URL\", \"inline\": false},
+                  {\"name\": \"💬 コミットメッセージ\", \"value\": \"$COMMIT_MESSAGE_ESCAPED\", \"inline\": false},
+                  {\"name\": \"🔍 コミットSHA\", \"value\": \"[$COMMIT_SHA](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA)\", \"inline\": true},
+                  {\"name\": \"📝 エラーログ\", \"value\": \"\\`\\`\\`\\n$ERROR_LOGS_TRUNCATED\\n\\`\\`\\`\", \"inline\": false}
+                ],
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\",
+                \"footer\": {\"text\": \"Vercel Deployment Monitor\"}
+              }]
+            }" \
             "$DISCORD_WEBHOOK_URL"
 
       - name: Send Success Notification to Discord
@@ -161,53 +127,25 @@ jobs:
           DEPLOYMENT_URL="${{ steps.monitor.outputs.deployment_url }}"
           COMMIT_SHA="${{ steps.monitor.outputs.commit_sha }}"
           COMMIT_MESSAGE="${{ steps.monitor.outputs.commit_message }}"
-
-          # Discordに送信するJSON ペイロードを作成
-          DISCORD_PAYLOAD=$(cat <<EOF
-          {
-            "embeds": [
-              {
-                "title": "✅ Vercel デプロイメント成功",
-                "description": "デプロイメントが正常に完了しました",
-                "color": 5763719,
-                "fields": [
-                  {
-                    "name": "📍 状態",
-                    "value": "READY",
-                    "inline": true
-                  },
-                  {
-                    "name": "🔗 デプロイメントID",
-                    "value": "[$DEPLOYMENT_ID](https://vercel.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/$DEPLOYMENT_ID)",
-                    "inline": true
-                  },
-                  {
-                    "name": "🌐 URL",
-                    "value": "https://$DEPLOYMENT_URL",
-                    "inline": false
-                  },
-                  {
-                    "name": "💬 コミットメッセージ",
-                    "value": "$COMMIT_MESSAGE",
-                    "inline": false
-                  },
-                  {
-                    "name": "🔍 コミットSHA",
-                    "value": "[$COMMIT_SHA](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA)",
-                    "inline": true
-                  }
-                ],
-                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)",
-                "footer": {
-                  "text": "Vercel Deployment Monitor"
-                }
-              }
-            ]
-          }
-          EOF
-          )
-
-          # DiscordのWebhookに送信
+          
+          # 特殊文字をエスケープ
+          COMMIT_MESSAGE_ESCAPED=$(echo "$COMMIT_MESSAGE" | sed 's/"/\\"/g' | sed "s/'/\\'/g")
+          
           curl -H "Content-Type: application/json" \
-            -d "$DISCORD_PAYLOAD" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"✅ Vercel デプロイメント成功\",
+                \"description\": \"デプロイメントが正常に完了しました\",
+                \"color\": 5763719,
+                \"fields\": [
+                  {\"name\": \"📍 状態\", \"value\": \"READY\", \"inline\": true},
+                  {\"name\": \"🔗 デプロイメントID\", \"value\": \"[$DEPLOYMENT_ID](https://vercel.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/$DEPLOYMENT_ID)\", \"inline\": true},
+                  {\"name\": \"🌐 URL\", \"value\": \"https://$DEPLOYMENT_URL\", \"inline\": false},
+                  {\"name\": \"💬 コミットメッセージ\", \"value\": \"$COMMIT_MESSAGE_ESCAPED\", \"inline\": false},
+                  {\"name\": \"🔍 コミットSHA\", \"value\": \"[$COMMIT_SHA](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA)\", \"inline\": true}
+                ],
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\",
+                \"footer\": {\"text\": \"Vercel Deployment Monitor\"}
+              }]
+            }" \
             "$DISCORD_WEBHOOK_URL"
