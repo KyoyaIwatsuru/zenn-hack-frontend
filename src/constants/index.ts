@@ -8,3 +8,4 @@ export {
   AVAILABLE_QUESTION_TYPES,
   type QuestionType,
 } from "./promptMapping";
+export { MEDIA_API_CONFIG } from "./media";

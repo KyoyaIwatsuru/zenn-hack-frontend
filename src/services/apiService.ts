@@ -1,5 +1,6 @@
 import { backendClient, ApiResponse } from "@/lib/httpClient";
 import { ErrorHandler } from "@/lib/errorHandler";
+import { MEDIA_API_CONFIG } from "@/constants";
 import {
   User,
   CheckFlagUpdateRequest,
@@ -89,8 +90,8 @@ export const apiService = {
       "/media/create",
       data,
       {
-        timeout: 60000, // AI画像生成のため60秒
-        retries: 1, // リトライ回数を減らす
+        timeout: MEDIA_API_CONFIG.TIMEOUT, // AI画像生成のため120秒
+        retries: MEDIA_API_CONFIG.RETRIES, // リトライ回数を減らす
       }
     );
     return handleApiResponse(response);
