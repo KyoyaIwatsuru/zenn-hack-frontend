@@ -1,0 +1,184 @@
+name: Vercel Discord Notifications
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 5分ごとにチェック（必要に応じて調整）
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor-vercel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Vercel deployment status
+        id: vercel-check
+        run: |
+          echo "Checking Vercel deployment status..."
+          
+          # Vercel APIでデプロイメント状況を取得
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            "https://api.vercel.com/v6/deployments?limit=5")
+          
+          if [ $? -ne 0 ]; then
+            echo "Failed to fetch deployments from Vercel API"
+            exit 1
+          fi
+          
+          echo "API Response received successfully"
+          
+          # 最新デプロイメントの状態を取得
+          LATEST_STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].state // "unknown"')
+          LATEST_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // "unknown"')
+          LATEST_CREATED=$(echo "$RESPONSE" | jq -r '.deployments[0].createdAt // "unknown"')
+          DEPLOYMENT_ID=$(echo "$RESPONSE" | jq -r '.deployments[0].uid // "unknown"')
+          
+          echo "Latest deployment state: $LATEST_STATE"
+          echo "Latest deployment URL: $LATEST_URL"
+          echo "Latest deployment created: $LATEST_CREATED"
+          echo "Deployment ID: $DEPLOYMENT_ID"
+          
+          # 出力変数に設定
+          echo "LATEST_STATE=$LATEST_STATE" >> $GITHUB_OUTPUT
+          echo "LATEST_URL=$LATEST_URL" >> $GITHUB_OUTPUT
+          echo "LATEST_CREATED=$LATEST_CREATED" >> $GITHUB_OUTPUT
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+          
+          # エラー状態かどうかチェック
+          if [ "$LATEST_STATE" = "ERROR" ] || [ "$LATEST_STATE" = "CANCELED" ]; then
+            echo "HAS_ERROR=true" >> $GITHUB_OUTPUT
+            echo "Error detected in deployment!"
+          else
+            echo "HAS_ERROR=false" >> $GITHUB_OUTPUT
+            echo "Deployment status is OK"
+          fi
+
+      - name: Get deployment logs on error
+        if: steps.vercel-check.outputs.HAS_ERROR == 'true'
+        id: get-logs
+        run: |
+          echo "Getting deployment logs for failed deployment..."
+          
+          DEPLOYMENT_ID="${{ steps.vercel-check.outputs.DEPLOYMENT_ID }}"
+          
+          # デプロイメントのビルドログを取得
+          BUILD_LOGS=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            "https://api.vercel.com/v2/deployments/$DEPLOYMENT_ID/events" | \
+            jq -r '.events[]? | select(.type == "stdout" or .type == "stderr") | .payload.text' | \
+            tail -10 | head -c 800)
+          
+          if [ -z "$BUILD_LOGS" ]; then
+            BUILD_LOGS="ログの取得に失敗しました"
+          fi
+          
+          echo "BUILD_LOGS<<EOF" >> $GITHUB_OUTPUT
+          echo "$BUILD_LOGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification on error
+        if: steps.vercel-check.outputs.HAS_ERROR == 'true'
+        run: |
+          echo "Sending Discord notification for deployment failure..."
+          
+          # 現在時刻を取得
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # ビルドログを取得
+          LOGS="${{ steps.get-logs.outputs.BUILD_LOGS }}"
+          if [ -z "$LOGS" ]; then
+            LOGS="ログの取得に失敗しました"
+          fi
+          
+          # Webhook用のJSONペイロードを作成
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [
+              {
+                "title": "🚨 Vercel Deployment Failed",
+                "description": "最新のデプロイメントでエラーが発生しました",
+                "color": 15548997,
+                "fields": [
+                  {
+                    "name": "Status",
+                    "value": "${{ steps.vercel-check.outputs.LATEST_STATE }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "URL",
+                    "value": "https://${{ steps.vercel-check.outputs.LATEST_URL }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Created",
+                    "value": "${{ steps.vercel-check.outputs.LATEST_CREATED }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Repository",
+                    "value": "[${{ github.repository }}](${{ github.server_url }}/${{ github.repository }})",
+                    "inline": false
+                  },
+                  {
+                    "name": "Build Logs (last 10 lines)",
+                    "value": "\`\`\`\n$LOGS\n\`\`\`",
+                    "inline": false
+                  }
+                ],
+                "timestamp": "$TIMESTAMP"
+              }
+            ]
+          }
+          EOF
+          )
+          
+          # DiscordのWebhookにPOST
+          curl -X POST -H "Content-Type: application/json" \
+               -d "$PAYLOAD" \
+               "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          
+          echo "Discord notification sent!"
+
+      - name: Send success notification (push events only)
+        if: github.event_name == 'push' && steps.vercel-check.outputs.LATEST_STATE == 'READY'
+        run: |
+          echo "Sending Discord notification for successful deployment..."
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [
+              {
+                "title": "✅ Vercel Deployment Successful",
+                "description": "デプロイメントが正常に完了しました",
+                "color": 5763719,
+                "fields": [
+                  {
+                    "name": "Status",
+                    "value": "${{ steps.vercel-check.outputs.LATEST_STATE }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "URL",
+                    "value": "https://${{ steps.vercel-check.outputs.LATEST_URL }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Repository",
+                    "value": "[${{ github.repository }}](${{ github.server_url }}/${{ github.repository }})",
+                    "inline": false
+                  }
+                ],
+                "timestamp": "$TIMESTAMP"
+              }
+            ]
+          }
+          EOF
+          )
+          
+          curl -X POST -H "Content-Type: application/json" \
+               -d "$PAYLOAD" \
+               "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          
+          echo "Discord notification sent!"
