@@ -3,6 +3,7 @@ import Image from "next/image";
 
 interface ExplanationSectionProps {
   explanation: string;
+  coreMeaning?: string;
   showEditButton?: boolean;
   onEdit?: () => void;
   children?: ReactNode;
@@ -10,6 +11,7 @@ interface ExplanationSectionProps {
 
 export function ExplanationSection({
   explanation,
+  coreMeaning,
   showEditButton = false,
   onEdit,
   children,
@@ -17,8 +19,17 @@ export function ExplanationSection({
   if (showEditButton) {
     return (
       <div className="flex items-start gap-3">
-        <div className="text-custom bg-secondary flex-1 rounded p-3 text-sm">
-          <p>{explanation}</p>
+        <div className="text-custom bg-secondary flex-1 space-y-2 rounded p-3 text-sm">
+          <div>
+            <span className="font-medium">【解説】</span>
+            {explanation}
+          </div>
+          {coreMeaning && (
+            <div>
+              <span className="font-medium">【コアミーニング】</span>
+              {coreMeaning}
+            </div>
+          )}
         </div>
         <Image
           src={
@@ -38,8 +49,17 @@ export function ExplanationSection({
   }
 
   return (
-    <div className="text-custom bg-secondary rounded p-3 text-sm">
-      <p>{explanation}</p>
+    <div className="text-custom bg-secondary space-y-2 rounded p-3 text-sm">
+      <div>
+        <span className="font-medium">【解説】</span>
+        {explanation}
+      </div>
+      {coreMeaning && (
+        <div>
+          <span className="font-medium">【コアミーニング】</span>
+          {coreMeaning}
+        </div>
+      )}
     </div>
   );
 }
