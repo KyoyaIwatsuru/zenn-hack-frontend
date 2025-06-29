@@ -167,6 +167,7 @@
   - `200 OK`: デフォルトフラッシュカードの作成に成功
     - `コンテンツ`:
       - `message`: string
+      - `flashcardId`: string
   - `422 Validation Error`: 型が不正
     - `コンテンツ`:
       - `detail`: detail[]
@@ -220,7 +221,7 @@
   - `200 OK`: メディア比較の取得に成功
     - `コンテンツ`:
       - `message`: string
-      - comparisons: comparison[]
+      - `comparisons`: comparison[]
         - `comparisonId`: string
         - `flashcardId`: string
         - `newMediaId`: string

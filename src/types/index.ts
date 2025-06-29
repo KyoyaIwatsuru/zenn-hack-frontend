@@ -71,6 +71,11 @@ export type Template = {
 };
 
 // API Request/Response types
+export type UsingFlashcardAddRequest = {
+  userId: string;
+  flashcardId: string;
+};
+
 export type CheckFlagUpdateRequest = {
   flashcardId: string;
   checkFlag: boolean;
@@ -84,6 +89,10 @@ export type MemoUpdateRequest = {
 export type UsingMeaningListUpdateRequest = {
   flashcardId: string;
   usingMeaningIdList: string[];
+};
+
+export type FlashcardCreateRequest = {
+  word: string;
 };
 
 export type MediaCreateRequest = {
@@ -112,10 +121,6 @@ export type ComparisonUpdateRequest = {
   isSelectedNew: boolean;
 };
 
-export type FlashcardCreateRequest = {
-  word: string;
-};
-
 // Base API Response types
 export type BaseApiResponse = {
   message: string;
@@ -124,6 +129,11 @@ export type BaseApiResponse = {
 // Specific response data types
 export type FlashcardData = {
   flashcards: Flashcard[];
+};
+
+export type FlashcardCreateResponse = {
+  message: string;
+  flashcardId: string;
 };
 
 export type MediaCreateData = {
@@ -150,9 +160,4 @@ export type WordSearchResponse = {
   word: Word;
   meanings: Meaning[];
   media: Media;
-};
-
-export type UsingFlashcardAddRequest = {
-  userId: string;
-  flashcardId: string;
 };

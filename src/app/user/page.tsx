@@ -399,6 +399,7 @@ export default function UserPage() {
           error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
           mediaCreateResults={mediaCreateResults}
+          userId={userId || ""}
           onCheckFlagToggle={(flashcardId) => {
             const flashcard = flashcards.find(
               (c) => c.flashcardId === flashcardId

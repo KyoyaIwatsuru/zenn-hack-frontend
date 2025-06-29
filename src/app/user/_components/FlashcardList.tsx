@@ -3,6 +3,7 @@ import { Flashcard, Meaning } from "@/types";
 import { MediaCreateResult } from "@/types/ui";
 import { LoadingSpinner, ErrorMessage } from "@/components/shared";
 import { FlashcardItem } from "./FlashcardItem";
+import { AddFlashcardForm } from "./AddFlashcardForm";
 
 interface FlashcardListProps {
   flashcards: Flashcard[];
@@ -10,6 +11,7 @@ interface FlashcardListProps {
   error: string;
   selectedMeanings: Record<string, string>;
   mediaCreateResults: Record<string, MediaCreateResult>;
+  userId: string;
   onCheckFlagToggle: (flashcardId: string) => void;
   onMeaningSelect: (flashcardId: string, meaningId: string) => void;
   onMeaningAdded: (flashcardId: string, newMeanings: Meaning[]) => void;
@@ -25,6 +27,7 @@ export function FlashcardList({
   error,
   selectedMeanings,
   mediaCreateResults,
+  userId,
   onCheckFlagToggle,
   onMeaningSelect,
   onMeaningAdded,
@@ -54,6 +57,11 @@ export function FlashcardList({
 
   return (
     <div className="flex flex-col items-center space-y-4">
+      <AddFlashcardForm
+        userId={userId}
+        existingFlashcards={flashcards}
+        onSuccess={onRetry}
+      />
       {flashcards.map((flashcard) => (
         <FlashcardItem
           key={flashcard.flashcardId}

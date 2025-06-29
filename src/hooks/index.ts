@@ -5,3 +5,4 @@ export { useTemplates } from "./useTemplates";
 export { useMedia } from "./useMedia";
 export { useComparison } from "./useComparison";
 export { useFirebaseAuth } from "./useFirebaseAuth";
+export { useAddFlashcard } from "./useAddFlashcard";
