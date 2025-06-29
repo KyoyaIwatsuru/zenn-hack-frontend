@@ -323,6 +323,7 @@ export function FlashcardItem({
                 {getVisibility("explanation") ? (
                   <ExplanationSection
                     explanation={flashcard.word.explanation}
+                    coreMeaning={flashcard.word.coreMeaning}
                     showEditButton={false}
                   />
                 ) : (
@@ -333,6 +334,7 @@ export function FlashcardItem({
               showExplanation && (
                 <ExplanationSection
                   explanation={flashcard.word.explanation}
+                  coreMeaning={flashcard.word.coreMeaning}
                   showEditButton={false}
                 />
               )
