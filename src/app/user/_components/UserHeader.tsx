@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Paintbrush, FileCheck, BookOpen } from "lucide-react";
+import { CircleUserRound, Paintbrush, FileCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut } from "lucide-react";
@@ -32,8 +32,6 @@ export function UserHeader({
       <div className="grid grid-cols-3 items-center">
         {/* 左側：フラッシュカードとユーザー情報（左寄せ） */}
         <div className="flex items-center gap-2 justify-self-start">
-          {/* <FileText className="h-6 w-6" />
-          <span className="font-medium">Ai単 ~eitan~</span> */}
           <Image
             src="/title.svg"
             alt="Ai単 ~eitan~"
@@ -42,19 +40,24 @@ export function UserHeader({
             className="mb-1 ml-2"
           />
           {displayUserName && (
-            <div className="ml-4 flex items-center gap-2">
+            <div className="ml-4 flex items-center gap-1">
               <span className="text-sm opacity-90">
                 ようこそ、{displayUserName}さん
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onProfileClick}
-                className="h-auto p-1 text-white transition-all duration-200 hover:scale-110 hover:bg-white/10"
-                title="プロフィールを編集"
+              <SimpleTooltip
+                content="Edit Profile"
+                position="bottom"
+                backgroundColor="bg-main"
               >
-                <User className="h-4 w-4" />
-              </Button>
+                <Button
+                  variant="ghost"
+                  onClick={onProfileClick}
+                  className="mr-2 text-white hover:bg-white/10 hover:text-white"
+                  title="プロフィールを編集"
+                >
+                  <CircleUserRound />
+                </Button>
+              </SimpleTooltip>
             </div>
           )}
         </div>
