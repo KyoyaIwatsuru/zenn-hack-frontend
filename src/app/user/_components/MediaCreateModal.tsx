@@ -383,21 +383,27 @@ export function MediaCreateModal({
                       isSelected={selectedModel === "text-to-image"}
                       onClick={() => setSelectedModel("text-to-image")}
                     />
-                    <ModelSelectionButton
-                      modelType="image-to-image"
-                      isSelected={selectedModel === "image-to-image"}
-                      onClick={() => setSelectedModel("image-to-image")}
-                    />
+                    {flashcard.media.mediaUrls[0]?.endsWith(".mp4") ===
+                      false && (
+                      <ModelSelectionButton
+                        modelType="image-to-image"
+                        isSelected={selectedModel === "image-to-image"}
+                        onClick={() => setSelectedModel("image-to-image")}
+                      />
+                    )}
                     <ModelSelectionButton
                       modelType="text-to-video"
                       isSelected={selectedModel === "text-to-video"}
                       onClick={() => setSelectedModel("text-to-video")}
                     />
-                    <ModelSelectionButton
-                      modelType="image-to-video"
-                      isSelected={selectedModel === "image-to-video"}
-                      onClick={() => setSelectedModel("image-to-video")}
-                    />
+                    {flashcard.media.mediaUrls[0]?.endsWith(".mp4") ===
+                      false && (
+                      <ModelSelectionButton
+                        modelType="image-to-video"
+                        isSelected={selectedModel === "image-to-video"}
+                        onClick={() => setSelectedModel("image-to-video")}
+                      />
+                    )}
                   </div>
                 </div>
                 {availableTargets.length > 0 && availableTargets[0] && (
