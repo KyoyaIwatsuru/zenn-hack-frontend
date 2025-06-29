@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, X } from "lucide-react";
+import { Eye, EyeClosed, X } from "lucide-react";
 import { LoadingSpinner } from "@/components/shared";
 
 export interface VisibilitySettings {
@@ -19,6 +19,120 @@ interface VisibilityControlPanelProps {
   appliedCardsCount?: number;
   totalCardsCount?: number;
 }
+
+// 個別制御ボタンの定義
+const VISIBILITY_CONTROLS = [
+  { key: "word" as keyof VisibilitySettings, label: "英単語" },
+  { key: "image" as keyof VisibilitySettings, label: "画像" },
+  { key: "meanings" as keyof VisibilitySettings, label: "意味" },
+  { key: "examples" as keyof VisibilitySettings, label: "例文" },
+  { key: "explanation" as keyof VisibilitySettings, label: "説明" },
+] as const;
+
+// プリセットボタンの定義
+const PRESET_CONTROLS = [
+  { key: "wordOnly" as const, label: "単語だけ表示" },
+  { key: "showAll" as const, label: "すべて表示" },
+] as const;
+
+type PresetName = (typeof PRESET_CONTROLS)[number]["key"];
+
+// プリセットボタンコンポーネント
+interface PresetButtonProps {
+  preset: PresetName;
+  label: string;
+  onApply: (preset: PresetName) => void;
+  disabled: boolean;
+}
+
+const PresetButton: React.FC<PresetButtonProps> = ({
+  preset,
+  label,
+  onApply,
+  disabled,
+}) => (
+  <Button
+    variant="secondary"
+    size="sm"
+    onClick={() => onApply(preset)}
+    disabled={disabled}
+    className="w-full text-xs"
+  >
+    {label}
+  </Button>
+);
+
+// 適用・リセットボタンコンポーネント
+interface ActionButtonsProps {
+  onApply: () => void;
+  onReset: () => void;
+  isApplying: boolean;
+  hasChanges: boolean;
+}
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  onApply,
+  onReset,
+  isApplying,
+  hasChanges,
+}) => (
+  <div className="space-y-2 border-t pt-3">
+    <div className="flex gap-2">
+      <Button
+        variant="green"
+        size="sm"
+        onClick={onApply}
+        disabled={isApplying || !hasChanges}
+        className="flex-1 text-xs"
+      >
+        適用
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onReset}
+        disabled={isApplying || !hasChanges}
+        className="flex-1 text-xs"
+      >
+        リセット
+      </Button>
+    </div>
+  </div>
+);
+
+// 個別制御ボタンコンポーネント
+interface VisibilityControlButtonProps {
+  setting: keyof VisibilitySettings;
+  label: string;
+  isVisible: boolean;
+  onToggle: (setting: keyof VisibilitySettings) => void;
+  disabled: boolean;
+}
+
+const VisibilityControlButton: React.FC<VisibilityControlButtonProps> = ({
+  setting,
+  label,
+  isVisible,
+  onToggle,
+  disabled,
+}) => (
+  <div className="flex items-center gap-3">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => onToggle(setting)}
+      disabled={disabled}
+      className="h-8 w-8 p-0 hover:bg-black hover:text-white"
+    >
+      {isVisible ? (
+        <Eye className="h-3 w-3" />
+      ) : (
+        <EyeClosed className="h-3 w-3" />
+      )}
+    </Button>
+    <span className="text-xs text-gray-700">{label}</span>
+  </div>
+);
 
 export function VisibilityControlPanel({
   visibilitySettings,
@@ -99,142 +213,42 @@ export function VisibilityControlPanel({
       {/* 展開されたパネル - メインボタンの下部 */}
       {isExpanded && (
         <div className="absolute top-full left-0 z-50 mt-2">
-          <Card className="bg-white shadow-lg">
+          <Card className="bg-primary shadow-lg">
             <CardContent className="space-y-4 p-4">
               {/* 個別制御ボタン */}
               <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSetting("word")}
+                {VISIBILITY_CONTROLS.map(({ key, label }) => (
+                  <VisibilityControlButton
+                    key={key}
+                    setting={key}
+                    label={label}
+                    isVisible={pendingSettings[key]}
+                    onToggle={toggleSetting}
                     disabled={isApplying}
-                    className="h-8 w-8 p-0 hover:bg-black hover:text-white"
-                  >
-                    {pendingSettings.word ? (
-                      <Eye className="h-3 w-3" />
-                    ) : (
-                      <EyeOff className="h-3 w-3" />
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-700">英単語</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSetting("image")}
-                    disabled={isApplying}
-                    className="h-8 w-8 p-0 hover:bg-black hover:text-white"
-                  >
-                    {pendingSettings.image ? (
-                      <Eye className="h-3 w-3" />
-                    ) : (
-                      <EyeOff className="h-3 w-3" />
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-700">画像</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSetting("meanings")}
-                    disabled={isApplying}
-                    className="h-8 w-8 p-0 hover:bg-black hover:text-white"
-                  >
-                    {pendingSettings.meanings ? (
-                      <Eye className="h-3 w-3" />
-                    ) : (
-                      <EyeOff className="h-3 w-3" />
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-700">意味</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSetting("examples")}
-                    disabled={isApplying}
-                    className="h-8 w-8 p-0 hover:bg-black hover:text-white"
-                  >
-                    {pendingSettings.examples ? (
-                      <Eye className="h-3 w-3" />
-                    ) : (
-                      <EyeOff className="h-3 w-3" />
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-700">例文</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleSetting("explanation")}
-                    disabled={isApplying}
-                    className="h-8 w-8 p-0 hover:bg-black hover:text-white"
-                  >
-                    {pendingSettings.explanation ? (
-                      <Eye className="h-3 w-3" />
-                    ) : (
-                      <EyeOff className="h-3 w-3" />
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-700">説明</span>
-                </div>
+                  />
+                ))}
               </div>
 
               {/* プリセットボタン */}
               <div className="space-y-2 border-t pt-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => applyPreset("wordOnly")}
-                  disabled={isApplying}
-                  className="w-full text-xs"
-                >
-                  単語だけ表示
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => applyPreset("showAll")}
-                  disabled={isApplying}
-                  className="w-full text-xs"
-                >
-                  すべて表示
-                </Button>
+                {PRESET_CONTROLS.map(({ key, label }) => (
+                  <PresetButton
+                    key={key}
+                    preset={key}
+                    label={label}
+                    onApply={applyPreset}
+                    disabled={isApplying}
+                  />
+                ))}
               </div>
 
               {/* 適用・リセットボタン */}
-              <div className="space-y-2 border-t pt-3">
-                <div className="flex gap-2">
-                  <Button
-                    variant="green"
-                    size="sm"
-                    onClick={handleApply}
-                    disabled={isApplying || !hasChanges}
-                    className="flex-1 text-xs"
-                  >
-                    適用
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleReset}
-                    disabled={isApplying || !hasChanges}
-                    className="flex-1 text-xs"
-                  >
-                    リセット
-                  </Button>
-                </div>
-              </div>
+              <ActionButtons
+                onApply={handleApply}
+                onReset={handleReset}
+                isApplying={isApplying}
+                hasChanges={hasChanges}
+              />
 
               {/* 適用中の表示 */}
               {isApplying && (
