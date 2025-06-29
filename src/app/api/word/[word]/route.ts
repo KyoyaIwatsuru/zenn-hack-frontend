@@ -3,10 +3,10 @@ import { apiService } from "@/services/apiService";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { word: string } }
+  { params }: { params: Promise<{ word: string }> }
 ) {
   try {
-    const { word } = params;
+    const { word } = await params;
 
     if (!word) {
       return NextResponse.json(
