@@ -201,9 +201,9 @@ export function VisibilityControlPanel({
         {isApplying ? (
           <LoadingSpinner />
         ) : isExpanded ? (
-          <X className="h-4 w-4" />
+          <X className="size-4" />
         ) : (
-          <Eye className="h-4 w-4" />
+          <Eye className="size-5" />
         )}
         {isExpanded && (
           <span className="text-xs whitespace-nowrap">閉じる</span>

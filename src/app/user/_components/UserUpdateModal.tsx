@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { User, Check, AlertCircle, Loader2 } from "lucide-react";
+import { CircleUserRound, Check, AlertCircle, Loader2 } from "lucide-react";
 import { ModalLayout } from "@/components/layout";
 import { useUserProfile } from "@/hooks";
 
@@ -103,7 +103,7 @@ export function UserUpdateModal({
       ) : updateSuccess ? (
         <Check className="h-5 w-5 text-green-600" />
       ) : (
-        <User className="h-5 w-5" />
+        <CircleUserRound className="size-5" />
       )}
       {updateSuccess ? "プロフィールを更新しました" : "プロフィール編集"}
     </div>
