@@ -21,30 +21,33 @@ export function AddFlashcardForm({
   onSuccess,
 }: AddFlashcardFormProps) {
   const [word, setWord] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { isLoading, error, isSuccess, addFlashcard, resetState } =
     useAddFlashcard();
 
   // 成功時の処理
   useEffect(() => {
-    if (isSuccess && onSuccess) {
-      onSuccess();
+    if (isSuccess) {
+      if (onSuccess) {
+        onSuccess();
+      }
+      // 成功後にフォームをリセット
+      setWord("");
+      // 少し遅れてステートをリセット（成功メッセージを表示するため）
+      const timer = setTimeout(() => {
+        resetState();
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [isSuccess, onSuccess]);
+  }, [isSuccess, onSuccess, resetState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!word.trim()) {
+    if (!word.trim() || isLoading) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      await addFlashcard(word.trim(), userId, existingFlashcards);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await addFlashcard(word.trim(), userId, existingFlashcards);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +79,7 @@ export function AddFlashcardForm({
               placeholder="単語を入力..."
               value={word}
               onChange={handleInputChange}
-              disabled={isLoading || isSubmitting}
+              disabled={isLoading}
               className="w-[50%]"
             />
           </div>
@@ -85,10 +88,10 @@ export function AddFlashcardForm({
             <Button
               type="submit"
               variant="outline"
-              disabled={isLoading || isSubmitting || !word.trim()}
+              disabled={isLoading || !word.trim()}
               className="w-24"
             >
-              {isLoading || isSubmitting ? (
+              {isLoading ? (
                 <>
                   <LoadingSpinner size="small" message="" />
                   <span className="ml-2">追加中...</span>
@@ -101,7 +104,7 @@ export function AddFlashcardForm({
               type="button"
               variant="outline"
               onClick={handleReset}
-              disabled={isLoading || isSubmitting || !word.trim()}
+              disabled={isLoading || !word.trim()}
               className="w-24"
             >
               リセット

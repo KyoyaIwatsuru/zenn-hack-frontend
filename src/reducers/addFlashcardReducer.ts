@@ -31,14 +31,13 @@ export function addFlashcardReducer(
       return {
         ...state,
         error: action.payload,
-        isLoading: false,
+        isSuccess: false,
       };
 
     case "SET_SUCCESS":
       return {
         ...state,
         isSuccess: action.payload,
-        isLoading: false,
         error: null,
       };
 

@@ -26,6 +26,7 @@ export function useAddFlashcard() {
       userId: string,
       existingFlashcards: Flashcard[] = []
     ) => {
+      // 最初に検証を行う（ローディング前）
       if (!word.trim() || !userId) {
         dispatch({
           type: "SET_ERROR",
@@ -48,80 +49,86 @@ export function useAddFlashcard() {
         return;
       }
 
+      // 検証が通った場合のみローディング状態を設定
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      // Step 1: 単語が存在するかチェック
-      const wordResponse = await httpClient.get<WordSearchResponse>(
-        API_ENDPOINTS.WORD.GET(word.trim()),
-        {
-          timeout: WORD_API_CONFIG.TIMEOUT,
-          retries: WORD_API_CONFIG.RETRIES,
-        }
-      );
+      // 最小限の遅延でUI更新を確実にする
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      let flashcardId: string;
+      try {
+        // Step 1: 単語が存在するかチェック
+        const wordResponse = await httpClient.get<WordSearchResponse>(
+          API_ENDPOINTS.WORD.GET(word.trim()),
+          {
+            timeout: WORD_API_CONFIG.TIMEOUT,
+            retries: WORD_API_CONFIG.RETRIES,
+          }
+        );
 
-      if (wordResponse.success) {
-        // 単語が存在する場合：既存のflashcardIdを使用
-        flashcardId = wordResponse.data.flashcardId;
-      } else {
-        // エラータイプを確認して適切に処理
-        if (wordResponse.error.type === ErrorType.NOT_FOUND_ERROR) {
-          // 単語が見つからない場合（404）のみ：フラッシュカードを作成
-          const createResponse = await httpClient.post<FlashcardCreateResponse>(
-            API_ENDPOINTS.FLASHCARD.FLASHCARD_CREATE,
-            { word: word.trim() },
-            {
-              timeout: FLASHCARD_CREATE_API_CONFIG.TIMEOUT,
-              retries: FLASHCARD_CREATE_API_CONFIG.RETRIES,
+        let flashcardId: string;
+
+        if (wordResponse.success) {
+          // 単語が存在する場合：既存のflashcardIdを使用
+          flashcardId = wordResponse.data.flashcardId;
+        } else {
+          // エラータイプを確認して適切に処理
+          if (wordResponse.error.type === ErrorType.NOT_FOUND_ERROR) {
+            // 単語が見つからない場合（404）のみ：フラッシュカードを作成
+            const createResponse =
+              await httpClient.post<FlashcardCreateResponse>(
+                API_ENDPOINTS.FLASHCARD.FLASHCARD_CREATE,
+                { word: word.trim() },
+                {
+                  timeout: FLASHCARD_CREATE_API_CONFIG.TIMEOUT,
+                  retries: FLASHCARD_CREATE_API_CONFIG.RETRIES,
+                }
+              );
+
+            if (createResponse.success) {
+              flashcardId = createResponse.data.flashcardId;
+            } else {
+              const errorMessage = ErrorHandler.getUserFriendlyMessage(
+                createResponse.error
+              );
+              dispatch({ type: "SET_ERROR", payload: errorMessage });
+              ErrorHandler.logError(createResponse.error);
+              return;
             }
-          );
-
-          if (createResponse.success) {
-            flashcardId = createResponse.data.flashcardId;
           } else {
+            // その他のエラー（ネットワークエラー、認証エラーなど）：エラーを表示して終了
             const errorMessage = ErrorHandler.getUserFriendlyMessage(
-              createResponse.error
+              wordResponse.error
             );
             dispatch({ type: "SET_ERROR", payload: errorMessage });
-            ErrorHandler.logError(createResponse.error);
-            dispatch({ type: "SET_LOADING", payload: false });
+            ErrorHandler.logError(wordResponse.error);
             return;
           }
+        }
+
+        // Step 2: ユーザーにフラッシュカードを追加
+        const addResponse = await httpClient.put(
+          API_ENDPOINTS.USER_FLASHCARD.ADD,
+          { userId, flashcardId },
+          {
+            timeout: USER_FLASHCARD_API_CONFIG.TIMEOUT,
+            retries: USER_FLASHCARD_API_CONFIG.RETRIES,
+          }
+        );
+
+        if (addResponse.success) {
+          dispatch({ type: "SET_SUCCESS", payload: true });
         } else {
-          // その他のエラー（ネットワークエラー、認証エラーなど）：エラーを表示して終了
           const errorMessage = ErrorHandler.getUserFriendlyMessage(
-            wordResponse.error
+            addResponse.error
           );
           dispatch({ type: "SET_ERROR", payload: errorMessage });
-          ErrorHandler.logError(wordResponse.error);
-          dispatch({ type: "SET_LOADING", payload: false });
-          return;
+          ErrorHandler.logError(addResponse.error);
         }
+      } finally {
+        // MediaCreateModalと同じパターン：必ずローディング状態をリセット
+        dispatch({ type: "SET_LOADING", payload: false });
       }
-
-      // Step 2: ユーザーにフラッシュカードを追加
-      const addResponse = await httpClient.put(
-        API_ENDPOINTS.USER_FLASHCARD.ADD,
-        { userId, flashcardId },
-        {
-          timeout: USER_FLASHCARD_API_CONFIG.TIMEOUT,
-          retries: USER_FLASHCARD_API_CONFIG.RETRIES,
-        }
-      );
-
-      if (addResponse.success) {
-        dispatch({ type: "SET_SUCCESS", payload: true });
-      } else {
-        const errorMessage = ErrorHandler.getUserFriendlyMessage(
-          addResponse.error
-        );
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        ErrorHandler.logError(addResponse.error);
-      }
-
-      dispatch({ type: "SET_LOADING", payload: false });
     },
     []
   );
