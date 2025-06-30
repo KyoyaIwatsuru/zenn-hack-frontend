@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import { addFlashcardReducer, initialAddFlashcardState } from "@/reducers";
-import { httpClient, ErrorHandler } from "@/lib";
+import { httpClient, ErrorHandler, ErrorType } from "@/lib";
 import {
   API_ENDPOINTS,
   WORD_API_CONFIG,
@@ -66,24 +66,36 @@ export function useAddFlashcard() {
         // 単語が存在する場合：既存のflashcardIdを使用
         flashcardId = wordResponse.data.flashcardId;
       } else {
-        // 単語が存在しない場合：フラッシュカードを作成
-        const createResponse = await httpClient.post<FlashcardCreateResponse>(
-          API_ENDPOINTS.FLASHCARD.FLASHCARD_CREATE,
-          { word: word.trim() },
-          {
-            timeout: FLASHCARD_CREATE_API_CONFIG.TIMEOUT,
-            retries: FLASHCARD_CREATE_API_CONFIG.RETRIES,
-          }
-        );
+        // エラータイプを確認して適切に処理
+        if (wordResponse.error.type === ErrorType.NOT_FOUND_ERROR) {
+          // 単語が見つからない場合（404）のみ：フラッシュカードを作成
+          const createResponse = await httpClient.post<FlashcardCreateResponse>(
+            API_ENDPOINTS.FLASHCARD.FLASHCARD_CREATE,
+            { word: word.trim() },
+            {
+              timeout: FLASHCARD_CREATE_API_CONFIG.TIMEOUT,
+              retries: FLASHCARD_CREATE_API_CONFIG.RETRIES,
+            }
+          );
 
-        if (createResponse.success) {
-          flashcardId = createResponse.data.flashcardId;
+          if (createResponse.success) {
+            flashcardId = createResponse.data.flashcardId;
+          } else {
+            const errorMessage = ErrorHandler.getUserFriendlyMessage(
+              createResponse.error
+            );
+            dispatch({ type: "SET_ERROR", payload: errorMessage });
+            ErrorHandler.logError(createResponse.error);
+            dispatch({ type: "SET_LOADING", payload: false });
+            return;
+          }
         } else {
+          // その他のエラー（ネットワークエラー、認証エラーなど）：エラーを表示して終了
           const errorMessage = ErrorHandler.getUserFriendlyMessage(
-            createResponse.error
+            wordResponse.error
           );
           dispatch({ type: "SET_ERROR", payload: errorMessage });
-          ErrorHandler.logError(createResponse.error);
+          ErrorHandler.logError(wordResponse.error);
           dispatch({ type: "SET_LOADING", payload: false });
           return;
         }

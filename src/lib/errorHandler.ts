@@ -37,6 +37,21 @@ export class ErrorHandler {
   static fromHttpError(error: unknown, statusCode?: number): AppError {
     if (error instanceof Error) {
       // Google AIのコンテンツポリシー違反エラーを検出
+      // FastAPIからの404エラーパターンをチェック
+      if (
+        error.message.includes(
+          '{"error":"要求されたリソースが見つかりません。"}'
+        ) ||
+        error.message.includes("指定された単語が見つかりません")
+      ) {
+        return this.createError(
+          ErrorType.NOT_FOUND_ERROR,
+          "要求されたリソースが見つかりません。",
+          404,
+          error
+        );
+      }
+
       if (
         error.message.includes("violated Google's Responsible AI practices") ||
         error.message.includes("All images were filtered out") ||
