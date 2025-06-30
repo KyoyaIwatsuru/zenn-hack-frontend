@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { ArrowBigUpDash } from "lucide-react";
 import { Flashcard, Meaning, Comparison } from "@/types";
 import { MediaCreateResult } from "@/types/ui";
 import {
@@ -11,6 +12,8 @@ import {
   useComparison,
   useFirebaseAuth,
 } from "@/hooks";
+import { Button } from "@/components/ui/button";
+import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 import { DashboardLayout } from "@/components/layout";
 import { UserHeader } from "./_components/UserHeader";
 import { FlashcardList } from "./_components/FlashcardList";
@@ -86,6 +89,9 @@ export default function UserPage() {
 
   // タブ状態
   const [currentTab, setCurrentTab] = useState("all");
+
+  // スクロール状態（上に戻るボタン用）
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   // 暗記モード用の表示設定管理
   const [memorizationVisibilitySettings, setMemorizationVisibilitySettings] =
@@ -275,6 +281,18 @@ export default function UserPage() {
     loadPersistedComparisons,
   ]);
 
+  // スクロールイベントリスナー（上に戻るボタン表示制御）
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      setShowScrollToTop(scrollTop > 200);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // ログアウト処理
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
@@ -352,6 +370,14 @@ export default function UserPage() {
   // プロフィール更新後の処理
   const handleProfileUpdated = (newUserName: string) => {
     setDisplayUserName(newUserName);
+  };
+
+  // 上に戻る処理
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   // メディア生成成功時の処理
@@ -524,6 +550,26 @@ export default function UserPage() {
         userId={userId || ""}
         onProfileUpdated={handleProfileUpdated}
       />
+
+      {/* 上に戻るボタン */}
+      {showScrollToTop && (
+        <div className="fixed right-8 bottom-8 z-50">
+          <SimpleTooltip
+            content="Page Top"
+            position="bottom"
+            backgroundColor="bg-main"
+          >
+            <Button
+              onClick={scrollToTop}
+              variant="default"
+              size="icon"
+              className="bg-main hover:bg-main/90 text-white shadow-lg"
+            >
+              <ArrowBigUpDash className="size-6" />
+            </Button>
+          </SimpleTooltip>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

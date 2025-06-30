@@ -560,7 +560,7 @@ export function MediaCreateModal({
                 className="bg-main hover-green px-6 py-3 text-base text-white"
               >
                 <span className="flex items-center gap-2">
-                  <Bot className="h-8 w-8" />
+                  <Bot className="size-5" />
                   {isCreating
                     ? "作成中..."
                     : isLoading

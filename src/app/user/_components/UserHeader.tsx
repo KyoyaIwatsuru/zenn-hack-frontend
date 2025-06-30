@@ -55,7 +55,7 @@ export function UserHeader({
                   className="mr-2 text-white hover:bg-white/10 hover:text-white"
                   title="プロフィールを編集"
                 >
-                  <CircleUserRound />
+                  <CircleUserRound className="size-5" />
                 </Button>
               </SimpleTooltip>
             </div>
@@ -71,7 +71,7 @@ export function UserHeader({
                 className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
                 <div className="flex items-center gap-2">
-                  <Paintbrush className="h-4 w-4" />
+                  <Paintbrush className="size-5" />
                   <span>作成</span>
                 </div>
               </TabsTrigger>
@@ -80,7 +80,7 @@ export function UserHeader({
                 className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
                 <div className="relative flex items-center gap-2">
-                  <FileCheck className="h-4 w-4" />
+                  <FileCheck className="size-5" />
                   <span>比較</span>
                   {completedFlashcardCount > 0 && (
                     <div className="bg-red-vivid absolute -top-3 -right-6 flex h-5 w-5 items-center justify-center rounded-full text-xs text-white">
@@ -96,7 +96,7 @@ export function UserHeader({
                 className="data-[state=active]:text-main px-6 data-[state=active]:bg-white"
               >
                 <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" />
+                  <BookOpen className="size-5" />
                   <span>学習</span>
                 </div>
               </TabsTrigger>
@@ -123,7 +123,7 @@ export function UserHeader({
               onClick={onLogout}
               className="mr-2 text-white hover:bg-white/10 hover:text-white"
             >
-              <LogOut />
+              <LogOut className="size-6" />
             </Button>
           </SimpleTooltip>
         </div>
