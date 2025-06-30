@@ -46,10 +46,11 @@ export function GeneratedFlashcardList({
 
   // メディア生成済みフラッシュカードのみフィルタリング
   const generatedFlashcards = useMemo(() => {
-    // mediaCreateResultsに存在するflashcardIdのフラッシュカードのみ表示
-    return flashcards.filter(
-      (flashcard) => mediaCreateResults[flashcard.flashcardId] !== undefined
-    );
+    // mediaCreateResultsのstatusが"success"のflashcardIdのフラッシュカードのみ表示
+    return flashcards.filter((flashcard) => {
+      const result = mediaCreateResults[flashcard.flashcardId];
+      return result !== undefined && result.status === "success";
+    });
   }, [flashcards, mediaCreateResults]);
 
   // ローディング状態の管理
