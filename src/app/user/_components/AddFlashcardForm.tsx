@@ -63,31 +63,43 @@ export function AddFlashcardForm({
   };
 
   return (
-    <Card className="bg-primary w-full max-w-5xl shadow-sm">
-      <div className="space-y-4">
+    <Card className="bg-primary w-full max-w-5xl px-6 py-3 shadow-sm">
+      <div className="space-y-2">
         <div className="text-center">
-          <h3 className="text-lg font-semibold">フラッシュカード追加</h3>
+          <h3 className="text-custom text-lg font-semibold">
+            フラッシュカード追加
+          </h3>
           <p className="text-muted-foreground text-sm">
             追加したい単語を入力してください
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex justify-center">
-            <Input
-              type="text"
-              placeholder="単語を入力..."
-              value={word}
-              onChange={handleInputChange}
-              disabled={isLoading}
-              className="w-[50%]"
-            />
-          </div>
-
+        <form onSubmit={handleSubmit} className="space-y-1">
           <div className="flex justify-center gap-2">
+            <div className="relative w-[50%]">
+              <Input
+                type="text"
+                placeholder="単語を入力..."
+                value={word}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="pr-8"
+              />
+              {word.trim() && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  disabled={isLoading}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                  aria-label="リセット"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
             <Button
               type="submit"
-              variant="outline"
+              variant="green"
               disabled={isLoading || !word.trim()}
               className="w-24"
             >
@@ -99,15 +111,6 @@ export function AddFlashcardForm({
               ) : (
                 "追加"
               )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleReset}
-              disabled={isLoading || !word.trim()}
-              className="w-24"
-            >
-              リセット
             </Button>
           </div>
         </form>
