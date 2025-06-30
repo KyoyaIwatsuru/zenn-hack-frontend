@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Image from "next/image";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -8,16 +8,18 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="bg-primary flex min-h-screen min-w-[1024px] items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="bg-whole flex min-h-screen min-w-[1024px] items-center justify-center p-4">
+      <Card className="bg-primary w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
-            <FileText className="text-main h-8 w-8" />
-            <span className="text-custom text-2xl font-bold">
-              フラッシュカード
-            </span>
+            <Image
+              src="/title.svg"
+              alt="Ai単 ~eitan~"
+              width={250}
+              height={12}
+              className="animate-wiggle mb-1 ml-2"
+            />
           </div>
-          <CardTitle className="text-custom">アカウント</CardTitle>
         </CardHeader>
 
         <CardContent>{children}</CardContent>
