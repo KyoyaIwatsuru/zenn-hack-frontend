@@ -76,7 +76,7 @@ export function FlashcardItem({
   // スタイル制御のオプション
   borderColor,
   // メディア表示モード
-  mediaMode = "generate", // デフォルトは生成モード
+  mediaMode = "compare", // デフォルトは生成モード
   // 暗記モード用のオプション
   memorizationMode = false,
   globalVisibilitySettings,
