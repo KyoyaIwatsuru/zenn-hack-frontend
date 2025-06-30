@@ -19,10 +19,10 @@ export function MediaModal({ mediaUrl, word, onClose }: MediaModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
       onClick={handleOverlayClick}
     >
-      <div className="relative max-h-screen max-w-[1000px] p-4">
+      <div className="relative max-h-[70vh] max-w-[500px] p-4">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -37,7 +37,7 @@ export function MediaModal({ mediaUrl, word, onClose }: MediaModalProps) {
             <video
               src={mediaUrl}
               title={`${word}`}
-              className="max-h-[80vh] max-w-full rounded-lg"
+              className="max-h-[60vh] max-w-full rounded-lg"
               autoPlay
               loop
               muted
@@ -48,9 +48,9 @@ export function MediaModal({ mediaUrl, word, onClose }: MediaModalProps) {
             <Image
               src={mediaUrl}
               alt={`${word}`}
-              width={800}
-              height={600}
-              className="max-h-[80vh] max-w-full rounded-lg object-contain"
+              width={400}
+              height={300}
+              className="max-h-[60vh] max-w-full rounded-lg object-contain"
             />
           )}
         </div>

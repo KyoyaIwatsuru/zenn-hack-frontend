@@ -116,19 +116,17 @@ export function MediaDisplay({
       )}
 
       {/* ZoomIn badge for states other than success, pending, error */}
-      {(!status ||
-        (status !== "success" && status !== "pending" && status !== "error")) &&
-        mediaUrls?.[0] && (
-          <div
-            className="absolute top-2 right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-gray-700"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsModalOpen(true);
-            }}
-          >
-            <ZoomIn className="h-4 w-4 text-white" />
-          </div>
-        )}
+      {!status && mode === "generate" && mediaUrls?.[0] && (
+        <div
+          className="absolute top-2 right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-gray-700"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalOpen(true);
+          }}
+        >
+          <ZoomIn className="h-4 w-4 text-white" />
+        </div>
+      )}
     </div>
   );
 
@@ -168,16 +166,5 @@ export function MediaDisplay({
     }
   }
 
-  return (
-    <>
-      {content}
-      {isModalOpen && (
-        <MediaModal
-          mediaUrl={mediaUrls?.[0]}
-          word={word}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-    </>
-  );
+  return content;
 }
