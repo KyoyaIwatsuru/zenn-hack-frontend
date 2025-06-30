@@ -154,6 +154,61 @@ export default function UserPage() {
     [getComparisons, mergeComparisonData]
   );
 
+  // Memoized callback functions to prevent infinite loops
+  const handleRetry = useCallback(() => {
+    if (userId) {
+      loadFlashcards(userId);
+    }
+  }, [userId, loadFlashcards]);
+
+  const handleCheckFlagToggle = useCallback(
+    (flashcardId: string) => {
+      const flashcard = flashcards.find((c) => c.flashcardId === flashcardId);
+      if (flashcard) {
+        updateCheckFlag(flashcardId, !flashcard.checkFlag);
+      }
+    },
+    [flashcards, updateCheckFlag]
+  );
+
+  const handleTemplatesRetry = useCallback(() => {
+    loadTemplates();
+  }, [loadTemplates]);
+
+  const handleSettingsApplied = useCallback(() => {
+    setIsApplyingMemorizationSettings(false);
+  }, []);
+
+  const handleMeaningSelectInModal = useCallback(
+    (meaningId: string, flashcard: Flashcard | null) => {
+      if (flashcard) {
+        setSelectedMeanings((prev) => ({
+          ...prev,
+          [flashcard.flashcardId]: meaningId,
+        }));
+      }
+    },
+    []
+  );
+
+  // 比較完了処理
+  const handleComparisonComplete = useCallback(
+    (flashcardId: string) => {
+      // MediaCreateData を削除
+      setMediaCreateResults((prev) => {
+        const newResults = { ...prev };
+        delete newResults[flashcardId];
+        return newResults;
+      });
+
+      // フラッシュカード再読み込み
+      if (userId) {
+        loadFlashcards(userId);
+      }
+    },
+    [userId, loadFlashcards]
+  );
+
   // displayUserNameを初期化
   useEffect(() => {
     if (firebaseInitialized) {
@@ -299,19 +354,6 @@ export default function UserPage() {
     setDisplayUserName(newUserName);
   };
 
-  // 比較モーダル内での意味選択
-  const selectMeaningInModal = (
-    meaningId: string,
-    flashcard: Flashcard | null
-  ) => {
-    if (flashcard) {
-      setSelectedMeanings((prev) => ({
-        ...prev,
-        [flashcard.flashcardId]: meaningId,
-      }));
-    }
-  };
-
   // メディア生成成功時の処理
   const handleMediaCreateSuccess = (
     flashcardId: string,
@@ -321,21 +363,6 @@ export default function UserPage() {
       ...prev,
       [flashcardId]: result,
     }));
-  };
-
-  // 比較完了処理
-  const handleComparisonComplete = (flashcardId: string) => {
-    // MediaCreateData を削除
-    setMediaCreateResults((prev) => {
-      const newResults = { ...prev };
-      delete newResults[flashcardId];
-      return newResults;
-    });
-
-    // フラッシュカード再読み込み
-    if (userId) {
-      loadFlashcards(userId);
-    }
   };
 
   // 選択された意味を取得する関数
@@ -400,20 +427,13 @@ export default function UserPage() {
           selectedMeanings={selectedMeanings}
           mediaCreateResults={mediaCreateResults}
           userId={userId || ""}
-          onCheckFlagToggle={(flashcardId) => {
-            const flashcard = flashcards.find(
-              (c) => c.flashcardId === flashcardId
-            );
-            if (flashcard) {
-              updateCheckFlag(flashcardId, !flashcard.checkFlag);
-            }
-          }}
+          onCheckFlagToggle={handleCheckFlagToggle}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
           onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openMediaModal}
           onMemoEdit={startEditMemo}
-          onRetry={() => userId && loadFlashcards(userId)}
+          onRetry={handleRetry}
         />
       ) : currentTab === "generated" ? (
         <GeneratedFlashcardList
@@ -422,20 +442,13 @@ export default function UserPage() {
           error={flashcardsError || ""}
           selectedMeanings={selectedMeanings}
           mediaCreateResults={mediaCreateResults}
-          onCheckFlagToggle={(flashcardId) => {
-            const flashcard = flashcards.find(
-              (c) => c.flashcardId === flashcardId
-            );
-            if (flashcard) {
-              updateCheckFlag(flashcardId, !flashcard.checkFlag);
-            }
-          }}
+          onCheckFlagToggle={handleCheckFlagToggle}
           onMeaningSelect={selectMeaning}
           onMeaningAdded={handleMeaningAdded}
           onMeaningDeleted={handleMeaningDeleted}
           onMediaClick={openCompareModal}
           onMemoEdit={startEditMemo}
-          onRetry={() => userId && loadFlashcards(userId)}
+          onRetry={handleRetry}
         />
       ) : (
         <MemorizationFlashcardList
@@ -446,17 +459,10 @@ export default function UserPage() {
           globalVisibilitySettings={memorizationVisibilitySettings}
           isApplyingSettings={isApplyingMemorizationSettings}
           appliedCardsCount={appliedCardsCount}
-          onCheckFlagToggle={(flashcardId) => {
-            const flashcard = flashcards.find(
-              (c) => c.flashcardId === flashcardId
-            );
-            if (flashcard) {
-              updateCheckFlag(flashcardId, !flashcard.checkFlag);
-            }
-          }}
+          onCheckFlagToggle={handleCheckFlagToggle}
           onMemoEdit={startEditMemo}
-          onRetry={() => userId && loadFlashcards(userId)}
-          onSettingsApplied={() => setIsApplyingMemorizationSettings(false)}
+          onRetry={handleRetry}
+          onSettingsApplied={handleSettingsApplied}
           onAppliedCardsCountChange={setAppliedCardsCount}
         />
       )}
@@ -485,9 +491,9 @@ export default function UserPage() {
         templates={templates}
         isLoading={isTemplatesLoading}
         error={templatesError}
-        onTemplatesRetry={() => loadTemplates()}
+        onTemplatesRetry={handleTemplatesRetry}
         onMeaningSelect={(meaningId) =>
-          selectMeaningInModal(meaningId, currentMediaFlashcard)
+          handleMeaningSelectInModal(meaningId, currentMediaFlashcard)
         }
         onMediaCreateSuccess={handleMediaCreateSuccess}
       />
@@ -504,7 +510,7 @@ export default function UserPage() {
         }
         mediaCreateResults={mediaCreateResults}
         onMeaningSelect={(meaningId) =>
-          selectMeaningInModal(meaningId, currentCompareFlashcard)
+          handleMeaningSelectInModal(meaningId, currentCompareFlashcard)
         }
         onComparisonComplete={handleComparisonComplete}
       />

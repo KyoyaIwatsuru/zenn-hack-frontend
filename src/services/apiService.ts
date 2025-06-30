@@ -1,6 +1,11 @@
 import { backendClient, ApiResponse } from "@/lib/httpClient";
 import { ErrorHandler } from "@/lib/errorHandler";
-import { MEDIA_API_CONFIG } from "@/constants";
+import {
+  MEDIA_API_CONFIG,
+  WORD_API_CONFIG,
+  FLASHCARD_CREATE_API_CONFIG,
+  USER_FLASHCARD_API_CONFIG,
+} from "@/constants";
 import {
   User,
   CheckFlagUpdateRequest,
@@ -55,7 +60,11 @@ export const apiService = {
   ): Promise<BaseApiResponse> => {
     const response = await backendClient.put<BaseApiResponse>(
       "/user/add/usingFlashcard",
-      data
+      data,
+      {
+        timeout: USER_FLASHCARD_API_CONFIG.TIMEOUT,
+        retries: USER_FLASHCARD_API_CONFIG.RETRIES,
+      }
     );
     return handleApiResponse(response);
   },
@@ -74,7 +83,11 @@ export const apiService = {
   ): Promise<FlashcardCreateResponse> => {
     const response = await backendClient.post<FlashcardCreateResponse>(
       "/flashcard/create",
-      data
+      data,
+      {
+        timeout: FLASHCARD_CREATE_API_CONFIG.TIMEOUT,
+        retries: FLASHCARD_CREATE_API_CONFIG.RETRIES,
+      }
     );
     return handleApiResponse(response);
   },
@@ -157,7 +170,11 @@ export const apiService = {
   // 単語情報取得
   getWordInfo: async (word: string): Promise<WordSearchResponse> => {
     const response = await backendClient.get<WordSearchResponse>(
-      `/word/${word}`
+      `/word/${word}`,
+      {
+        timeout: WORD_API_CONFIG.TIMEOUT,
+        retries: WORD_API_CONFIG.RETRIES,
+      }
     );
     return handleApiResponse(response);
   },

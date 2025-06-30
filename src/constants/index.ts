@@ -8,4 +8,10 @@ export {
   AVAILABLE_QUESTION_TYPES,
   type QuestionType,
 } from "./promptMapping";
-export { MEDIA_API_CONFIG } from "./media";
+export {
+  MEDIA_API_CONFIG,
+  WORD_API_CONFIG,
+  FLASHCARD_CREATE_API_CONFIG,
+  USER_FLASHCARD_API_CONFIG,
+  DEFAULT_API_CONFIG,
+} from "./config";
